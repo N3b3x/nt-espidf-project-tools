@@ -1,0 +1,37 @@
+metadata:
+  project_name: "ESP32 Comprehensive Tests"
+  description: "Comprehensive testing suite for ESP32 peripherals and connectivity"
+  idf_versions: ["release/v5.5", "release/v5.4"]
+  build_types: [["Debug", "Release"], ["Debug", "Release"]]
+  target: "esp32c6"
+  default_build_type: "Release"
+
+apps:
+  wifi_test:
+    ci_enabled: true
+    description: "WiFi comprehensive testing with sectioned test groups"
+    source_file: "main/WifiComprehensiveTest.cpp"
+    idf_versions: ["release/v5.5", "release/v5.4"]
+    build_types: [["Debug", "Release"], ["Debug", "Release"]]
+    dependencies: []
+    
+  bluetooth_test:
+    ci_enabled: true
+    description: "Bluetooth comprehensive testing with sectioned test groups"
+    source_file: "main/BluetoothComprehensiveTest.cpp"
+    idf_versions: ["release/v5.5", "release/v5.4"]
+    build_types: [["Debug", "Release"], ["Debug", "Release"]]
+    dependencies: []
+    
+  i2c_test:
+    ci_enabled: true
+    description: "I2C comprehensive testing with sectioned test groups"
+    source_file: "main/I2cComprehensiveTest.cpp"
+    idf_versions: ["release/v5.5", "release/v5.4"]
+    build_types: [["Debug", "Release"], ["Debug", "Release"]]
+    dependencies: []
+
+ci_config:
+  exclude_combinations: []
+  parallel_jobs: 4
+  timeout_minutes: 30
