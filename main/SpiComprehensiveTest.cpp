@@ -27,7 +27,6 @@ struct SectionResult {
 SPIClass spi;
 bool spiInitialized = false;
 SectionResult* sectionResults = nullptr;
-int totalSections = 0;
 
 // Test sections
 enum TestSection {
@@ -61,18 +60,6 @@ void runAllSections();
 void runSpecificSection(int sectionIndex);
 void printSectionResults(const SectionResult& section);
 void printOverallResults();
-bool testSpiBegin();
-bool testSpiEnd();
-bool testSpiTransfer();
-bool testSpiTransfer16();
-bool testSpiTransfer32();
-bool testSpiTransferBuffer();
-bool testSpiClockSpeed();
-bool testSpiMode();
-bool testSpiBitOrder();
-bool testSpiErrorHandling();
-bool testSpiPerformance();
-bool testSpiStress();
 
 // Test functions
 bool testSpiBegin() {
@@ -83,96 +70,65 @@ bool testSpiBegin() {
     
     spi.begin();
     spiInitialized = true;
-    
-    // Verify SPI is initialized
     return spiInitialized;
 }
 
 bool testSpiEnd() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
     spi.end();
     spiInitialized = false;
-    
     return !spiInitialized;
 }
 
 bool testSpiTransfer() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test single byte transfer
     byte testData = 0x55;
     byte received = spi.transfer(testData);
-    
-    // For loopback testing, we expect to receive what we sent
-    // In real hardware, this might be different
-    return true; // Basic transfer functionality test
+    return true;
 }
 
 bool testSpiTransfer16() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test 16-bit transfer
     uint16_t testData = 0x1234;
     uint16_t received = spi.transfer16(testData);
-    
-    return true; // Basic 16-bit transfer functionality test
+    return true;
 }
 
 bool testSpiTransfer32() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test 32-bit transfer
     uint32_t testData = 0x12345678;
     uint32_t received = spi.transfer32(testData);
-    
-    return true; // Basic 32-bit transfer functionality test
+    return true;
 }
 
 bool testSpiTransferBuffer() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test buffer transfer
     byte testBuffer[] = {0x01, 0x02, 0x03, 0x04};
     byte receiveBuffer[4];
-    
     spi.transfer(testBuffer, receiveBuffer, 4);
-    
-    return true; // Basic buffer transfer functionality test
+    return true;
 }
 
 bool testSpiClockSpeed() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test different clock speeds
     spi.setClockDivider(SPI_CLOCK_DIV4);
     delay(1);
     spi.setClockDivider(SPI_CLOCK_DIV16);
     delay(1);
     spi.setClockDivider(SPI_CLOCK_DIV64);
     delay(1);
-    
     return true;
 }
 
 bool testSpiMode() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test different SPI modes
     spi.setDataMode(SPI_MODE0);
     delay(1);
     spi.setDataMode(SPI_MODE1);
@@ -181,54 +137,33 @@ bool testSpiMode() {
     delay(1);
     spi.setDataMode(SPI_MODE3);
     delay(1);
-    
-    // Reset to default mode
     spi.setDataMode(SPI_MODE0);
-    
     return true;
 }
 
 bool testSpiBitOrder() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test bit order
     spi.setBitOrder(MSBFIRST);
     delay(1);
     spi.setBitOrder(LSBFIRST);
     delay(1);
-    
-    // Reset to default
     spi.setBitOrder(MSBFIRST);
-    
     return true;
 }
 
 bool testSpiErrorHandling() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Test error handling scenarios
-    // Note: This is a basic test - real error handling depends on hardware
-    
-    // Test with invalid parameters (should not crash)
-    spi.setClockDivider(255); // Invalid divider
+    spi.setClockDivider(255);
     delay(1);
-    
-    // Reset to valid value
     spi.setClockDivider(SPI_CLOCK_DIV4);
-    
     return true;
 }
 
 bool testSpiPerformance() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Performance test - measure transfer speed
     const int iterations = 1000;
     unsigned long startTime = micros();
     
@@ -236,37 +171,25 @@ bool testSpiPerformance() {
         spi.transfer(0x55);
     }
     
-    unsigned long endTime = micros();
-    unsigned long duration = endTime - startTime;
-    
-    // Calculate transfer rate (bytes per second)
+    unsigned long duration = micros() - startTime;
     float transferRate = (float)(iterations * 1000000) / duration;
     
-    // Log performance metrics
     Serial.printf("SPI Performance: %d bytes in %lu us = %.2f bytes/sec\n", 
                   iterations, duration, transferRate);
-    
     return true;
 }
 
 bool testSpiStress() {
-    if (!spiInitialized) {
-        return false;
-    }
+    if (!spiInitialized) return false;
     
-    // Stress test - continuous transfers
     const int stressIterations = 10000;
     
     for (int i = 0; i < stressIterations; i++) {
         byte testData = i & 0xFF;
         byte received = spi.transfer(testData);
         
-        // Add small delay to prevent overwhelming the system
-        if (i % 1000 == 0) {
-            delay(1);
-        }
+        if (i % 1000 == 0) delay(1);
     }
-    
     return true;
 }
 
@@ -280,18 +203,13 @@ TestResult runTest(bool (*testFunc)(), const String& testName) {
     
     try {
         result.passed = testFunc();
-        if (result.passed) {
-            result.message = "PASSED";
-        } else {
-            result.message = "FAILED";
-        }
+        result.message = result.passed ? "PASSED" : "FAILED";
     } catch (...) {
         result.passed = false;
         result.message = "ERROR";
     }
     
     result.duration = micros() - startTime;
-    
     Serial.printf("  %s: %s (%lu us)\n", testName.c_str(), result.message.c_str(), result.duration);
     
     return result;
@@ -316,7 +234,6 @@ void runSection(TestSection section) {
         case SECTION_INITIALIZATION:
             sectionResults[section].totalTests = 2;
             sectionResults[section].results = new TestResult[2];
-            
             sectionResults[section].results[0] = runTest(testSpiBegin, "SPI Begin");
             sectionResults[section].results[1] = runTest(testSpiEnd, "SPI End");
             break;
@@ -324,9 +241,7 @@ void runSection(TestSection section) {
         case SECTION_BASIC_OPERATIONS:
             sectionResults[section].totalTests = 4;
             sectionResults[section].results = new TestResult[4];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiTransfer, "Single Byte Transfer");
             sectionResults[section].results[1] = runTest(testSpiTransfer16, "16-bit Transfer");
             sectionResults[section].results[2] = runTest(testSpiTransfer32, "32-bit Transfer");
@@ -336,9 +251,7 @@ void runSection(TestSection section) {
         case SECTION_TRANSFER_MODES:
             sectionResults[section].totalTests = 3;
             sectionResults[section].results = new TestResult[3];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiMode, "SPI Mode Testing");
             sectionResults[section].results[1] = runTest(testSpiBitOrder, "Bit Order Testing");
             sectionResults[section].results[2] = runTest(testSpiClockSpeed, "Clock Speed Testing");
@@ -347,36 +260,28 @@ void runSection(TestSection section) {
         case SECTION_CLOCK_SPEEDS:
             sectionResults[section].totalTests = 1;
             sectionResults[section].results = new TestResult[1];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiClockSpeed, "Clock Speed Variations");
             break;
             
         case SECTION_ERROR_HANDLING:
             sectionResults[section].totalTests = 1;
             sectionResults[section].results = new TestResult[1];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiErrorHandling, "Error Handling");
             break;
             
         case SECTION_PERFORMANCE:
             sectionResults[section].totalTests = 1;
             sectionResults[section].results = new TestResult[1];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiPerformance, "Performance Benchmark");
             break;
             
         case SECTION_STRESS_TESTING:
             sectionResults[section].totalTests = 1;
             sectionResults[section].results = new TestResult[1];
-            
-            testSpiBegin(); // Ensure SPI is initialized
-            
+            testSpiBegin();
             sectionResults[section].results[0] = runTest(testSpiStress, "Stress Testing");
             break;
     }
@@ -449,13 +354,11 @@ void printOverallResults() {
 }
 
 void initializeSpi() {
-    // Initialize SPI with default settings
     spi.begin();
     spi.setClockDivider(SPI_CLOCK_DIV4);
     spi.setDataMode(SPI_MODE0);
     spi.setBitOrder(MSBFIRST);
     spiInitialized = true;
-    
     Serial.println("SPI initialized with default settings");
 }
 
@@ -465,7 +368,6 @@ void cleanupSpi() {
         spiInitialized = false;
     }
     
-    // Clean up section results
     if (sectionResults != nullptr) {
         for (int i = 0; i < TOTAL_SECTIONS; i++) {
             if (sectionResults[i].results != nullptr) {
@@ -505,7 +407,6 @@ void setup() {
     Serial.println("  'quit' - Exit test suite");
     Serial.println();
     
-    // Initialize SPI
     initializeSpi();
 }
 
@@ -527,7 +428,6 @@ void loop() {
             cleanupSpi();
             exit(0);
         } else {
-            // Check if input is a number
             int sectionIndex = input.toInt();
             if (sectionIndex >= 0 && sectionIndex < TOTAL_SECTIONS) {
                 runSpecificSection(sectionIndex);
