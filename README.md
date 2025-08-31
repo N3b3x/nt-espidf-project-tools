@@ -35,31 +35,18 @@ This script collection solves **real ESP32 development pain points** by providin
 
 ### 🚨 **Problems These Scripts Solve**
 
-**For Developers:**
+**Development Pain Points:**
 - **❌ Manual ESP-IDF setup** → **✅ One-command environment setup**
 - **❌ Version compatibility guessing** → **✅ Smart validation prevents incompatible builds**
 - **❌ Repetitive build commands** → **✅ Intelligent defaults and caching**
 - **❌ Cross-platform inconsistencies** → **✅ Uniform behavior on Linux/macOS**
 - **❌ Build failure debugging** → **✅ Clear error messages with solutions**
 
-**For Teams:**
+**Team & CI/CD Issues:**
 - **❌ "Works on my machine" issues** → **✅ Consistent development environments**
 - **❌ Manual CI configuration** → **✅ Automated matrix generation and validation**
-- **❌ Build time waste** → **✅ Parallel execution and smart caching (25-35% faster)**
+- **❌ Build time waste** → **✅ Parallel execution and smart caching**
 - **❌ Configuration drift** → **✅ Centralized YAML-based configuration**
-
-**For CI/CD:**
-- **❌ Complex workflow setup** → **✅ Optimized pipeline with minimal dependencies**
-- **❌ Cache misses and rebuilds** → **✅ Intelligent job-specific caching**
-- **❌ Sequential job execution** → **✅ Parallel builds and analysis**
-
-### 🏆 **Real-World Benefits**
-
-- **🚀 25-35% faster CI builds** through parallel execution and smart caching
-- **🛡️ Zero invalid builds** with smart combination validation
-- **⚡ One-command setup** for new developers joining the project
-- **🔧 Consistent environments** across all team members and CI runners
-- **📊 Professional logging** with searchable build artifacts and error tracking
 
 ### 👥 **Who Should Use These Scripts**
 
@@ -70,7 +57,7 @@ This script collection solves **real ESP32 development pain points** by providin
 - **Open Source Maintainers** - Provide professional development experience for contributors
 
 **🚀 Use Cases:**
-- **New Project Setup** - Get a complete ESP32 development environment in minutes
+- **New Project Setup** - Get a complete ESP32 development environment quickly
 - **Team Onboarding** - New developers can start building immediately
 - **CI/CD Automation** - Automated builds with comprehensive validation
 - **Multi-Platform Development** - Consistent behavior across Linux and macOS
@@ -78,37 +65,27 @@ This script collection solves **real ESP32 development pain points** by providin
 
 ### 🛠️ **How to Use These Scripts**
 
-**For New Users:**
+**Quick Start:**
 ```bash
-# 1. Setup development environment (one-time)
+# Setup environment (one-time)
 ./setup_repo.sh
 
-# 2. Build your first app
+# Build and flash
 ./build_app.sh gpio_test Release
-
-# 3. Flash to device
 ./flash_app.sh gpio_test Release
 ```
 
-**For Daily Development:**
+**Daily Development:**
 ```bash
-# Quick build with smart defaults
-./build_app.sh gpio_test
-
-# Flash and monitor
-./flash_app.sh gpio_test
-
-# Check build status
-./build_app.sh list
+./build_app.sh gpio_test          # Smart defaults
+./flash_app.sh gpio_test          # Auto port detection
+./build_app.sh list               # Check available apps
 ```
 
-**For CI/CD Integration:**
+**CI/CD Integration:**
 ```bash
-# Generate build matrix
-python3 generate_matrix.py
-
-# Setup CI environment
-./setup_ci.sh
+python3 generate_matrix.py        # Generate build matrix
+./setup_ci.sh                     # Setup CI environment
 ```
 
 ### 🧠 **Core Problem-Solving Approach**
@@ -121,23 +98,22 @@ python3 generate_matrix.py
 **2. Smart Validation & Prevention**
 - Prevents invalid app + build type + ESP-IDF combinations
 - Fails fast with clear error messages and solutions
-- Eliminates hours of debugging incompatible configurations
+- Eliminates debugging incompatible configurations
 
 **3. Environment Consistency**
 - Same setup process works identically on all machines
 - CI environment mirrors local development exactly
-- New team members get identical environments in minutes
+- New team members get identical environments quickly
 
 **4. Intelligent Automation**
 - Automatically selects appropriate ESP-IDF versions
-- Smart caching reduces build times by 25-35%
-- Parallel execution maximizes CI efficiency
+- Smart caching and parallel execution for efficiency
 
 ### 📊 **Before vs. After: Real Impact**
 
 **❌ Traditional ESP32 Development:**
 ```bash
-# Manual setup (30+ minutes, error-prone)
+# Manual setup (error-prone, time-consuming)
 git clone https://github.com/espressif/esp-idf.git
 cd esp-idf
 ./install.sh esp32
@@ -147,13 +123,13 @@ cd ../my-project
 idf.py set-target esp32
 idf.py build
 # Build fails with cryptic error
-# Spend hours debugging ESP-IDF compatibility
+# Spend time debugging ESP-IDF compatibility
 # Repeat for each team member
 ```
 
 **✅ With These Scripts:**
 ```bash
-# Automated setup (5 minutes, guaranteed success)
+# Automated setup (quick, reliable)
 ./setup_repo.sh
 # Environment ready with correct ESP-IDF version
 
@@ -170,11 +146,11 @@ idf.py build
 # Automatic port detection and flashing
 ```
 
-**🎯 Results:**
-- **Setup Time**: 30+ minutes → 5 minutes
-- **Build Success Rate**: ~70% → 100% (with validation)
-- **Team Onboarding**: Days → Minutes
-- **CI Build Time**: 45 minutes → 30 minutes (25-35% faster)
+**🎯 Key Improvements:**
+- **Setup**: Manual, error-prone → Automated, reliable
+- **Build Success**: Trial-and-error → Validated configurations
+- **Team Onboarding**: Complex setup → Simple, consistent process
+- **CI/CD**: Manual configuration → Automated matrix generation
 
 ---
 
