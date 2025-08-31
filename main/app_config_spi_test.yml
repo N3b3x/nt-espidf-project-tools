@@ -1,0 +1,137 @@
+# SPI Comprehensive Test Configuration
+# This file shows how to integrate the SPI test with the existing app configuration system
+
+app_info:
+  name: "SPI Comprehensive Test"
+  version: "1.0.0"
+  description: "Comprehensive SPI peripheral testing and validation application"
+  author: "ESP32 Development Team"
+  source_file: "SpiComprehensiveTest.cpp"
+
+build_config:
+  board_type: "esp32"
+  idf_version: "v4.4"
+  build_type: "debug"
+  flash_size: "4MB"
+  partition_scheme: "default"
+
+test_configuration:
+  test_type: "comprehensive_test"
+  test_category: "peripheral_testing"
+  test_sections:
+    - name: "Initialization"
+      description: "SPI initialization and setup tests"
+      tests:
+        - "SPI Begin/End functionality"
+        - "Basic SPI setup and teardown"
+      expected_duration: "100ms"
+      
+    - name: "Basic Operations"
+      description: "Core SPI transfer operations"
+      tests:
+        - "Single byte transfer"
+        - "16-bit transfer"
+        - "32-bit transfer"
+        - "Buffer transfer"
+      expected_duration: "500ms"
+      
+    - name: "Transfer Modes"
+      description: "SPI mode and configuration testing"
+      tests:
+        - "SPI mode testing (MODE0-3)"
+        - "Bit order testing"
+        - "Clock speed testing"
+      expected_duration: "300ms"
+      
+    - name: "Clock Speeds"
+      description: "Performance testing at various clock speeds"
+      tests:
+        - "Clock divider variations"
+        - "Performance benchmarking"
+      expected_duration: "200ms"
+      
+    - name: "Error Handling"
+      description: "Robustness and error handling tests"
+      tests:
+        - "Invalid parameter handling"
+        - "Robustness testing"
+      expected_duration: "150ms"
+      
+    - name: "Performance"
+      description: "Transfer rate and timing measurements"
+      tests:
+        - "Transfer rate benchmarking"
+        - "Timing measurements"
+      expected_duration: "400ms"
+      
+    - name: "Stress Testing"
+      description: "Long-term stability and stress testing"
+      tests:
+        - "Continuous transfer testing"
+        - "Long-term stability"
+      expected_duration: "1000ms"
+
+hardware_requirements:
+  board: "ESP32"
+  peripherals:
+    - "SPI interface"
+    - "Serial communication (USB)"
+  optional_peripherals:
+    - "SPI-compatible device for loopback testing"
+    - "Logic analyzer for signal verification"
+
+test_execution:
+  interactive_mode: true
+  command_interface: true
+  available_commands:
+    - "all - Run all test sections"
+    - "0-6 - Run specific section"
+    - "help - Show available commands"
+    - "quit - Exit test suite"
+  
+  section_execution:
+    individual_sections: true
+    section_combinations: true
+    parallel_execution: false
+    
+  result_reporting:
+    detailed_results: true
+    timing_information: true
+    success_rate_calculation: true
+    performance_metrics: true
+
+integration:
+  ci_cd_compatible: true
+  automated_testing: true
+  result_parsing: true
+  performance_regression: true
+  
+  output_formats:
+    - "Serial console"
+    - "Structured data (for CI parsing)"
+    
+  ci_integration:
+    - "GitHub Actions"
+    - "GitLab CI"
+    - "Jenkins"
+    - "Local CI systems"
+
+customization:
+  configurable_parameters:
+    - "SPI clock speed"
+    - "SPI mode"
+    - "Bit order"
+    - "Test iterations"
+    - "Performance thresholds"
+    
+  extensibility:
+    - "Add new test functions"
+    - "Create new test sections"
+    - "Customize test parameters"
+    - "Integrate with external test frameworks"
+
+documentation:
+  readme_file: "README_SPI_TEST.md"
+  build_script: "../build_spi_test.sh"
+  examples: "examples/"
+  troubleshooting: "troubleshooting.md"
