@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <chrono>
 
 // GPIO Test Section Definitions
 enum class GpioTestSection {
@@ -21,6 +22,9 @@ struct TestResult {
     bool passed;
     std::string message;
     double execution_time_ms;
+    
+    TestResult(const std::string& name, bool pass, const std::string& msg, double time)
+        : test_name(name), passed(pass), message(msg), execution_time_ms(time) {}
 };
 
 // Test Section Structure
@@ -29,74 +33,89 @@ struct TestSection {
     std::string description;
     std::vector<std::function<TestResult()>> tests;
     bool enabled;
+    int timeout_seconds;
+    
+    TestSection(const std::string& n, const std::string& desc, bool en = true, int timeout = 30)
+        : name(n), description(desc), enabled(en), timeout_seconds(timeout) {}
+};
+
+// Test Configuration Structure
+struct TestConfig {
+    bool verbose_output;
+    bool stop_on_failure;
+    bool generate_report;
+    std::string report_filename;
+    int default_timeout_seconds;
+    
+    TestConfig()
+        : verbose_output(false), stop_on_failure(false), generate_report(true),
+          report_filename("gpio_test_report.txt"), default_timeout_seconds(30) {}
 };
 
 class GpioComprehensiveTest {
 private:
     std::map<GpioTestSection, TestSection> test_sections;
     std::vector<TestResult> all_results;
+    TestConfig config;
     
 public:
-    GpioComprehensiveTest() {
+    GpioComprehensiveTest() : config() {
+        initializeTestSections();
+    }
+    
+    GpioComprehensiveTest(const TestConfig& cfg) : config(cfg) {
         initializeTestSections();
     }
     
     void initializeTestSections() {
         // Basic GPIO Operations Section
-        test_sections[GpioTestSection::BASIC_GPIO_OPERATIONS] = {
+        test_sections[GpioTestSection::BASIC_GPIO_OPERATIONS] = TestSection(
             "Basic GPIO Operations",
             "Tests basic GPIO functionality including pin configuration, read/write operations",
-            {},
-            true
-        };
+            true, 25
+        );
         
         // GPIO Interrupts Section
-        test_sections[GpioTestSection::GPIO_INTERRUPTS] = {
+        test_sections[GpioTestSection::GPIO_INTERRUPTS] = TestSection(
             "GPIO Interrupts",
             "Tests GPIO interrupt functionality, edge detection, and interrupt handling",
-            {},
-            true
-        };
+            true, 35
+        );
         
         // GPIO PWM Functionality Section
-        test_sections[GpioTestSection::GPIO_PWM_FUNCTIONALITY] = {
+        test_sections[GpioTestSection::GPIO_PWM_FUNCTIONALITY] = TestSection(
             "GPIO PWM Functionality",
             "Tests PWM generation, frequency control, and duty cycle accuracy",
-            {},
-            true
-        };
+            true, 40
+        );
         
         // GPIO Analog Reads Section
-        test_sections[GpioTestSection::GPIO_ANALOG_READS] = {
+        test_sections[GpioTestSection::GPIO_ANALOG_READS] = TestSection(
             "GPIO Analog Reads",
             "Tests analog input functionality, ADC accuracy, and voltage measurement",
-            {},
-            true
-        };
+            true, 30
+        );
         
         // GPIO Stress Testing Section
-        test_sections[GpioTestSection::GPIO_STRESS_TESTING] = {
+        test_sections[GpioTestSection::GPIO_STRESS_TESTING] = TestSection(
             "GPIO Stress Testing",
             "Tests GPIO reliability under high-frequency operations and load conditions",
-            {},
-            true
-        };
+            true, 120
+        );
         
         // GPIO Edge Cases Section
-        test_sections[GpioTestSection::GPIO_EDGE_CASES] = {
+        test_sections[GpioTestSection::GPIO_EDGE_CASES] = TestSection(
             "GPIO Edge Cases",
             "Tests boundary conditions, error handling, and unusual configurations",
-            {},
-            true
-        };
+            true, 20
+        );
         
         // All Sections
-        test_sections[GpioTestSection::ALL_SECTIONS] = {
+        test_sections[GpioTestSection::ALL_SECTIONS] = TestSection(
             "All GPIO Tests",
             "Runs all GPIO test sections in sequence",
-            {},
-            true
-        };
+            true, 0
+        );
         
         // Populate test sections with actual test functions
         populateTestSections();
@@ -232,6 +251,42 @@ public:
         }
     }
     
+    void enableAllSections() {
+        for (auto& [section, test_section] : test_sections) {
+            if (section != GpioTestSection::ALL_SECTIONS) {
+                test_section.enabled = true;
+            }
+        }
+    }
+    
+    void disableAllSections() {
+        for (auto& [section, test_section] : test_sections) {
+            if (section != GpioTestSection::ALL_SECTIONS) {
+                test_section.enabled = false;
+            }
+        }
+    }
+    
+    bool isSectionEnabled(GpioTestSection section) const {
+        auto it = test_sections.find(section);
+        return it != test_sections.end() ? it->second.enabled : false;
+    }
+    
+    int getSectionTestCount(GpioTestSection section) const {
+        auto it = test_sections.find(section);
+        return it != test_sections.end() ? it->second.tests.size() : 0;
+    }
+    
+    std::vector<GpioTestSection> getEnabledSections() const {
+        std::vector<GpioTestSection> enabled;
+        for (const auto& [section, test_section] : test_sections) {
+            if (section != GpioTestSection::ALL_SECTIONS && test_section.enabled) {
+                enabled.push_back(section);
+            }
+        }
+        return enabled;
+    }
+    
     void listSections() {
         std::cout << "Available GPIO Test Sections:\n" << std::endl;
         
@@ -267,6 +322,99 @@ public:
         std::cout << "Failed: " << failed << std::endl;
         std::cout << "Overall Success Rate: " << (passed * 100.0 / total_tests) << "%" << std::endl;
         std::cout << "Total Execution Time: " << total_time << "ms" << std::endl;
+    }
+    
+    int getTotalTestCount() const {
+        return all_results.size();
+    }
+    
+    int getPassedTestCount() const {
+        int passed = 0;
+        for (const auto& result : all_results) {
+            if (result.passed) passed++;
+        }
+        return passed;
+    }
+    
+    int getFailedTestCount() const {
+        int failed = 0;
+        for (const auto& result : all_results) {
+            if (!result.passed) failed++;
+        }
+        return failed;
+    }
+    
+    double getTotalExecutionTime() const {
+        double total_time = 0.0;
+        for (const auto& result : all_results) {
+            total_time += result.execution_time_ms;
+        }
+        return total_time;
+    }
+    
+    double getAverageExecutionTime() const {
+        if (all_results.empty()) return 0.0;
+        return getTotalExecutionTime() / all_results.size();
+    }
+    
+    // Additional utility methods
+    void clearResults() {
+        all_results.clear();
+    }
+    
+    bool hasFailures() const {
+        for (const auto& result : all_results) {
+            if (!result.passed) return true;
+        }
+        return false;
+    }
+    
+    void exportResults(const std::string& filename) const {
+        // TODO: Implement export functionality
+        std::cout << "Exporting results to " << filename << " (not implemented)" << std::endl;
+    }
+    
+    void setSectionTimeout(GpioTestSection section, int timeout_seconds) {
+        if (test_sections.find(section) != test_sections.end()) {
+            test_sections[section].timeout_seconds = timeout_seconds;
+        }
+    }
+    
+    void setConfig(const TestConfig& cfg) {
+        config = cfg;
+    }
+    
+    void runSelectedSections(const std::vector<GpioTestSection>& sections) {
+        for (const auto& section : sections) {
+            runSection(section);
+        }
+    }
+    
+    void listEnabledSections() const {
+        std::cout << "Enabled GPIO Test Sections:\n" << std::endl;
+        
+        for (const auto& [section, test_section] : test_sections) {
+            if (section != GpioTestSection::ALL_SECTIONS && test_section.enabled) {
+                std::cout << "✓ " << test_section.name << std::endl;
+                std::cout << "    " << test_section.description << std::endl;
+                std::cout << "    Tests: " << test_section.tests.size() << std::endl;
+                std::cout << "    Timeout: " << test_section.timeout_seconds << "s" << std::endl;
+                std::cout << std::endl;
+            }
+        }
+    }
+    
+    // Placeholder implementations for missing methods
+    void printSectionSummary(const TestSection& section, const std::vector<TestResult>& results) {
+        // TODO: Implement detailed section summary
+        std::cout << "Section summary for " << section.name << " (not fully implemented)" << std::endl;
+    }
+    
+    void generateTestReport() {
+        // TODO: Implement test report generation
+        if (config.generate_report) {
+            std::cout << "Generating test report to " << config.report_filename << " (not implemented)" << std::endl;
+        }
     }
     
     // Individual Test Functions (Placeholder implementations)
@@ -401,6 +549,41 @@ public:
     }
 };
 
+// Utility functions for string conversion
+std::string gpioTestSectionToString(GpioTestSection section) {
+    switch (section) {
+        case GpioTestSection::BASIC_GPIO_OPERATIONS:
+            return "basic_gpio_operations";
+        case GpioTestSection::GPIO_INTERRUPTS:
+            return "gpio_interrupts";
+        case GpioTestSection::GPIO_PWM_FUNCTIONALITY:
+            return "gpio_pwm_functionality";
+        case GpioTestSection::GPIO_ANALOG_READS:
+            return "gpio_analog_reads";
+        case GpioTestSection::GPIO_STRESS_TESTING:
+            return "gpio_stress_testing";
+        case GpioTestSection::GPIO_EDGE_CASES:
+            return "gpio_edge_cases";
+        case GpioTestSection::ALL_SECTIONS:
+            return "all_sections";
+        default:
+            return "unknown_section";
+    }
+}
+
+GpioTestSection stringToGpioTestSection(const std::string& str) {
+    if (str == "basic_gpio_operations") return GpioTestSection::BASIC_GPIO_OPERATIONS;
+    if (str == "gpio_interrupts") return GpioTestSection::GPIO_INTERRUPTS;
+    if (str == "gpio_pwm_functionality") return GpioTestSection::GPIO_PWM_FUNCTIONALITY;
+    if (str == "gpio_analog_reads") return GpioTestSection::GPIO_ANALOG_READS;
+    if (str == "gpio_stress_testing") return GpioTestSection::GPIO_STRESS_TESTING;
+    if (str == "gpio_edge_cases") return GpioTestSection::GPIO_EDGE_CASES;
+    if (str == "all_sections") return GpioTestSection::ALL_SECTIONS;
+    
+    // Default fallback
+    return GpioTestSection::BASIC_GPIO_OPERATIONS;
+}
+
 // Main function demonstrating usage
 int main(int argc, char* argv[]) {
     GpioComprehensiveTest test;
@@ -418,6 +601,9 @@ int main(int argc, char* argv[]) {
         std::cout << "  " << argv[0] << " edge                    - Run GPIO edge case tests" << std::endl;
         std::cout << "  " << argv[0] << " enable <section>        - Enable a test section" << std::endl;
         std::cout << "  " << argv[0] << " disable <section>       - Disable a test section" << std::endl;
+        std::cout << "  " << argv[0] << " enabled                 - List enabled sections" << std::endl;
+        std::cout << "  " << argv[0] << " stats                   - Show test statistics" << std::endl;
+        std::cout << "  " << argv[0] << " clear                   - Clear test results" << std::endl;
         return 0;
     }
     
@@ -449,13 +635,30 @@ int main(int argc, char* argv[]) {
     }
     else if (command == "enable" && argc > 2) {
         std::string section = argv[2];
-        // TODO: Implement section enabling logic
-        std::cout << "Enabling section: " << section << std::endl;
+        GpioTestSection section_enum = stringToGpioTestSection(section);
+        test.enableSection(section_enum, true);
+        std::cout << "Enabled section: " << section << std::endl;
     }
     else if (command == "disable" && argc > 2) {
         std::string section = argv[2];
-        // TODO: Implement section disabling logic
-        std::cout << "Disabling section: " << section << std::endl;
+        GpioTestSection section_enum = stringToGpioTestSection(section);
+        test.enableSection(section_enum, false);
+        std::cout << "Disabled section: " << section << std::endl;
+    }
+    else if (command == "enabled") {
+        test.listEnabledSections();
+    }
+    else if (command == "stats") {
+        std::cout << "Test Statistics:" << std::endl;
+        std::cout << "  Total Tests: " << test.getTotalTestCount() << std::endl;
+        std::cout << "  Passed: " << test.getPassedTestCount() << std::endl;
+        std::cout << "  Failed: " << test.getFailedTestCount() << std::endl;
+        std::cout << "  Total Time: " << test.getTotalExecutionTime() << "ms" << std::endl;
+        std::cout << "  Average Time: " << test.getAverageExecutionTime() << "ms" << std::endl;
+    }
+    else if (command == "clear") {
+        test.clearResults();
+        std::cout << "Test results cleared." << std::endl;
     }
     else {
         std::cout << "Unknown command: " << command << std::endl;

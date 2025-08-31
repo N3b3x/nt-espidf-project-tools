@@ -87,10 +87,24 @@ public:
     void printOverallSummary() const;
     const std::vector<TestResult>& getResults() const { return all_results; }
     
+    // Test Statistics
+    int getTotalTestCount() const;
+    int getPassedTestCount() const;
+    int getFailedTestCount() const;
+    double getTotalExecutionTime() const;
+    double getAverageExecutionTime() const;
+    
     // Utility Methods
     void clearResults();
     void exportResults(const std::string& filename) const;
     bool hasFailures() const;
+    
+    // Section Management
+    void enableAllSections();
+    void disableAllSections();
+    bool isSectionEnabled(GpioTestSection section) const;
+    int getSectionTestCount(GpioTestSection section) const;
+    std::vector<GpioTestSection> getEnabledSections() const;
     
     // Individual Test Functions (to be implemented in derived classes or separate files)
     static TestResult testGpioPinConfiguration();
