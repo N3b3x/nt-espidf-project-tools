@@ -1,0 +1,129 @@
+# ESP32 Application Configuration
+# Configuration for PIO Comprehensive Test Suite
+
+metadata:
+  idf_versions: ["release/v5.5", "release/v5.4"]
+  build_types: [["Debug", "Release"], ["Debug", "Release"]]
+  target: "esp32c6"
+  build_directory_pattern: "build-app-{app_type}-type-{build_type}-target-{target}-idf-{idf_version}"
+
+apps:
+  pio_test:
+    ci_enabled: true
+    description: "PIO peripheral comprehensive testing with sectioned test support"
+    source_file: "main/PioComprehensiveTest.cpp"
+    idf_versions: ["release/v5.5"]
+    build_types: [["Debug", "Release"]]
+    category: "peripheral"
+    tags: ["pio", "gpio", "dma", "comprehensive", "sectioned"]
+    dependencies: ["driver", "esp_hw_support", "freertos"]
+    featured: true
+    test_sections:
+      - name: "basic_config"
+        description: "Basic PIO Configuration Tests"
+        config_flag: "CONFIG_PIO_TEST_BASIC_CONFIG"
+        default: true
+      - name: "state_machine"
+        description: "State Machine Program Loading Tests"
+        config_flag: "CONFIG_PIO_TEST_STATE_MACHINE"
+        default: true
+      - name: "fifo_operations"
+        description: "FIFO Operations Tests"
+        config_flag: "CONFIG_PIO_TEST_FIFO_OPERATIONS"
+        default: true
+      - name: "gpio_interaction"
+        description: "GPIO Interaction Tests"
+        config_flag: "CONFIG_PIO_TEST_GPIO_INTERACTION"
+        default: true
+      - name: "interrupts"
+        description: "Interrupt Handling Tests"
+        config_flag: "CONFIG_PIO_TEST_INTERRUPTS"
+        default: true
+      - name: "dma_integration"
+        description: "DMA Integration Tests"
+        config_flag: "CONFIG_PIO_TEST_DMA_INTEGRATION"
+        default: true
+      - name: "performance"
+        description: "Performance and Timing Tests"
+        config_flag: "CONFIG_PIO_TEST_PERFORMANCE"
+        default: true
+      - name: "error_handling"
+        description: "Error Handling and Recovery Tests"
+        config_flag: "CONFIG_PIO_TEST_ERROR_HANDLING"
+        default: true
+    test_groups:
+      - name: "basic"
+        description: "Basic Test Group"
+        sections: ["basic_config", "state_machine"]
+        config_flag: "CONFIG_PIO_TEST_GROUP_BASIC"
+      - name: "communication"
+        description: "Communication Test Group"
+        sections: ["fifo_operations", "gpio_interaction"]
+        config_flag: "CONFIG_PIO_TEST_GROUP_COMMUNICATION"
+      - name: "advanced"
+        description: "Advanced Test Group"
+        sections: ["interrupts", "dma_integration"]
+        config_flag: "CONFIG_PIO_TEST_GROUP_ADVANCED"
+      - name: "diagnostics"
+        description: "Diagnostics Test Group"
+        sections: ["performance", "error_handling"]
+        config_flag: "CONFIG_PIO_TEST_GROUP_DIAGNOSTICS"
+
+  # For comparison - I2C comprehensive test configuration
+  i2c_test:
+    ci_enabled: true
+    description: "I2C peripheral comprehensive testing with sectioned test support"
+    source_file: "main/I2cComprehensiveTest.cpp"
+    idf_versions: ["release/v5.5"]
+    build_types: [["Debug", "Release"]]
+    category: "peripheral"
+    tags: ["i2c", "communication", "comprehensive", "sectioned"]
+    dependencies: ["driver", "esp_hw_support", "freertos"]
+    featured: true
+    test_sections:
+      - name: "basic_config"
+        description: "Basic I2C Configuration Tests"
+        config_flag: "CONFIG_I2C_TEST_BASIC_CONFIG"
+        default: true
+      - name: "master_slave"
+        description: "Master/Slave Mode Tests"
+        config_flag: "CONFIG_I2C_TEST_MASTER_SLAVE"
+        default: true
+      - name: "data_transfer"
+        description: "Data Transfer Tests"
+        config_flag: "CONFIG_I2C_TEST_DATA_TRANSFER"
+        default: true
+      - name: "error_handling"
+        description: "Error Handling Tests"
+        config_flag: "CONFIG_I2C_TEST_ERROR_HANDLING"
+        default: true
+
+# CI configuration for sectioned testing
+ci_config:
+  test_matrices:
+    # Quick smoke test - basic functionality only
+    smoke_test:
+      pio_test:
+        sections: ["basic_config", "state_machine"]
+        build_types: ["Release"]
+        idf_versions: ["release/v5.5"]
+    
+    # Communication focused testing
+    communication_test:
+      pio_test:
+        sections: ["fifo_operations", "gpio_interaction"]
+        build_types: ["Debug", "Release"]
+        idf_versions: ["release/v5.5"]
+    
+    # Full regression testing
+    full_test:
+      pio_test:
+        sections: ["all"]
+        build_types: ["Debug", "Release"]
+        idf_versions: ["release/v5.5", "release/v5.4"]
+  
+  exclude_combinations:
+    - app_name: "pio_test"
+      build_type: "Debug"
+      idf_version: "release/v5.4"
+      sections: ["dma_integration"]  # DMA tests may not work on older IDF

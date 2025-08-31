@@ -1,0 +1,164 @@
+menu "PIO Comprehensive Test Configuration"
+
+    config PIO_TEST_BASIC_CONFIG
+        bool "Enable Basic PIO Configuration Tests"
+        default y
+        help
+            Enable tests for basic PIO initialization, state machine allocation,
+            and GPIO pin configuration. These are fundamental tests that verify
+            the PIO subsystem is working correctly.
+
+    config PIO_TEST_STATE_MACHINE
+        bool "Enable State Machine Program Loading Tests"
+        default y
+        help
+            Enable tests for loading PIO programs, initializing state machines,
+            and executing simple programs. These tests verify that the PIO
+            assembly programs can be loaded and run correctly.
+
+    config PIO_TEST_FIFO_OPERATIONS
+        bool "Enable FIFO Operations Tests"
+        default y
+        help
+            Enable tests for TX/RX FIFO operations, including testing FIFO
+            levels, full/empty conditions, and data transfer functionality.
+            These tests verify the communication pathways between CPU and PIO.
+
+    config PIO_TEST_GPIO_INTERACTION
+        bool "Enable GPIO Interaction Tests"
+        default y
+        help
+            Enable tests for GPIO control through PIO, including output control,
+            input reading, and dynamic direction changes. These tests verify
+            that PIO can properly interface with GPIO pins.
+
+    config PIO_TEST_INTERRUPTS
+        bool "Enable Interrupt Handling Tests"
+        default y
+        help
+            Enable tests for PIO interrupt setup, triggering, and cleanup.
+            These tests verify that PIO interrupts can be properly configured
+            and handled by the application.
+
+    config PIO_TEST_DMA_INTEGRATION
+        bool "Enable DMA Integration Tests"
+        default y
+        help
+            Enable tests for DMA integration with PIO, including DMA setup,
+            channel configuration, and data transfer operations. These tests
+            verify that PIO can work efficiently with DMA for high-speed
+            data transfer.
+
+    config PIO_TEST_PERFORMANCE
+        bool "Enable Performance and Timing Tests"
+        default y
+        help
+            Enable performance benchmarks and timing accuracy tests. These
+            tests measure PIO performance characteristics, clock divider
+            settings, and operation throughput.
+
+    config PIO_TEST_ERROR_HANDLING
+        bool "Enable Error Handling and Recovery Tests"
+        default y
+        help
+            Enable tests for error conditions, resource exhaustion scenarios,
+            and recovery procedures. These tests verify that the PIO subsystem
+            can handle error conditions gracefully.
+
+    menu "Advanced PIO Test Configuration"
+
+        config PIO_TEST_PIN_BASE
+            int "Base GPIO pin for PIO testing"
+            default 2
+            range 0 29
+            help
+                Starting GPIO pin number for PIO testing. The test will use
+                8 consecutive pins starting from this base pin.
+
+        config PIO_TEST_TIMEOUT_MS
+            int "Test timeout in milliseconds"
+            default 5000
+            range 1000 30000
+            help
+                Maximum time to wait for test operations to complete before
+                considering them failed.
+
+        config PIO_TEST_DMA_CHANNEL
+            int "DMA channel for testing"
+            default 0
+            range 0 11
+            help
+                DMA channel number to use for DMA integration tests.
+
+        config PIO_TEST_VERBOSE_LOGGING
+            bool "Enable verbose test logging"
+            default n
+            help
+                Enable detailed logging during test execution, including
+                intermediate results and debug information.
+
+        config PIO_TEST_PERFORMANCE_ITERATIONS
+            int "Number of iterations for performance tests"
+            default 10000
+            range 1000 100000
+            help
+                Number of iterations to run for performance benchmark tests.
+                Higher values provide more accurate measurements but take longer.
+
+    endmenu
+
+    menu "Test Section Grouping"
+
+        config PIO_TEST_GROUP_BASIC
+            bool "Enable Basic Test Group"
+            default y
+            select PIO_TEST_BASIC_CONFIG
+            select PIO_TEST_STATE_MACHINE
+            help
+                Enable all basic PIO functionality tests. This includes
+                initialization, state machine allocation, and program loading.
+
+        config PIO_TEST_GROUP_COMMUNICATION
+            bool "Enable Communication Test Group"
+            default y
+            select PIO_TEST_FIFO_OPERATIONS
+            select PIO_TEST_GPIO_INTERACTION
+            help
+                Enable all communication-related tests. This includes FIFO
+                operations and GPIO interaction functionality.
+
+        config PIO_TEST_GROUP_ADVANCED
+            bool "Enable Advanced Test Group"
+            default y
+            select PIO_TEST_INTERRUPTS
+            select PIO_TEST_DMA_INTEGRATION
+            help
+                Enable all advanced PIO functionality tests. This includes
+                interrupt handling and DMA integration.
+
+        config PIO_TEST_GROUP_DIAGNOSTICS
+            bool "Enable Diagnostics Test Group"
+            default y
+            select PIO_TEST_PERFORMANCE
+            select PIO_TEST_ERROR_HANDLING
+            help
+                Enable all diagnostic and validation tests. This includes
+                performance benchmarks and error handling verification.
+
+    endmenu
+
+    config PIO_TEST_QUICK_MODE
+        bool "Quick test mode (reduced test coverage)"
+        default n
+        help
+            Enable quick test mode which runs a reduced set of tests for
+            faster validation. Useful during development for rapid iteration.
+
+    config PIO_TEST_STRESS_MODE
+        bool "Stress test mode (extended test coverage)"
+        default n
+        help
+            Enable stress test mode which runs additional intensive tests
+            to verify system stability under load conditions.
+
+endmenu
