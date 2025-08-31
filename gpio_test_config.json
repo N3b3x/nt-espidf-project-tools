@@ -1,0 +1,118 @@
+{
+  "test_configuration": {
+    "verbose_output": false,
+    "stop_on_failure": false,
+    "generate_report": true,
+    "report_filename": "gpio_test_report.txt",
+    "default_timeout_seconds": 30
+  },
+  "test_sections": {
+    "basic_gpio_operations": {
+      "enabled": true,
+      "timeout_seconds": 25,
+      "description": "Basic GPIO functionality including pin configuration, read/write operations",
+      "tests": [
+        "gpio_pin_configuration",
+        "gpio_digital_write",
+        "gpio_digital_read",
+        "gpio_pin_mode",
+        "gpio_pull_up_pull_down"
+      ]
+    },
+    "gpio_interrupts": {
+      "enabled": true,
+      "timeout_seconds": 35,
+      "description": "GPIO interrupt functionality, edge detection, and interrupt handling",
+      "tests": [
+        "gpio_rising_edge_interrupt",
+        "gpio_falling_edge_interrupt",
+        "gpio_both_edge_interrupt",
+        "gpio_interrupt_debouncing",
+        "gpio_interrupt_priority"
+      ]
+    },
+    "gpio_pwm_functionality": {
+      "enabled": true,
+      "timeout_seconds": 40,
+      "description": "PWM generation, frequency control, and duty cycle accuracy",
+      "tests": [
+        "gpio_pwm_frequency",
+        "gpio_pwm_duty_cycle",
+        "gpio_pwm_resolution",
+        "gpio_pwm_stability"
+      ]
+    },
+    "gpio_analog_reads": {
+      "enabled": true,
+      "timeout_seconds": 30,
+      "description": "Analog input functionality, ADC accuracy, and voltage measurement",
+      "tests": [
+        "gpio_adc_resolution",
+        "gpio_adc_accuracy",
+        "gpio_adc_linearity",
+        "gpio_adc_noise"
+      ]
+    },
+    "gpio_stress_testing": {
+      "enabled": false,
+      "timeout_seconds": 120,
+      "description": "GPIO reliability under high-frequency operations and load conditions",
+      "tests": [
+        "gpio_high_frequency_toggle",
+        "gpio_load_handling",
+        "gpio_temperature_stability",
+        "gpio_long_term_reliability"
+      ]
+    },
+    "gpio_edge_cases": {
+      "enabled": true,
+      "timeout_seconds": 20,
+      "description": "Boundary conditions, error handling, and unusual configurations",
+      "tests": [
+        "gpio_invalid_pin_numbers",
+        "gpio_invalid_configurations",
+        "gpio_boundary_values",
+        "gpio_error_recovery"
+      ]
+    }
+  },
+  "test_execution": {
+    "run_mode": "selected_sections",
+    "selected_sections": [
+      "basic_gpio_operations",
+      "gpio_interrupts",
+      "gpio_pwm_functionality"
+    ],
+    "exclude_sections": [
+      "gpio_stress_testing"
+    ],
+    "parallel_execution": false,
+    "max_parallel_tests": 1
+  },
+  "hardware_configuration": {
+    "target_pins": {
+      "digital_output": [2, 4, 5, 18, 19],
+      "digital_input": [21, 22, 23, 25, 26],
+      "pwm_output": [2, 4, 5, 18, 19],
+      "analog_input": [32, 33, 34, 35, 36, 39]
+    },
+    "test_voltages": {
+      "logic_high": 3.3,
+      "logic_low": 0.0,
+      "analog_reference": 3.3
+    },
+    "timing_requirements": {
+      "min_pulse_width_us": 1,
+      "max_frequency_hz": 1000000,
+      "interrupt_debounce_ms": 50
+    }
+  },
+  "reporting": {
+    "include_timing": true,
+    "include_hardware_info": true,
+    "include_test_details": true,
+    "export_formats": ["txt", "json", "csv"],
+    "save_test_logs": true,
+    "log_level": "info"
+  }
+}
