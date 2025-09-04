@@ -2,8 +2,6 @@
 
 This document provides a comprehensive overview of all available scripts in the ESP32 scripts directory, their purposes, capabilities, dependencies, and how they work together to provide a professional development environment.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Port Detection](README_PORT_DETECTION.md) | [Back to Scripts](../README.md) | [Next: Build System →](README_BUILD_SYSTEM.md)
@@ -26,6 +24,7 @@ This document provides a comprehensive overview of all available scripts in the 
 The ESP32 scripts directory contains a comprehensive suite of scripts designed to streamline ESP32 development workflows. These scripts provide intelligent configuration management, cross-platform compatibility, and robust error handling to ensure reliable development operations.
 
 ### **Core Design Principles**
+- **Portable Scripts**: Scripts can be placed anywhere and work with any project via `--project-path`
 - **Configuration-Driven**: All behavior controlled through centralized YAML configuration
 - **Enhanced Validation**: Smart combination validation and error prevention
 - **Smart Defaults**: Automatic ESP-IDF version selection based on app and build type
@@ -46,11 +45,68 @@ The ESP32 scripts directory contains a comprehensive suite of scripts designed t
 - **Configuration Validation**: YAML-based configuration with intelligent fallbacks
 - **CI/CD Optimization**: optimized CI pipeline with parallel execution, smart caching, and minimal dependencies
 
+## 🚀 **Portable Scripts**
+
+All scripts in this directory are designed to be **completely portable** and can be placed anywhere on your system while still working with any ESP32 project.
+
+### **Key Features**
+- **`--project-path` Flag**: All scripts support specifying the project directory
+- **Dynamic Script Detection**: Scripts automatically detect their own location
+- **Flexible Configuration**: Works with absolute or relative project paths
+- **Environment Variables**: Support for `PROJECT_PATH` environment variable
+- **Error Handling**: Clear error messages when project or config files are not found
+
+### **Usage Examples**
+
+```bash
+# Default behavior (scripts in project/scripts/)
+./build_app.sh gpio_test Release
+
+# Portable usage with --project-path
+./build_app.sh --project-path /path/to/project gpio_test Release
+./flash_app.sh --project-path ../project flash_monitor adc_test
+./manage_idf.sh --project-path /opt/esp32-project list
+
+# Environment variable usage
+export PROJECT_PATH=/path/to/project
+./build_app.sh gpio_test Release
+./flash_app.sh flash_monitor adc_test
+
+# Python scripts
+python3 get_app_info.py list --project-path /path/to/project
+python3 generate_matrix.py --project-path /path/to/project
+```
+
+### **Portability Scenarios**
+
+```bash
+# Scenario 1: Multiple ESP32 projects
+./scripts/build_app.sh --project-path ~/projects/robot-controller gpio_test Release
+./scripts/build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+
+# Scenario 2: Shared build tools
+# Place scripts in /opt/esp32-tools/
+/opt/esp32-tools/build_app.sh --project-path ~/my-project gpio_test Release
+
+# Scenario 3: Renamed script directories
+mv scripts tools
+./tools/build_app.sh gpio_test Release  # Still works!
+
+# Scenario 4: CI/CD flexibility
+./ci-scripts/build_app.sh --project-path $GITHUB_WORKSPACE/examples/esp32 gpio_test Release
+```
+
+### **How It Works**
+1. **Script Location Detection**: Each script uses `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` to find its own location
+2. **Project Path Resolution**: If `--project-path` is provided, it's used; otherwise defaults to `../` relative to script location
+3. **Config File Discovery**: Scripts automatically look for `app_config.yml` in the project directory
+4. **Validation**: Scripts validate that the project directory and config file exist before proceeding
+
 ## 🏗️ **Architecture and Design**
 
 ### **Script Organization Structure**
 ```
-examples/esp32/[scripts_dir]/
+examples/esp32/scripts/
 ├── docs/                           # Comprehensive documentation
 │   ├── README_SCRIPTS_OVERVIEW.md  # This file - complete overview
 │   ├── README_BUILD_SYSTEM.md      # Build system architecture
@@ -139,24 +195,24 @@ The build system now includes several new commands for better user experience:
 #### **📋 Information Commands**
 ```bash
 # Show detailed information for a specific app
-./[scripts_dir]/build_app.sh info gpio_test
+./scripts/build_app.sh info gpio_test
 
 # Show all valid build combinations across all apps
-./[scripts_dir]/build_app.sh combinations
+./scripts/build_app.sh combinations
 
 # Validate a specific build combination
-./[scripts_dir]/build_app.sh validate gpio_test Release
-./[scripts_dir]/build_app.sh validate gpio_test Release release/v5.4
+./scripts/build_app.sh validate gpio_test Release
+./scripts/build_app.sh validate gpio_test Release release/v5.4
 ```
 
 #### **Validation Examples**
 ```bash
 # Valid combination - proceeds with build
-./[scripts_dir]/build_app.sh validate gpio_test Release
+./scripts/build_app.sh validate gpio_test Release
 # Output: ✅ VALID: This combination is allowed!
 
 # Invalid combination - shows error with guidance
-./[scripts_dir]/build_app.sh validate gpio_test Release release/v5.4
+./scripts/build_app.sh validate gpio_test Release release/v5.4
 # Output: ❌ INVALID: This combination is not allowed!
 #        Valid combinations for 'gpio_test':
 #        • release/v5.5: Debug Release
@@ -165,11 +221,11 @@ The build system now includes several new commands for better user experience:
 #### **🧠 Smart Default Examples**
 ```bash
 # No IDF version specified - uses smart default
-./[scripts_dir]/build_app.sh gpio_test Release
+./scripts/build_app.sh gpio_test Release
 # Output: No IDF version specified, using smart default: release/v5.5
 
 # IDF version explicitly specified
-./[scripts_dir]/build_app.sh gpio_test Release release/v5.5
+./scripts/build_app.sh gpio_test Release release/v5.5
 # Output: Uses specified version directly
 ```
 

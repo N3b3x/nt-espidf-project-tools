@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the optimized ESP32 CI pipeline, including architecture, performance improvements, and configuration details.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Build System](README_BUILD_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Flash System →](README_FLASH_SYSTEM.md)
@@ -228,6 +226,39 @@ fi
 ESP32_PROJECT_PATH="examples/esp32" ./setup_ci.sh
 ```
 
+### **Portable CI Usage**
+
+The CI setup script supports portable usage through the `--project-path` flag:
+
+```bash
+# Portable CI setup with --project-path
+./setup_ci.sh --project-path /path/to/project
+
+# Using environment variable
+export PROJECT_PATH=/path/to/project
+./setup_ci.sh
+
+# CI environment with portable scripts
+./ci-scripts/setup_ci.sh --project-path $GITHUB_WORKSPACE/examples/esp32
+```
+
+#### **Portable CI Benefits**
+- **Flexible Script Placement**: CI scripts can be placed anywhere
+- **Multiple Project Support**: Same CI setup for different projects
+- **Environment Independence**: Works in any CI environment
+- **Path Resolution**: Automatic project directory detection
+
+#### **CI Matrix Generation with Portable Scripts**
+```bash
+# Generate matrix for any project
+python3 generate_matrix.py --project-path /path/to/project --output matrix.json
+
+# CI workflow example
+- name: Generate Build Matrix
+  run: |
+    python3 scripts/generate_matrix.py --project-path ${{ github.workspace }}/examples/esp32 --output matrix.json
+```
+
 ## 🚀 **Job Execution and Workflow**
 
 ### **Matrix Generation Job**
@@ -247,7 +278,7 @@ generate-matrix:
     - name: Generate matrix
       run: |
         # Generate matrix once and store result
-        MATRIX=$(python3 ${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/generate_matrix.py)
+        MATRIX=$(python3 ${{ env.ESP32_PROJECT_PATH }}/scripts/generate_matrix.py)
         echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
         
         # Pretty-print the stored result instead of regenerating
@@ -265,7 +296,7 @@ build:
     matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
   steps:
     - name: Setup CI build environment
-      run: ./${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/setup_ci.sh
+      run: ./${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh
       
     - name: ESP-IDF Build with caching
       uses: espressif/esp-idf-ci-action@v1
@@ -274,7 +305,7 @@ build:
         target: ${{ matrix.target }}
         command: |
           cd ${{ env.BUILD_PATH }}
-          ./[scripts_dir]/build_app.sh "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
+          ./scripts/build_app.sh "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
 ```
 
 ### **Static Analysis Job (Independent)**
@@ -374,7 +405,7 @@ workflow-lint:
 
 ```yaml
 # Essential tools cache (build jobs)
-key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/setup_ci.sh') }}
+key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh') }}
 
 # Static analysis cache (analysis jobs)
 key: esp32-ci-static-analysis-${{ runner.os }}-${{ hashFiles('src/**', 'inc/**', 'examples/**') }}
@@ -382,7 +413,7 @@ key: esp32-ci-static-analysis-${{ runner.os }}-${{ hashFiles('src/**', 'inc/**',
 # Workflow lint - no caching (tools installed fresh each run)
 
 # Python dependencies cache (build jobs)
-key: esp32-ci-python-deps-${{ matrix.idf_version_docker }}-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/setup_common.sh', '${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/setup_ci.sh', '${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/requirements.txt') }}
+key: esp32-ci-python-deps-${{ matrix.idf_version_docker }}-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_common.sh', '${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh', '${{ env.ESP32_PROJECT_PATH }}/scripts/requirements.txt') }}
 
 # ccache (build jobs)
 key: esp32-ci-ccache-${{ matrix.idf_version_docker }}-${{ matrix.build_type }}-${{ hashFiles('src/**', 'inc/**', 'examples/**') }}
@@ -440,7 +471,7 @@ env:
 **Solutions**:
 ```bash
 # Test matrix generation locally
-cd examples/esp32/[scripts_dir]
+cd examples/esp32/scripts
 python3 generate_matrix.py
 
 # Check script permissions
@@ -458,7 +489,7 @@ pip install pyyaml
 **Solutions**:
 ```yaml
 # Check cache key specificity
-key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/[scripts_dir]/setup_ci.sh') }}
+key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh') }}
 
 # Verify cache paths are correct
 path: |

@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the ESP32 logging system, including log generation, management, analysis, and integration with all scripts.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Configuration System](README_CONFIG_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Utility Scripts →](README_UTILITY_SCRIPTS.md)
@@ -74,13 +72,13 @@ The logging system automatically generates logs for all major operations:
 
 ```bash
 # Build operations automatically log
-./[scripts_dir]/build_app.sh gpio_test Release --log
+./build_app.sh gpio_test Release --log
 
 # Flash operations automatically log
-./[scripts_dir]/flash_app.sh flash_monitor gpio_test Release --log
+./flash_app.sh flash_monitor gpio_test Release --log
 
 # Monitor operations automatically log
-./[scripts_dir]/flash_app.sh monitor --log
+./flash_app.sh monitor --log
 ```
 
 #### **Log File Naming Convention**
@@ -488,15 +486,15 @@ export LOG_COMPRESSION=1          # Enable compression
 - name: Build and Flash with Logging
   run: |
     cd examples/esp32
-    ./[scripts_dir]/build_app.sh gpio_test Release --log ci_build
-./[scripts_dir]/flash_app.sh flash gpio_test Release --log ci_deploy
+    ./scripts/build_app.sh gpio_test Release --log ci_build
+    ./scripts/flash_app.sh flash gpio_test Release --log ci_deploy
 
 - name: Analyze Logs
   run: |
     cd examples/esp32
-    ./[scripts_dir]/manage_logs.sh search "ERROR"
-./[scripts_dir]/manage_logs.sh stats
-./[scripts_dir]/manage_logs.sh latest
+    ./scripts/manage_logs.sh search "ERROR"
+    ./scripts/manage_logs.sh stats
+    ./scripts/manage_logs.sh latest
 ```
 
 #### **Log Artifacts**
@@ -524,15 +522,15 @@ echo "=== Daily Log Report $(date +%Y-%m-%d) ===" > daily_report.txt
 
 # Get log statistics
 echo "Log Statistics:" >> daily_report.txt
-./[scripts_dir]/manage_logs.sh stats >> daily_report.txt
+./scripts/manage_logs.sh stats >> daily_report.txt
 
 # Check for errors
 echo -e "\nError Summary:" >> daily_report.txt
-./[scripts_dir]/manage_logs.sh search "ERROR" | head -20 >> daily_report.txt
+./scripts/manage_logs.sh search "ERROR" | head -20 >> daily_report.txt
 
 # Check for warnings
 echo -e "\nWarning Summary:" >> daily_report.txt
-./[scripts_dir]/manage_logs.sh search "WARNING" | head -20 >> daily_report.txt
+./scripts/manage_logs.sh search "WARNING" | head -20 >> daily_report.txt
 
 # Send report
 mail -s "ESP32 Daily Log Report" admin@example.com < daily_report.txt
@@ -546,10 +544,10 @@ mail -s "ESP32 Daily Log Report" admin@example.com < daily_report.txt
 cd examples/esp32
 
 # Clean old logs
-./[scripts_dir]/manage_logs.sh clean 30
+./scripts/manage_logs.sh clean 30
 
 # Archive old logs
-./[scripts_dir]/manage_logs.sh archive
+./scripts/manage_logs.sh archive
 
 # Generate cleanup report
 echo "Log cleanup completed at $(date)" > cleanup_report.txt
@@ -795,13 +793,13 @@ cmake_minimum_required(VERSION 3.16)
 
 # Log target integration
 add_custom_target(logs
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/manage_logs.sh list
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/manage_logs.sh list
     COMMENT "Listing ESP32 development logs"
 )
 
 # Log cleanup target
 add_custom_target(clean_logs
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/manage_logs.sh clean 7
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/manage_logs.sh clean 7
     COMMENT "Cleaning logs older than 7 days"
 )
 ```
@@ -819,19 +817,19 @@ add_custom_target(clean_logs
 - name: Build with Logging
   run: |
     cd examples/esp32
-    ./[scripts_dir]/build_app.sh gpio_test Release --log ci_build
+    ./scripts/build_app.sh gpio_test Release --log ci_build
 
 - name: Flash with Logging
   run: |
     cd examples/esp32
-    ./[scripts_dir]/flash_app.sh flash gpio_test Release --log ci_deploy
+    ./scripts/flash_app.sh flash gpio_test Release --log ci_deploy
 
 - name: Analyze Logs
   run: |
     cd examples/esp32
-    ./[scripts_dir]/manage_logs.sh stats
-./[scripts_dir]/manage_logs.sh search "ERROR"
-./[scripts_dir]/manage_logs.sh search "SUCCESS"
+    ./scripts/manage_logs.sh stats
+    ./scripts/manage_logs.sh search "ERROR"
+    ./scripts/manage_logs.sh search "SUCCESS"
 
 - name: Upload Logs
   uses: actions/upload-artifact@v3

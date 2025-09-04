@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the ESP32 port detection system, including cross-platform device identification, troubleshooting, and integration with the development workflow.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Utility Scripts](README_UTILITY_SCRIPTS.md) | [Back to Scripts](../README.md) | [Next: Centralized Config →](README_CENTRALIZED_CONFIG.md)
@@ -408,14 +406,14 @@ export CUSTOM_RETRY_STRATEGIES="linear,exponential,adaptive"
 #### **Build System Integration**
 ```bash
 # CMake integration
-set(PORT_DETECTION_SCRIPT "${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh")
+set(PORT_DETECTION_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh")
 set(PORT_DETECTION_ARGS "--verbose" "--test-connection")
 
 # Build target integration
 add_custom_target(detect_ports
     COMMAND ${PORT_DETECTION_SCRIPT} ${PORT_DETECTION_ARGS}
     COMMENT "Detecting ESP32 ports"
-    DEPENDS ${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh
 )
 ```
 
@@ -425,13 +423,13 @@ add_custom_target(detect_ports
 - name: Detect ESP32 Ports
   run: |
     cd examples/esp32
-    ./[scripts_dir]/detect_ports.sh --verbose --test-connection
+    ./scripts/detect_ports.sh --verbose --test-connection
 
 # GitLab CI integration
 detect_ports:
   script:
     - cd examples/esp32
-    - ./[scripts_dir]/detect_ports.sh --verbose
+    - ./scripts/detect_ports.sh --verbose
   artifacts:
     reports:
       junit: port_detection_report.xml
@@ -525,7 +523,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Port detection before build
 add_custom_target(check_ports
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh --verbose
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh --verbose
     COMMENT "Checking ESP32 ports before build"
 )
 
@@ -798,9 +796,9 @@ cmake_minimum_required(VERSION 3.16)
 
 # Port detection target
 add_custom_target(detect_ports
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh --verbose
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh --verbose
     COMMENT "Detecting ESP32 ports"
-    DEPENDS ${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh
 )
 
 # Build dependency on port detection
@@ -816,12 +814,12 @@ add_custom_target(build_with_port_check
 - name: Detect ESP32 Ports
   run: |
     cd examples/esp32
-    ./[scripts_dir]/detect_ports.sh --verbose --test-connection
+    ./scripts/detect_ports.sh --verbose --test-connection
 
 - name: Validate Port Configuration
   run: |
     cd examples/esp32
-    ./[scripts_dir]/detect_ports.sh --ci-mode --verbose
+    ./scripts/detect_ports.sh --ci-mode --verbose
 ```
 
 #### **Automation Scripts**
@@ -833,19 +831,19 @@ cd examples/esp32
 
 # Detect available ports
 echo "Detecting ESP32 ports..."
-./[scripts_dir]/detect_ports.sh --verbose
+./detect_ports.sh --verbose
 
 # Test port connectivity
 echo "Testing port connectivity..."
-./[scripts_dir]/detect_ports.sh --test-connection
+./detect_ports.sh --test-connection
 
 # Fix permission issues if needed
 echo "Checking and fixing permissions..."
-./[scripts_dir]/detect_ports.sh --fix-permissions
+./detect_ports.sh --fix-permissions
 
 # Final validation
 echo "Final port validation..."
-./[scripts_dir]/detect_ports.sh --verbose --test-connection
+./detect_ports.sh --verbose --test-connection
 
 echo "Port detection complete!"
 ```

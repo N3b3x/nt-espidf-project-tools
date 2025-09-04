@@ -31,126 +31,74 @@
 
 ## 🎯 **Overview**
 
-This script collection solves **real ESP32 development pain points** by providing a professional, automated build system that eliminates manual configuration drudgery and prevents common build failures.
+The scripts directory contains a build system designed for ESP32 development, featuring automated ESP-IDF management, build processes, and CI/CD integration.
 
-### 🚨 **Problems These Scripts Solve**
+### 🏆 **Key Features**
 
-**Development Pain Points:**
-- **❌ Manual ESP-IDF setup** → **✅ One-command environment setup**
-- **❌ Version compatibility guessing** → **✅ Smart validation prevents incompatible builds**
-- **❌ Repetitive build commands** → **✅ Intelligent defaults and caching**
-- **❌ Cross-platform inconsistencies** → **✅ Uniform behavior on Linux/macOS**
-- **❌ Build failure debugging** → **✅ Clear error messages with solutions**
+- **🚀 Portable Scripts** - Scripts can be placed anywhere and work with any project via `--project-path`
+- **🔧 Automated ESP-IDF Management** - Auto-detection, installation, and environment setup
+- **📊 Dynamic Configuration Loading** - YAML-based configuration with hierarchical overrides
+- **🔄 Intelligent Build System** - Incremental builds with caching and optimization
+- **🛡️ Enhanced Validation System** - Smart combination validation and error prevention
+- **🧠 Smart Defaults** - Automatic ESP-IDF version selection based on app and build type
+- **🌐 CI/CD Integration** - Seamless GitHub Actions integration
+- **📁 Structured Output** - Parseable build directories and artifact management
+- **🔍 Comprehensive Logging** - Detailed build logs and error reporting
+- **🆕 Environment Separation** - Clear separation between local development and CI environments
+- **🚀 CI Pipeline Optimization** - optimized CI pipeline with parallel execution, smart caching, and reliable tool installation
 
-**Team & CI/CD Issues:**
-- **❌ "Works on my machine" issues** → **✅ Consistent development environments**
-- **❌ Manual CI configuration** → **✅ Automated matrix generation and validation**
-- **❌ Build time waste** → **✅ Parallel execution and smart caching**
-- **❌ Configuration drift** → **✅ Centralized YAML-based configuration**
+---
 
-### 👥 **Who Should Use These Scripts**
+## 🚀 **Portable Scripts**
 
-**🎯 Primary Users:**
-- **ESP32 Development Teams** - Eliminate environment setup friction and ensure build consistency
-- **Embedded Systems Engineers** - Focus on code, not build configuration
-- **DevOps Engineers** - Streamline CI/CD pipelines with automated validation
-- **Open Source Maintainers** - Provide professional development experience for contributors
+All scripts in this directory are designed to be **completely portable** and can be placed anywhere on your system while still working with any ESP32 project.
 
-**🚀 Use Cases:**
-- **New Project Setup** - Get a complete ESP32 development environment quickly
-- **Team Onboarding** - New developers can start building immediately
-- **CI/CD Automation** - Automated builds with comprehensive validation
-- **Multi-Platform Development** - Consistent behavior across Linux and macOS
-- **ESP-IDF Version Management** - Handle multiple versions without conflicts
+### **Key Features**
+- **`--project-path` Flag**: All scripts support specifying the project directory
+- **Dynamic Script Detection**: Scripts automatically detect their own location
+- **Flexible Configuration**: Works with absolute or relative project paths
+- **Environment Variables**: Support for `PROJECT_PATH` environment variable
+- **Error Handling**: Clear error messages when project or config files are not found
 
-### 🛠️ **How to Use These Scripts**
+### **Usage Examples**
 
-**Quick Start:**
 ```bash
-# Setup environment (one-time)
-./setup_repo.sh
-
-# Build and flash
+# Default behavior (scripts in project/scripts/)
 ./build_app.sh gpio_test Release
-./flash_app.sh gpio_test Release
-```
 
-**Daily Development:**
-```bash
-./build_app.sh gpio_test          # Smart defaults
-./flash_app.sh gpio_test          # Auto port detection
-./build_app.sh list               # Check available apps
-```
+# Portable usage with --project-path
+./build_app.sh --project-path /path/to/project gpio_test Release
+./flash_app.sh --project-path ../project flash_monitor adc_test
+./manage_idf.sh --project-path /opt/esp32-project list
 
-**CI/CD Integration:**
-```bash
-python3 generate_matrix.py        # Generate build matrix
-./setup_ci.sh                     # Setup CI environment
-```
-
-### 🧠 **Core Problem-Solving Approach**
-
-**1. Configuration-First Design**
-- All build parameters defined in `app_config.yml`
-- Scripts automatically detect and validate configurations
-- No more guessing which ESP-IDF version works with which app
-
-**2. Smart Validation & Prevention**
-- Prevents invalid app + build type + ESP-IDF combinations
-- Fails fast with clear error messages and solutions
-- Eliminates debugging incompatible configurations
-
-**3. Environment Consistency**
-- Same setup process works identically on all machines
-- CI environment mirrors local development exactly
-- New team members get identical environments quickly
-
-**4. Intelligent Automation**
-- Automatically selects appropriate ESP-IDF versions
-- Smart caching and parallel execution for efficiency
-
-### 📊 **Before vs. After: Real Impact**
-
-**❌ Traditional ESP32 Development:**
-```bash
-# Manual setup (error-prone, time-consuming)
-git clone https://github.com/espressif/esp-idf.git
-cd esp-idf
-./install.sh esp32
-source export.sh
-cd ../my-project
-# Guess which ESP-IDF version works...
-idf.py set-target esp32
-idf.py build
-# Build fails with cryptic error
-# Spend time debugging ESP-IDF compatibility
-# Repeat for each team member
-```
-
-**✅ With These Scripts:**
-```bash
-# Automated setup (quick, reliable)
-./setup_repo.sh
-# Environment ready with correct ESP-IDF version
-
-# Smart build with validation
+# Environment variable usage
+export PROJECT_PATH=/path/to/project
 ./build_app.sh gpio_test Release
-# Script automatically:
-# - Validates app + build type + ESP-IDF compatibility
-# - Selects correct ESP-IDF version
-# - Uses optimized build settings
-# - Provides clear success/failure feedback
+./flash_app.sh flash_monitor adc_test
 
-# Flash with confidence
-./flash_app.sh gpio_test Release
-# Automatic port detection and flashing
+# Python scripts
+python3 get_app_info.py list --project-path /path/to/project
+python3 generate_matrix.py --project-path /path/to/project
 ```
 
-**🎯 Key Improvements:**
-- **Setup**: Manual, error-prone → Automated, reliable
-- **Build Success**: Trial-and-error → Validated configurations
-- **Team Onboarding**: Complex setup → Simple, consistent process
-- **CI/CD**: Manual configuration → Automated matrix generation
+### **Portability Scenarios**
+
+```bash
+# Scenario 1: Multiple ESP32 projects
+./scripts/build_app.sh --project-path ~/projects/robot-controller gpio_test Release
+./scripts/build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+
+# Scenario 2: Shared build tools
+# Place scripts in /opt/esp32-tools/
+/opt/esp32-tools/build_app.sh --project-path ~/my-project gpio_test Release
+
+# Scenario 3: Renamed script directories
+mv scripts tools
+./tools/build_app.sh gpio_test Release  # Still works!
+
+# Scenario 4: CI/CD flexibility
+./ci-scripts/build_app.sh --project-path $GITHUB_WORKSPACE/examples/esp32 gpio_test Release
+```
 
 ---
 

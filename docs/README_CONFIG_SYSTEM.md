@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the ESP32 configuration system, including YAML configuration management, validation, and integration with all scripts.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Flash System](README_FLASH_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Logging System →](README_LOGGING_SYSTEM.md)
@@ -661,6 +659,9 @@ The configuration system uses a priority-based override system:
 
 #### **Supported Environment Variables**
 ```bash
+# Project path configuration (for portable scripts)
+export PROJECT_PATH="/path/to/project"  # Override project directory location
+
 # Application configuration overrides
 export CONFIG_DEFAULT_APP="gpio_test"
 export CONFIG_DEFAULT_BUILD_TYPE="Debug"
@@ -681,6 +682,49 @@ export FLASH_MODE="dio"           # Override flash mode
 export DEBUG=1                    # Enable debug mode
 export IDF_VERBOSE=1              # Enable ESP-IDF verbose output
 export CONFIG_VERBOSE=1           # Enable configuration verbose output
+```
+
+### **Portable Configuration**
+
+The configuration system supports portable scripts through the `PROJECT_PATH` environment variable and `--project-path` command-line flag.
+
+#### **Project Path Resolution**
+```bash
+# Priority order for project path resolution:
+1. --project-path command-line flag
+2. PROJECT_PATH environment variable  
+3. Default: ../ relative to script location
+```
+
+#### **Portable Usage Examples**
+```bash
+# Using --project-path flag
+./build_app.sh --project-path /path/to/project gpio_test Release
+./flash_app.sh --project-path ../project flash_monitor adc_test
+./manage_idf.sh --project-path /opt/esp32-project list
+
+# Using PROJECT_PATH environment variable
+export PROJECT_PATH=/path/to/project
+./build_app.sh gpio_test Release
+./flash_app.sh flash_monitor adc_test
+
+# Python scripts
+python3 get_app_info.py list --project-path /path/to/project
+python3 generate_matrix.py --project-path /path/to/project
+```
+
+#### **Configuration File Discovery**
+When using portable scripts, the system automatically:
+1. Resolves the project directory path (absolute or relative)
+2. Looks for `app_config.yml` in the project directory
+3. Validates that the configuration file exists
+4. Loads and parses the configuration
+
+#### **Error Handling**
+```bash
+# Clear error messages for missing project or config
+ERROR: PROJECT_PATH specified but app_config.yml not found: /path/to/project/app_config.yml
+Please check the project path or unset PROJECT_PATH to use default location.
 ```
 
 ### **Dynamic Configuration Updates**
@@ -752,7 +796,7 @@ validate_current_config() {
 #### **1. Load and Validate Configuration**
 ```bash
 # Source configuration loader
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 
 # Initialize configuration
 init_config
@@ -807,7 +851,7 @@ echo "Project name: $project_name"
 #!/bin/bash
 # Example: Configuration-driven build script
 
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 
 # Validate parameters
@@ -839,7 +883,7 @@ echo "Project: $PROJECT_NAME"
 #!/bin/bash
 # Example: Dynamic configuration management
 
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 
 # Function to update configuration
@@ -869,7 +913,7 @@ update_app_config "adc_test" "ci_enabled" "false"
 #!/bin/bash
 # Example: Configuration validation script
 
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 
 echo "Validating configuration..."
@@ -923,14 +967,14 @@ cmake_minimum_required(VERSION 3.16)
 
 # Get app information from configuration
 execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/[scripts_dir]/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_APP"
+    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_APP"
     OUTPUT_VARIABLE DEFAULT_APP
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 # Get build type from configuration
 execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/[scripts_dir]/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_BUILD_TYPE"
+    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_BUILD_TYPE"
     OUTPUT_VARIABLE DEFAULT_BUILD_TYPE
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -948,7 +992,7 @@ set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
 - name: Validate Configuration
   run: |
     cd examples/esp32
-    source ./[scripts_dir]/config_loader.sh
+    source ./scripts/config_loader.sh
     init_config
     if ! validate_current_config; then
       echo "Configuration validation failed"
@@ -958,14 +1002,14 @@ set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
 - name: Build All CI Apps
   run: |
     cd examples/esp32
-    source ./[scripts_dir]/config_loader.sh
+    source ./scripts/config_loader.sh
     init_config
     
     # Get CI-enabled apps
     for app in $(get_app_types); do
       if is_ci_enabled "$app"; then
         echo "Building $app"
-        ./[scripts_dir]/build_app.sh "$app" Release
+        ./scripts/build_app.sh "$app" Release
       fi
     done
 ```
@@ -1017,7 +1061,7 @@ grep -n ":" app_config.yml | grep -v "^\s*#"
 export CONFIG_VERBOSE=1
 
 # Check configuration manually
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 echo "Default app: $CONFIG_DEFAULT_APP"
 echo "Default build type: $CONFIG_DEFAULT_BUILD_TYPE"
@@ -1041,7 +1085,7 @@ unset CONFIG_DEFAULT_APP
 unset CONFIG_DEFAULT_BUILD_TYPE
 
 # Reload configuration
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 ```
 
@@ -1054,7 +1098,7 @@ export CONFIG_DEBUG=1
 export CONFIG_VERBOSE=1
 
 # Source configuration loader
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 init_config
 
 # Debug information available
@@ -1096,7 +1140,7 @@ debug_current_config() {
 #!/bin/bash
 # Example: Configuration testing script
 
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 
 echo "Testing configuration system..."
 

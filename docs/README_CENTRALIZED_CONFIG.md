@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the centralized configuration system, including the `app_config.yml` file structure, configuration loading mechanisms, and integration with the ESP32 development workflow.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Port Detection](README_PORT_DETECTION.md) | [Back to Scripts](../README.md) | [Next: Scripts Overview →](README_SCRIPTS_OVERVIEW.md)
@@ -725,7 +723,7 @@ export ESP32_FLASH_CONFIG_DEFAULT_BAUD_RATE="460800"
 # Configuration-driven build script
 
 # Load configuration
-source ./[scripts_dir]/config_loader.sh
+source ./scripts/config_loader.sh
 
 # Get build parameters
 build_type=$(load_config "build_config.default_build_type" "Release")
@@ -804,13 +802,13 @@ cmake_minimum_required(VERSION 3.16)
 
 # Load configuration values
 execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/[scripts_dir]/config_loader.sh && load_config 'build_config.default_target' 'esp32c6'"
+    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && load_config 'build_config.default_target' 'esp32c6'"
     OUTPUT_VARIABLE ESP32_TARGET
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/[scripts_dir]/config_loader.sh && load_config 'build_config.default_build_type' 'Release'"
+    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && load_config 'build_config.default_build_type' 'Release'"
     OUTPUT_VARIABLE ESP32_BUILD_TYPE
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -821,7 +819,7 @@ set(CONFIG_DEFAULT_BUILD_TYPE ${ESP32_BUILD_TYPE})
 
 # Configuration validation
 add_custom_target(validate_config
-    COMMAND bash -c "cd ${CMAKE_SOURCE_DIR} && source [scripts_dir]/config_loader.sh && validate_config_integrity app_config.yml"
+    COMMAND bash -c "cd ${CMAKE_SOURCE_DIR} && source scripts/config_loader.sh && validate_config_integrity app_config.yml"
     COMMENT "Validating configuration"
 )
 ```

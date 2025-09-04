@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the ESP32 flash system, including port detection, firmware flashing, monitoring, and troubleshooting.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Build System](README_BUILD_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Configuration System →](README_CONFIG_SYSTEM.md)
@@ -368,7 +366,25 @@ gpio_test_Release_20250115_143022.log
 # - Ready for production use
 ```
 
-#### **3. Debugging Workflow**
+#### **3. Portable Flash Usage**
+```bash
+# Default behavior (scripts in project/scripts/)
+./flash_app.sh flash_monitor gpio_test Release
+
+# Portable usage with --project-path
+./flash_app.sh --project-path /path/to/project flash_monitor gpio_test Release
+./flash_app.sh --project-path ../project flash adc_test Debug --log
+
+# Environment variable usage
+export PROJECT_PATH=/path/to/project
+./flash_app.sh flash_monitor gpio_test Release
+
+# Multiple project support
+./flash_app.sh --project-path ~/projects/robot-controller flash_monitor gpio_test Release
+./flash_app.sh --project-path ~/projects/sensor-node flash adc_test Debug
+```
+
+#### **4. Debugging Workflow**
 ```bash
 # Monitor existing firmware
 ./flash_app.sh monitor --log debug_session
@@ -450,12 +466,12 @@ fi
 - name: Flash ESP32 Application
   run: |
     cd examples/esp32
-    ./[scripts_dir]/flash_app.sh flash gpio_test Release --log ci_deploy
+    ./scripts/flash_app.sh flash gpio_test Release --log ci_deploy
 
 - name: Verify Flash
   run: |
-    ./[scripts_dir]/flash_app.sh monitor --log ci_verify
-    timeout 30s ./[scripts_dir]/flash_app.sh monitor --log ci_verify
+    ./scripts/flash_app.sh monitor --log ci_verify
+    timeout 30s ./scripts/flash_app.sh monitor --log ci_verify
 ```
 
 ## 🔍 **Troubleshooting and Debugging**
@@ -658,7 +674,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Flash target integration
 add_custom_target(flash
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/flash_app.sh flash ${APP_TYPE} ${BUILD_TYPE}
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/flash_app.sh flash ${APP_TYPE} ${BUILD_TYPE}
     DEPENDS ${PROJECT_NAME}
     COMMENT "Flashing ${APP_TYPE} ${BUILD_TYPE} to device"
 )

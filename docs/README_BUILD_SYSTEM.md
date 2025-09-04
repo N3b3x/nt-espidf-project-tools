@@ -137,24 +137,24 @@ The build system now includes several new commands for better user experience:
 #### **📋 Information Commands**
 ```bash
 # Show detailed information for a specific app
-./build_app.sh info gpio_test
+./scripts/build_app.sh info gpio_test
 
 # Show all valid build combinations across all apps
-./build_app.sh combinations
+./scripts/build_app.sh combinations
 
 # Validate a specific build combination
-./build_app.sh validate gpio_test Release
-./build_app.sh validate gpio_test Release release/v5.4
+./scripts/build_app.sh validate gpio_test Release
+./scripts/build_app.sh validate gpio_test Release release/v5.4
 ```
 
 #### **🛡️ Validation Examples**
 ```bash
 # Valid combination - proceeds with build
-./build_app.sh validate gpio_test Release
+./scripts/build_app.sh validate gpio_test Release
 # Output: ✅ VALID: This combination is allowed!
 
 # Invalid combination - shows error with guidance
-./build_app.sh validate gpio_test Release release/v5.4
+./scripts/build_app.sh validate gpio_test Release release/v5.4
 # Output: ❌ INVALID: This combination is not allowed!
 #        Valid combinations for 'gpio_test':
 #        • release/v5.5: Debug Release
@@ -163,11 +163,11 @@ The build system now includes several new commands for better user experience:
 #### **🧠 Smart Default Examples**
 ```bash
 # No IDF version specified - uses smart default
-./build_app.sh gpio_test Release
+./scripts/build_app.sh gpio_test Release
 # Output: No IDF version specified, using smart default: release/v5.5
 
 # IDF version explicitly specified
-./build_app.sh gpio_test Release release/v5.5
+./scripts/build_app.sh gpio_test Release release/v5.5
 # Output: Uses specified version directly
 ```
 
@@ -340,7 +340,25 @@ The build system automatically validates:
 # - Build artifacts in build_gpio_test_Release/
 ```
 
-#### **3. Multi-Version Testing**
+#### **3. Portable Build Usage**
+```bash
+# Default behavior (scripts in project/scripts/)
+./build_app.sh gpio_test Release
+
+# Portable usage with --project-path
+./build_app.sh --project-path /path/to/project gpio_test Release
+./build_app.sh --project-path ../project adc_test Debug --clean
+
+# Environment variable usage
+export PROJECT_PATH=/path/to/project
+./build_app.sh gpio_test Release
+
+# Multiple project support
+./build_app.sh --project-path ~/projects/robot-controller gpio_test Release
+./build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+```
+
+#### **4. Multi-Version Testing**
 ```bash
 # Test with different ESP-IDF versions
 ./build_app.sh gpio_test Release release/v5.5
@@ -687,7 +705,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Get app information from configuration
 execute_process(
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/get_app_info.py source_file ${APP_TYPE}
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/get_app_info.py source_file ${APP_TYPE}
     OUTPUT_VARIABLE APP_SOURCE_FILE
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -702,12 +720,12 @@ add_executable(${PROJECT_NAME} ${APP_SOURCE_FILE})
 - name: Build ESP32 Application
   run: |
     cd examples/esp32
-    ./build_app.sh gpio_test Release
+    ./scripts/build_app.sh gpio_test Release
 
 - name: Build with Debug
   run: |
     cd examples/esp32
-    ./build_app.sh gpio_test Debug
+    ./scripts/build_app.sh gpio_test Debug
 ```
 
 ### **Best Practices**

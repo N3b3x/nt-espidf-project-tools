@@ -2,8 +2,6 @@
 
 This document provides comprehensive documentation for the ESP32 utility scripts, including port detection, setup automation, and helper tools for development workflow management.
 
-> **📁 Note on Scripts Directory**: Throughout this documentation, `[scripts_dir]` represents the flexible scripts directory name that depends on your repository structure. In the CI pipeline, this is controlled by the `scripts_dir` input parameter (default: `nt-espidf-tools`). Replace `[scripts_dir]` with your actual scripts directory name when using these examples.
-
 ---
 
 **Navigation**: [← Previous: Logging System](README_LOGGING_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Port Detection →](README_PORT_DETECTION.md)
@@ -800,13 +798,13 @@ cmake_minimum_required(VERSION 3.16)
 
 # Port detection integration
 add_custom_target(detect_ports
-    COMMAND ${CMAKE_SOURCE_DIR}/[scripts_dir]/detect_ports.sh --verbose
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh --verbose
     COMMENT "Detecting ESP32 ports"
 )
 
 # Configuration validation
 add_custom_target(validate_config
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/[scripts_dir]/get_app_info.py validate ${APP_TYPE}
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/get_app_info.py validate ${APP_TYPE}
     COMMENT "Validating application configuration"
 )
 ```
@@ -819,17 +817,17 @@ add_custom_target(validate_config
 - name: Setup ESP32 Environment
   run: |
     cd examples/esp32
-    ./[scripts_dir]/setup_ci.sh
+    ./scripts/setup_ci.sh
 
 - name: Detect ESP32 Ports
   run: |
     cd examples/esp32
-    ./[scripts_dir]/detect_ports.sh --verbose
+    ./scripts/detect_ports.sh --verbose
 
 - name: Validate Configuration
   run: |
     cd examples/esp32
-    python3 ./[scripts_dir]/get_app_info.py validate gpio_test
+    python3 ./scripts/get_app_info.py validate gpio_test
 ```
 
 #### **GitLab CI Integration**
@@ -838,7 +836,7 @@ add_custom_target(validate_config
 setup_environment:
   script:
     - cd examples/esp32
-    - ./[scripts_dir]/setup_ci.sh
+    - ./scripts/setup_ci.sh
   artifacts:
     paths:
       - examples/esp32/ci_build_path/
@@ -853,14 +851,14 @@ pipeline {
     stage('Setup Environment') {
       steps {
         script {
-          sh 'cd examples/esp32 && ./[scripts_dir]/setup_ci.sh'
+          sh 'cd examples/esp32 && ./scripts/setup_ci.sh'
         }
       }
     }
     stage('Detect Ports') {
       steps {
         script {
-          sh 'cd examples/esp32 && ./[scripts_dir]/detect_ports.sh --verbose'
+          sh 'cd examples/esp32 && ./scripts/detect_ports.sh --verbose'
         }
       }
     }
@@ -894,11 +892,11 @@ fi
 
 # Detect available ports
 echo "Detecting ESP32 ports..."
-    ./[scripts_dir]/detect_ports.sh --verbose
+./detect_ports.sh --verbose
 
 # Validate configuration
 echo "Validating configuration..."
-python3 ./[scripts_dir]/get_app_info.py validate gpio_test
+python3 ./get_app_info.py validate gpio_test
 
 echo "Setup complete!"
 ```
