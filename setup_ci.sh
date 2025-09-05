@@ -9,16 +9,24 @@ set -e  # Exit on any error
 export SETUP_MODE="ci"
 
 # Parse --project-path flag first (before other argument parsing)
-FILTERED_ARGS=()
+FILTERED_ARGS=""
 i=1
-while [[ $i -le $# ]]; do
-    arg="${!i}"
+while [ $i -le $# ]; do
+    eval "arg=\$$i"
     case "$arg" in
         --project-path)
             # Check if next argument exists and is not another flag
-            if [[ $((i+1)) -le $# ]] && [[ "${!((i+1))}" != -* ]]; then
-                PROJECT_PATH="${!((i+1))}"
-                ((i++))  # Skip the next argument since we consumed it
+            next_i=$((i+1))
+            if [ $next_i -le $# ]; then
+                eval "next_arg=\$$next_i"
+                if [ "$next_arg" != -* ]; then
+                    PROJECT_PATH="$next_arg"
+                    i=$next_i  # Skip the next argument since we consumed it
+                else
+                    echo "ERROR: --project-path requires a path argument" >&2
+                    echo "Usage: --project-path /path/to/project" >&2
+                    exit 1
+                fi
             else
                 echo "ERROR: --project-path requires a path argument" >&2
                 echo "Usage: --project-path /path/to/project" >&2
@@ -26,22 +34,22 @@ while [[ $i -le $# ]]; do
             fi
             ;;
         *)
-            FILTERED_ARGS+=("$arg")
+            FILTERED_ARGS="$FILTERED_ARGS $arg"
             ;;
     esac
-    ((i++))
+    i=$((i+1))
 done
 
 # Export PROJECT_PATH if it was set via --project-path flag
-if [[ -n "$PROJECT_PATH" ]]; then
+if [ -n "$PROJECT_PATH" ]; then
     export PROJECT_PATH
 fi
 
 # Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Replace $@ with filtered arguments for the rest of the script
-set -- "${FILTERED_ARGS[@]}"
+set -- $FILTERED_ARGS
 
 # Show help if requested
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
