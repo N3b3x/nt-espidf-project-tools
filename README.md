@@ -123,8 +123,6 @@ mv scripts tools
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  setup_common.sh   ──┐                                                      │
 │                      │                                                      │
-│  setup_ci.sh         │                                                      │
-│                      │                                                      │
 │  setup_repo.sh     ──┘                                                      │
 └─────────────────────┬───────────────────────────────────────────────────────┘
                       │
@@ -156,7 +154,7 @@ mv scripts tools
 
 Data Flow:
 app_config.yml → config_loader.sh → build_app.sh
-setup_common.sh → setup_ci.sh/setup_repo.sh → build_app.sh
+setup_common.sh → setup_repo.sh → build_app.sh
   -local: build_app.sh → flash_app.sh
   -ci: GitHub Actions → Matrix Generation →build_app.sh → Artifact Upload
 ```
@@ -180,9 +178,9 @@ setup_common.sh → setup_ci.sh/setup_repo.sh → build_app.sh
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    ENVIRONMENT-SPECIFIC SETUP                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (setup_ci.sh)         │
-│  • Full development environment              • Minimal CI dependencies      │
-│  • Interactive user setup                    • Non-interactive operation    │
+│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
+│  • Full development environment              • ESP-IDF CI action handles     │
+│  • Interactive user setup                    • Direct project building       │
 │  • Complete tool installation                • Cache-aware installation     │
 │  • Environment variables setup               • Build directory preparation  │
 │  • Development aliases                       • CI-specific optimizations    │
@@ -195,7 +193,7 @@ setup_common.sh → setup_ci.sh/setup_repo.sh → build_app.sh
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  • build_app.sh uses environment from setup                                 │
 │  • flash_app.sh integrates with setup                                       │
-│  • CI workflows use setup_ci.sh for environment                             │
+│  • CI workflows use ESP-IDF CI action directly                              │
 │  • Local development uses setup_repo.sh for environment                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -285,7 +283,6 @@ scripts/
 ├── 📄 generate_matrix.py       # CI matrix generator
 ├── 📄 config_loader.sh         # Configuration utilities
 ├── 📄 setup_common.sh          # Shared setup functions for all environments
-├── 📄 setup_ci.sh              # CI environment setup (minimal dependencies)
 ├── 📄 setup_repo.sh            # Local development setup (full environment)
 ├── 📄 build_app.sh             # Main build script
 ├── 📄 flash_app.sh             # Flashing and monitoring
@@ -300,7 +297,6 @@ scripts/
 | `generate_matrix.py` | `pyyaml` | CI matrix generation | CI/CD |
 | `config_loader.sh` | `yq`, `sed` | Configuration parsing | Build scripts |
 | `setup_common.sh` | System tools | Shared functions for all environments | Setup scripts |
-| `setup_ci.sh` | `setup_common.sh` | CI environment (minimal dependencies) | CI/CD |
 | `setup_repo.sh` | `setup_common.sh` | Local development (full environment) | Development |
 | `build_app.sh` | `config_loader.sh` | Application building | All users |
 | `flash_app.sh` | `config_loader.sh` | Device flashing | Development |
@@ -468,37 +464,33 @@ source scripts/setup_repo.sh
 - **ESP-IDF Tools** - ESP32 development tools
 - **Build Tools** - CMake, Ninja, and related tools
 
-### **`setup_ci.sh` - 🆕 CI/CD Environment Setup**
+### **Direct ESP-IDF CI Action - 🆕 Simplified CI/CD**
 
-Sets up the CI/CD environment for automated builds.
+The CI workflow now uses the ESP-IDF CI action directly without file copying.
 
 #### **Functionality**
-- **CI Tools** - Install CI-specific minimal tools and dependencies
-- **ESP-IDF Integration** - ESP-IDF handled by ESP-IDF CI action
-- **Environment Variables** - Set CI-specific environment variables
-- **Tool Verification** - Verify CI environment is properly configured
-- **Build Directory Preparation** - Prepare build directory structure
-- **Cache Optimization** - CI-specific cache management
+- **No File Copying** - Works directly with project files
+- **ESP-IDF CI Action** - Official Espressif action handles environment
+- **Direct Building** - Builds from source directory structure
+- **Cache Optimized** - Leverages ESP-IDF CI action caching
+- **Simplified Workflow** - Fewer moving parts, more reliable
 
 #### **Usage**
-```bash
-# Setup CI environment
-source scripts/setup_ci.sh
-
-# This will:
-# 1. Install minimal CI dependencies (clang-20, yq, PyYAML)
-# 2. Prepare build directory structure
-# 3. Configure for automated builds
-# 4. Export CI-specific variables
-# 5. Optimize for CI environment
+```yaml
+# In GitHub Actions workflow
+- name: Build (espressif/esp-idf-ci-action)
+  uses: espressif/esp-idf-ci-action@v1
+  with:
+    command: |
+      cd "${ESP32_PROJECT_PATH}"
+      ./scripts/build_app.sh --project-path "${ESP32_PROJECT_PATH}" ...
 ```
 
 #### **CI Environment Features**
-- **Minimal Dependencies** - Only essential tools for CI builds
-- **Automated Setup** - No user interaction required
-- **Error Handling** - Comprehensive error checking and reporting
-- **Logging** - Detailed setup logs for debugging
-- **Cache Optimization** - CI-specific cache management
+- **Faster CI** - No file copying overhead
+- **More Reliable** - Official ESP-IDF action handles environment
+- **Simpler** - Fewer scripts to maintain
+- **Direct** - Works with project files in place
 - **Build Directory Preparation** - Ready for CI builds
 
 ---
@@ -952,8 +944,8 @@ ci_config:
 
 #### **CI/CD Environment Setup**
 ```bash
-# CI-optimized environment setup
-./setup_ci.sh
+# CI builds use ESP-IDF CI action directly
+# No setup needed - ESP-IDF CI action handles everything
 
 # What it provides:
 # • Minimal CI dependencies (clang-20, yq, PyYAML)
@@ -1007,9 +999,8 @@ The build system now includes several new commands for better user experience an
 ### **Local Development Workflow**
 
 ```bash
-# 1. Setup development environment (choose one)
+# 1. Setup development environment
 ./setup_repo.sh          # Local development
-./setup_ci.sh            # CI environment
 
 # 2. Build application
 ./scripts/build_app.sh gpio_test Release
@@ -1027,10 +1018,7 @@ The build system now includes several new commands for better user experience an
 # GitHub Actions workflow
 - name: ESP-IDF Build
   run: |
-    # Source CI setup
-    source ${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh
-    
-    # Build application
+    # Build application directly (no setup needed)
     ./scripts/build_app.sh "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
     
     # Capture build directory for artifacts
@@ -1161,8 +1149,7 @@ metadata:
 # For local development (complete environment)
 ./setup_repo.sh
 
-# For CI/CD (minimal environment)
-./setup_ci.sh
+# For CI/CD (direct ESP-IDF CI action used)
 
 # Check script permissions
 chmod +x scripts/*.sh

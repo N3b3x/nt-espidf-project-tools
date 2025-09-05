@@ -418,7 +418,7 @@ build_gpio_test_Release/
 ### **CI Build Architecture**
 - **Parallel Matrix Execution**: Multiple build combinations run simultaneously
 - **Independent Job Execution**: Each matrix entry gets its own runner
-- **Smart Environment Setup**: `setup_ci.sh` prepares build directory structure
+- **Direct Project Building**: ESP-IDF CI action works directly with project files
 - **ESP-IDF Integration**: Uses `espressif/esp-idf-ci-action@v1` for toolchain
 
 ### **CI Performance Optimizations**
@@ -441,7 +441,6 @@ with result reuse       gets fresh runner        runs in parallel
 ```bash
 # Required for CI builds
 export ESP32_PROJECT_PATH="examples/esp32"
-export BUILD_PATH="ci_build_path"
 
 # Optional optimizations
 export IDF_CCACHE_ENABLE=1

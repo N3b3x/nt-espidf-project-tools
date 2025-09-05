@@ -65,7 +65,7 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "  • Flash apps with: ./scripts/flash_app.sh <operation> <app_type> <build_type>"
     echo ""
     echo "ALTERNATIVES:"
-    echo "  • For CI environment setup, use: ./setup_ci.sh"
+    echo "  • For CI builds, use ESP-IDF CI action directly (no setup needed)"
     echo "  • For shared functions only, use: source ./setup_common.sh"
     echo ""
     echo "TROUBLESHOOTING:"
@@ -73,7 +73,7 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "  • For ESP-IDF issues, see: https://docs.espressif.com/projects/esp-idf/"
     echo "  • For script issues, check: docs/README_UTILITY_SCRIPTS.md"
     echo ""
-    echo "For CI environment setup, use: ./setup_ci.sh"
+    echo "For CI builds, use ESP-IDF CI action directly (no setup needed)"
     echo "For detailed information, see: docs/README_UTILITY_SCRIPTS.md"
     exit 0
 fi

@@ -87,10 +87,10 @@ The ESP32 CI pipeline is a highly optimized, parallel execution system designed 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    ENVIRONMENT-SPECIFIC SETUP                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (setup_ci.sh)         │
-│  • Full development environment              • Minimal CI dependencies      │
-│  • ESP-IDF auto-installation                • Build directory preparation   │
-│  • Complete toolchain                       • Environment validation        │
+│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
+│  • Full development environment              • ESP-IDF CI action handles    │
+│  • ESP-IDF auto-installation                 • Direct project building      │
+│  • Complete toolchain                        • No file copying needed       │
 │  • Interactive setup                         • Self-contained functions     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -99,67 +99,49 @@ The ESP32 CI pipeline is a highly optimized, parallel execution system designed 
 
 ### **1. Matrix Generation Optimization**
 
-**Before**: Ran script twice (wasteful)
-```bash
-# Generated matrix twice
-MATRIX=$(python3 generate_matrix.py)
-python3 generate_matrix.py --format json | jq .  # ❌ Second execution
-```
-
-**After**: Single execution with result reuse
+The workflow uses single matrix generation with result reuse:
 ```bash
 # Generate once, reuse result
 MATRIX=$(python3 generate_matrix.py)
-echo "$MATRIX" | python3 -m json.tool  # ✅ Reuse stored result
+echo "$MATRIX" | python3 -m json.tool  # Reuse stored result
 ```
 
-**Impact**: **~50% faster** matrix generation
+**Benefits**: **~50% faster** matrix generation
 
 ### **2. Static Analysis Independence**
 
-**Before**: Waited for build completion (blocking)
-```yaml
-static-analysis:
-  needs: [build]  # ❌ Blocked by builds
-```
-
-**After**: Runs in parallel with builds
+The workflow runs static analysis in parallel with builds:
 ```yaml
 static-analysis:
   # No dependencies needed - cppcheck analyzes source code, not build artifacts
 ```
 
-**Impact**: **Significant time reduction** - no more blocking
+**Benefits**: **Significant time reduction** - no blocking
 
-### **3. Lightweight Setup for Analysis Jobs**
-
-**Before**: All jobs ran full `setup_ci.sh` (file copying, etc.)
-**After**: Analysis jobs use minimal setup
+### **3. Direct Project Building**
 ```bash
-# Instead of full setup_ci.sh
-- name: Verify source code availability
-  run: |
-    echo "Verifying source code for static analysis..."
-    ls -la src/ inc/ examples/ 2>/dev/null || echo "Some directories may not exist yet"
+# ESP-IDF CI action handles everything directly
+- name: Build (espressif/esp-idf-ci-action)
+  uses: espressif/esp-idf-ci-action@v1
+  with:
+    command: |
+      cd "${ESP32_PROJECT_PATH}"
+      ./scripts/build_app.sh --project-path "${ESP32_PROJECT_PATH}" ...
 ```
 
-**Impact**: **Faster startup** for analysis jobs
+### **4. Clean Caching Strategy**
 
-### **4. Docker Cache Removal**
-
-**Before**: Unused Docker buildx cache
-**After**: Clean, focused caching
+The workflow uses clean, focused caching without unnecessary Docker buildx cache:
 ```yaml
-# Removed unused Docker caching
 # ESP-IDF action handles its own containerization
+# No unused Docker caching overhead
 ```
 
-**Impact**: **No wasted resources**
+**Benefits**: **No wasted resources** - efficient caching
 
 ### **5. Package Installation Optimization**
 
-**Before**: Always ran `apt-get update`
-**After**: Conditional updates only when needed
+The workflow uses conditional package updates only when needed:
 ```bash
 if ! command -v yamllint &> /dev/null; then
   echo "Installing yamllint..."
@@ -169,12 +151,11 @@ else
 fi
 ```
 
-**Impact**: **~30% faster** package installation
+**Benefits**: **~30% faster** package installation
 
 ### **6. cppcheck Execution Optimization**
 
-**Before**: Ran twice (duplicate analysis)
-**After**: Single execution with both outputs
+The workflow uses single cppcheck execution with both XML and text outputs:
 ```bash
 # Single run generates both XML and shows output
 docker run --rm cppcheck \
@@ -183,7 +164,7 @@ docker run --rm cppcheck \
   /src/src/ /src/inc/ /src/examples/ 2>&1 | tee cppcheck_output.txt
 ```
 
-**Impact**: **~50% faster** static analysis
+**Benefits**: **~50% faster** static analysis
 
 ## 🔧 **Configuration and Setup**
 
@@ -192,12 +173,11 @@ docker run --rm cppcheck \
 ```bash
 # Required for CI setup
 export ESP32_PROJECT_PATH="examples/esp32"  # Path to ESP32 project directory
-export BUILD_PATH="ci_build_path"           # CI build directory path (optional)
 ```
 
 ### **Environment Variable Validation**
 
-The `setup_ci.sh` script validates required environment variables:
+The CI workflow validates required environment variables:
 
 ```bash
 # Validate required environment variables
@@ -213,40 +193,42 @@ if [[ ! -d "$ESP32_PROJECT_PATH" ]]; then
 fi
 ```
 
-### **CI Setup Script Usage**
+### **Direct CI Building**
+
+The CI workflow now uses direct project building without file copying:
 
 ```bash
-# Basic usage
-./setup_ci.sh
-
-# With help
-./setup_ci.sh --help
-
-# Required environment variables
-ESP32_PROJECT_PATH="examples/esp32" ./setup_ci.sh
+# ESP-IDF CI action works directly with project files
+- name: Build (espressif/esp-idf-ci-action)
+  uses: espressif/esp-idf-ci-action@v1
+  with:
+    command: |
+      cd "${ESP32_PROJECT_PATH}"
+      ./scripts/build_app.sh --project-path "${ESP32_PROJECT_PATH}" ...
 ```
 
 ### **Portable CI Usage**
 
-The CI setup script supports portable usage through the `--project-path` flag:
+The build system supports portable usage through the `--project-path` flag:
 
 ```bash
-# Portable CI setup with --project-path
-./setup_ci.sh --project-path /path/to/project
+# Portable build with --project-path
+./build_app.sh --project-path /path/to/project gpio_test Release
 
 # Using environment variable
 export PROJECT_PATH=/path/to/project
-./setup_ci.sh
+./build_app.sh gpio_test Release
 
 # CI environment with portable scripts
-./ci-scripts/setup_ci.sh --project-path $GITHUB_WORKSPACE/examples/esp32
+./ci-scripts/build_app.sh --project-path $GITHUB_WORKSPACE/examples/esp32 gpio_test Release
 ```
 
 #### **Portable CI Benefits**
-- **Flexible Script Placement**: CI scripts can be placed anywhere
-- **Multiple Project Support**: Same CI setup for different projects
+- **Flexible Script Placement**: Build scripts can be placed anywhere
+- **Multiple Project Support**: Same build system for different projects
 - **Environment Independence**: Works in any CI environment
 - **Path Resolution**: Automatic project directory detection
+- **No File Copying**: Direct project building without overhead
 
 #### **CI Matrix Generation with Portable Scripts**
 ```bash
@@ -295,17 +277,14 @@ build:
   strategy:
     matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
   steps:
-    - name: Setup CI build environment
-      run: ./${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh
-      
     - name: ESP-IDF Build with caching
       uses: espressif/esp-idf-ci-action@v1
       with:
         esp_idf_version: ${{ matrix.idf_version_docker }}
         target: ${{ matrix.target }}
         command: |
-          cd ${{ env.BUILD_PATH }}
-          ./scripts/build_app.sh "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
+          cd ${{ env.ESP32_PROJECT_PATH }}
+          ./scripts/build_app.sh --project-path "${{ env.ESP32_PROJECT_PATH }}" "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
 ```
 
 ### **Static Analysis Job (Independent)**
@@ -405,7 +384,7 @@ workflow-lint:
 
 ```yaml
 # Essential tools cache (build jobs)
-key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh') }}
+key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_common.sh') }}
 
 # Static analysis cache (analysis jobs)
 key: esp32-ci-static-analysis-${{ runner.os }}-${{ hashFiles('src/**', 'inc/**', 'examples/**') }}
@@ -413,7 +392,7 @@ key: esp32-ci-static-analysis-${{ runner.os }}-${{ hashFiles('src/**', 'inc/**',
 # Workflow lint - no caching (tools installed fresh each run)
 
 # Python dependencies cache (build jobs)
-key: esp32-ci-python-deps-${{ matrix.idf_version_docker }}-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_common.sh', '${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh', '${{ env.ESP32_PROJECT_PATH }}/scripts/requirements.txt') }}
+key: esp32-ci-python-deps-${{ matrix.idf_version_docker }}-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_common.sh', '${{ env.ESP32_PROJECT_PATH }}/scripts/requirements.txt') }}
 
 # ccache (build jobs)
 key: esp32-ci-ccache-${{ matrix.idf_version_docker }}-${{ matrix.build_type }}-${{ hashFiles('src/**', 'inc/**', 'examples/**') }}
@@ -460,7 +439,6 @@ ERROR: This should point to the ESP32 project directory (e.g., 'examples/esp32')
 # In GitHub workflow
 env:
   ESP32_PROJECT_PATH: examples/esp32
-  BUILD_PATH: ci_build_path
 ```
 
 #### **2. Matrix Generation Failures**
@@ -489,7 +467,7 @@ pip install pyyaml
 **Solutions**:
 ```yaml
 # Check cache key specificity
-key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_ci.sh') }}
+key: esp32-ci-essential-tools-${{ runner.os }}-${{ hashFiles('${{ env.ESP32_PROJECT_PATH }}/scripts/setup_common.sh') }}
 
 # Verify cache paths are correct
 path: |
@@ -499,14 +477,11 @@ path: |
 
 #### **4. Build Directory Issues**
 
-**Problem**: `setup_ci.sh` fails to prepare build environment
+**Problem**: Build environment preparation fails
 **Symptoms**: Build jobs fail with missing files
 
 **Solutions**:
 ```bash
-# Check setup_ci.sh execution
-./setup_ci.sh --help
-
 # Verify source files exist
 ls -la src/ inc/ examples/
 
@@ -519,8 +494,6 @@ echo $ESP32_PROJECT_PATH
 ```bash
 # Test CI setup locally
 export ESP32_PROJECT_PATH="examples/esp32"
-export BUILD_PATH="ci_build_path_test"
-./examples/esp32/scripts/setup_ci.sh
 
 # Verify matrix generation
 python3 examples/esp32/scripts/generate_matrix.py
@@ -532,15 +505,15 @@ ls -la ~/.ccache
 
 ## 📊 **Performance Metrics**
 
-### **Expected Performance Improvements**
+### **Performance Characteristics**
 
-| Optimization | Before | After | Improvement |
-|--------------|--------|-------|-------------|
-| **Matrix Generation** | 2x script execution | Single execution | **~50% faster** |
-| **Static Analysis** | Blocked by builds | Parallel execution | **No blocking** |
-| **Package Installation** | Always update | Conditional update | **~30% faster** |
-| **cppcheck** | Duplicate execution | Single execution | **~50% faster** |
-| **Overall CI Time** | Sequential execution | Parallel + optimized | **25-35% reduction** |
+| Optimization | Current Implementation | Performance |
+|--------------|------------------------|-------------|
+| **Matrix Generation** | Single execution with result reuse | **~50% faster** |
+| **Static Analysis** | Parallel execution with builds | **No blocking** |
+| **Package Installation** | Conditional updates only when needed | **~30% faster** |
+| **cppcheck** | Single execution with dual outputs | **~50% faster** |
+| **Overall CI Time** | Parallel + optimized execution | **25-35% reduction** |
 
 ### **Cache Performance Metrics**
 
@@ -571,7 +544,7 @@ ls -la ~/.ccache
 | Environment | Setup Script | Dependencies | Use Case | Performance |
 |-------------|--------------|--------------|----------|-------------|
 | **Local Development** | `setup_repo.sh` | Full toolchain | Developer setup | Standard |
-| **CI/CD Pipeline** | `setup_ci.sh` | Minimal | Automated builds | **Optimized** |
+| **CI/CD Pipeline** | ESP-IDF CI action | Direct | Automated builds | **Optimized** |
 | **Static Analysis** | Lightweight | Analysis tools only | Code quality | **Fast** |
 | **Workflow Lint** | Lightweight | Lint tools only | Workflow validation | **Fast** |
 

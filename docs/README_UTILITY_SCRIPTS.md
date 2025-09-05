@@ -45,7 +45,7 @@ The ESP32 utility scripts provide essential tools for development environment se
 Utility Scripts → Environment Detection → Setup Selection → Tool Installation → Validation
       ↓              ↓                    ↓                ↓                ↓
 Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environment
-& Troubleshooting  Environment       vs setup_ci.sh     & Installation    Verification
+& Troubleshooting  Environment       vs ESP-IDF CI      & Installation    Verification
 ```
 
 ### **Environment Setup Architecture**
@@ -67,13 +67,13 @@ Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environ
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    ENVIRONMENT-SPECIFIC SETUP                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (setup_ci.sh)         │
-│  • Full development environment              • Minimal CI dependencies      │
-│  • Interactive user setup                    • Non-interactive operation    │
+│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
+│  • Full development environment              • ESP-IDF CI action handles    │
+│  • Interactive user setup                    • Direct project building      │
 │  • Complete tool installation                • Cache-aware installation     │
 │  • Environment variables setup               • Build directory preparation  │
 │  • Development aliases                       • CI-specific optimizations    │
-│  • ESP-IDF auto-installation                • ESP-IDF handled by CI action  │
+│  • ESP-IDF auto-installation                 • ESP-IDF handled by CI action │
 └─────────────────────┬───────────────────────────────────────────────────────┘
                       │
                       ▼
@@ -82,7 +82,7 @@ Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environ
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  • build_app.sh uses environment from setup                                 │
 │  • flash_app.sh integrates with setup                                       │
-│  • CI workflows use setup_ci.sh for environment                             │
+│  • CI workflows use ESP-IDF CI action directly                              │
 │  • Local development uses setup_repo.sh for environment                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -224,12 +224,12 @@ The system now provides two distinct setup approaches optimized for different us
 - Complete development toolchain
 ```
 
-#### **CI/CD Environment Setup (setup_ci.sh)**
+#### **Direct ESP-IDF CI Action - Simplified CI/CD**
 ```bash
-# CI-optimized environment setup
-./setup_ci.sh
+# CI builds use ESP-IDF CI action directly
+# ESP-IDF CI action handles everything
 
-# What it installs
+# What it provides
 - Essential build tools (clang-20, clang-format, clang-tidy)
 - Python dependencies (PyYAML, yq)
 - CI build directory structure
@@ -238,7 +238,6 @@ The system now provides two distinct setup approaches optimized for different us
 
 # NEW: Required environment variables
 - ESP32_PROJECT_PATH: Path to ESP32 project directory (e.g., 'examples/esp32')
-- BUILD_PATH: CI build directory path (optional, default: 'ci_build_path')
 ```
 
 ### **Environment-Specific Features**
@@ -271,9 +270,9 @@ The system now provides two distinct setup approaches optimized for different us
 | Use Case | Setup Script | Key Benefits |
 |----------|--------------|--------------|
 | **Local Development** | `setup_repo.sh` | Complete toolchain, interactive setup, ESP-IDF auto-installation |
-| **CI/CD Pipelines** | `setup_ci.sh` | Minimal dependencies, cache optimization, non-interactive |
+| **CI/CD Pipelines** | ESP-IDF CI action | Direct building, no setup needed, official action |
 | **New Developer Setup** | `setup_repo.sh` | Full environment, user guidance, complete toolchain |
-| **Automated Builds** | `setup_ci.sh` | Fast setup, minimal resources, CI integration |
+| **Automated Builds** | ESP-IDF CI action | Direct building, no setup needed, official action |
 
 ### **Cross-Platform Compatibility**
 
@@ -376,8 +375,7 @@ execute_process(
 
 #### **2. CI/CD Environment Setup**
 ```bash
-# CI environment setup
-./setup_ci.sh
+# CI builds use ESP-IDF CI action directly
 
 # CI process
 1. Cache-aware installation
@@ -498,12 +496,8 @@ execute_process(
 # Local development issues
 ./setup_repo.sh --debug
 
-# CI environment issues
-./setup_ci.sh --debug
-
 # Environment verification
 ./setup_repo.sh --verify  # Local
-./setup_ci.sh --verify    # CI
 ```
 
 ## 🔍 **Troubleshooting and Debugging**
@@ -568,12 +562,10 @@ sudo nano /etc/udev/rules.d/99-esp32.rules
 # For local development (complete environment)
 ./setup_repo.sh
 
-# For CI/CD (minimal environment)
-./setup_ci.sh
+# For CI/CD (ESP-IDF CI action handles everything)
 
 # Check script help for details
 ./setup_repo.sh --help
-./setup_ci.sh --help
 ```
 
 #### **2. Dependency Installation Failures**
@@ -589,7 +581,6 @@ sudo apt-get install git cmake ninja-build ccache
 
 # Verify installation
 ./setup_repo.sh --verify  # Local
-./setup_ci.sh --verify    # CI
 ```
 
 #### **3. ESP-IDF Installation Issues**
@@ -602,7 +593,6 @@ sudo apt-get install git cmake ninja-build ccache
 
 # CI environment
 # Ensure ESP-IDF CI action is properly configured
-# setup_ci.sh doesn't install ESP-IDF
 
 # Verify environment
 source ~/esp/esp-idf/export.sh
@@ -638,7 +628,6 @@ export VERBOSE=1
 # Run with debug output
 ./detect_ports.sh --verbose
 ./setup_repo.sh --debug
-./setup_ci.sh --debug
 ./get_app_info.py --verbose
 ```
 
@@ -672,7 +661,6 @@ export VERBOSE=1
 #### **Setup Commands**
 ```bash
 ./setup_repo.sh [options]     # Local development setup (complete environment)
-./setup_ci.sh [options]       # CI/CD environment setup (minimal dependencies)
 
 # Common options:
 #   --help, -h           - Show usage information
@@ -685,9 +673,6 @@ export VERBOSE=1
 #   --interactive        - Interactive setup mode
 #   --non-interactive   - Non-interactive setup mode
 
-# setup_ci.sh:
-#   --optimize-cache    - Optimize cache for CI
-#   --check-cache       - Check cache status
 ```
 
 #### **Configuration Commands**
@@ -720,7 +705,6 @@ export CLANG_VERSION="20"          # Set Clang version
 export PYTHON_VERSION="3.9"        # Set Python version
 
 # Environment-specific variables
-export BUILD_PATH="ci_build_path"  # CI build path (setup_ci.sh)
 export ESP32_PROJECT_PATH="examples/esp32"  # Project path
 export IDF_TARGET="esp32c6"        # Target MCU
 export BUILD_TYPE="Release"        # Build type
@@ -778,8 +762,8 @@ export PORT_DEBUG=1                # Enable port debug mode
 
 #### **CI/CD Environment Setup**
 ```bash
-# CI-optimized environment setup
-./setup_ci.sh
+# CI builds use ESP-IDF CI action directly
+# No setup needed
 
 # Expected behavior
 - Minimal dependency installation
@@ -817,7 +801,7 @@ add_custom_target(validate_config
 - name: Setup ESP32 Environment
   run: |
     cd examples/esp32
-    ./scripts/setup_ci.sh
+    # CI builds use ESP-IDF CI action directly
 
 - name: Detect ESP32 Ports
   run: |
@@ -836,10 +820,10 @@ add_custom_target(validate_config
 setup_environment:
   script:
     - cd examples/esp32
-    - ./scripts/setup_ci.sh
+    # CI builds use ESP-IDF CI action directly
   artifacts:
     paths:
-      - examples/esp32/ci_build_path/
+      - examples/esp32/build*/
 ```
 
 #### **Jenkins Pipeline Integration**
@@ -851,7 +835,7 @@ pipeline {
     stage('Setup Environment') {
       steps {
         script {
-          sh 'cd examples/esp32 && ./scripts/setup_ci.sh'
+          sh 'cd examples/esp32 && echo "CI builds use ESP-IDF CI action directly"'
         }
       }
     }
@@ -875,8 +859,7 @@ cd examples/esp32
 
 # Choose setup based on environment
 if [[ "$CI" == "true" ]]; then
-    echo "Setting up CI environment..."
-    ./setup_ci.sh
+    echo "CI builds use ESP-IDF CI action directly"
 else
     echo "Setting up local development environment..."
     ./setup_repo.sh
@@ -885,7 +868,7 @@ fi
 # Verify setup
 echo "Verifying setup..."
 if [[ "$CI" == "true" ]]; then
-    ./setup_ci.sh --verify
+    echo "CI builds use ESP-IDF CI action directly"
 else
     ./setup_repo.sh --verify
 fi
@@ -911,7 +894,7 @@ echo "Setup complete!"
 
 #### **2. Environment Setup**
 - **Local Development**: Use `setup_repo.sh` for complete development environment
-- **CI/CD**: Use `setup_ci.sh` for minimal CI dependencies
+- **CI/CD**: Use ESP-IDF CI action directly
 - Verify installation after setup
 - Monitor cache usage and optimization
 - Regular environment verification

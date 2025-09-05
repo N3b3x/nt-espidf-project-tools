@@ -94,7 +94,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]] && ([ "$1" = "--help" ] || [ "$1" = "-h" 
     echo ""
     echo "INTEGRATION:"
     echo "  • setup_repo.sh: Local development environment setup"
-    echo "  • setup_ci.sh: CI environment setup"
+    echo "  • ESP-IDF CI action: Direct CI builds (no setup needed)"
     echo "  • build_app.sh: Application building with environment"
     echo "  • flash_app.sh: Device flashing with environment"
     echo ""
@@ -973,109 +973,3 @@ ci_check_cache_status() {
     fi
 }
 
-# =============================================================================
-# CI BUILD DIRECTORY MANAGEMENT FUNCTIONS
-# =============================================================================
-
-# Function to prepare build directory structure
-ci_prepare_build_directory() {
-    local build_path="${BUILD_PATH:-ci_build_path}"
-    local esp32_project_path="${ESP32_PROJECT_PATH:-examples/esp32}"
-    
-    print_status "Preparing build directory: $build_path"
-    
-    # Remove existing build directory if it exists
-    if [[ -d "$build_path" ]]; then
-        print_status "Removing existing build directory: $build_path"
-        rm -rf "$build_path"
-    fi
-    
-    # Create ESP-IDF project
-    print_status "Creating ESP-IDF project..."
-    idf.py create-project "$build_path"
-    
-    # Copy project files
-    print_status "Copying project files..."
-    cp "$esp32_project_path/CMakeLists.txt" "$build_path/CMakeLists.txt"
-    rm -rf "$build_path/main"
-    cp -r "$esp32_project_path/main" "$build_path/main"
-    cp -r "$esp32_project_path/components" "$build_path/components"
-    cp -r "$esp32_project_path/scripts" "$build_path/scripts"
-    cp "$esp32_project_path/app_config.yml" "$build_path/app_config.yml"
-    cp -r src "$build_path/src"
-    cp -r inc "$build_path/inc"
-    cp "$esp32_project_path/sdkconfig" "$build_path/sdkconfig"
-    
-    print_success "Build directory preparation complete"
-}
-
-# Function to setup and build project
-ci_setup_and_build_project() {
-    local build_path="${BUILD_PATH:-ci_build_path}"
-    local esp32_project_path="${ESP32_PROJECT_PATH:-examples/esp32}"
-    local idf_target="${IDF_TARGET:-esp32c6}"
-    local build_type="${BUILD_TYPE:-Release}"
-    local app_type="${APP_TYPE:-hardfoc_interface}"
-    local idf_version="${IDF_VERSION:-release/v5.5}"
-    
-    print_status "Setting up and building project..."
-    
-    # First prepare the build directory
-    ci_prepare_build_directory
-    
-    # Read and validate app configuration if available
-    if [[ -f "$esp32_project_path/app_config.yml" ]]; then
-        print_status "Reading app configuration..."
-        # This could be enhanced with Python validation
-        print_success "App configuration loaded"
-    fi
-    
-    # Configure and build
-    print_status "Configuring and building project..."
-    idf.py -C "$build_path" \
-        -DIDF_TARGET="$idf_target" \
-        -DCMAKE_BUILD_TYPE="$build_type" \
-        -DAPP_TYPE="$app_type" \
-        --ccache reconfigure build
-    
-    print_success "Build completed successfully"
-    
-    # Generate size reports
-    print_status "Generating size reports..."
-    idf.py -C "$build_path" size-components > "$build_path/build/size.txt"
-    idf.py -C "$build_path" size --format json > "$build_path/build/size.json"
-    
-    # Generate ccache statistics
-    if command_exists ccache; then
-        ccache -s > "$build_path/build/ccache_stats.txt"
-    fi
-    
-    print_success "Size reports generated"
-}
-
-# Function to display build information
-ci_display_build_info() {
-    local build_path="${BUILD_PATH:-ci_build_path}"
-    local idf_target="${IDF_TARGET:-esp32c6}"
-    local build_type="${BUILD_TYPE:-Release}"
-    local app_type="${APP_TYPE:-hardfoc_interface}"
-    local idf_version="${IDF_VERSION:-release/v5.5}"
-    
-    echo ""
-    echo "======================================================="
-    echo "BUILD DIRECTORY SETUP COMPLETE"
-    echo "======================================================="
-    echo "Build Path: $build_path"
-    echo "Target: $idf_target"
-    echo "Build Type: $build_type"
-    echo "App Type: $app_type"
-    echo "ESP-IDF Version: $idf_version"
-    echo "======================================================="
-    
-    if [[ -d "$build_path/build" ]]; then
-        echo "Build artifacts:"
-        ls -la "$build_path/build/" | grep -E '\.(bin|elf|map|txt|json)$' || echo "No build artifacts found"
-    fi
-    
-    echo "======================================================="
-}
