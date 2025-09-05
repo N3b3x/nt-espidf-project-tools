@@ -1,0 +1,119 @@
+# ESP32 HardFOC Interface Wrapper - Application Configuration
+# ===========================================================
+# This configuration file defines all available ESP32 applications,
+# their build configurations, and ESP-IDF version compatibility.
+#
+# STRUCTURE:
+# - metadata: Global defaults and configuration
+# - apps: Individual application definitions
+# - build_config: Build system configuration
+
+metadata:
+  # Default application settings
+  default_app: "gpio_test"
+  default_build_type: "Release"
+  target: "esp32c6"
+  
+  # Supported ESP-IDF versions (in order of preference)
+  idf_versions:
+    - "release/v5.5"
+    - "release/v5.4"
+  
+  # Build types supported for each IDF version (nested array)
+  # Index corresponds to idf_versions array
+  build_types:
+    - ["Debug", "Release"]
+    - ["Debug", "Release"]
+
+# Application definitions
+apps:
+  # GPIO Test Application
+  gpio_test:
+    description: "Basic GPIO functionality test with LED control and button input"
+    source_file: "main/gpio_test.c"
+    target: "esp32c6"
+    ci_enabled: true
+    featured: true
+    idf_versions:
+      - "release/v5.5"
+      - "release/v5.4"
+    build_types:
+      - "Debug"
+      - "Release"
+
+  # ADC Test Application
+  adc_test:
+    description: "Analog-to-Digital Converter test with sensor reading capabilities"
+    source_file: "main/adc_test.c"
+    target: "esp32c6"
+    ci_enabled: true
+    featured: true
+    idf_versions:
+      - "release/v5.5"
+      - "release/v5.4"
+    build_types:
+      - "Debug"
+      - "Release"
+
+  # PIO Test Application
+  pio_test:
+    description: "Programmable I/O test for custom peripheral control"
+    source_file: "main/pio_test.c"
+    target: "esp32c6"
+    ci_enabled: true
+    featured: true
+    idf_versions:
+      - "release/v5.5"
+    build_types:
+      - "Debug"
+      - "Release"
+
+  # Bluetooth Test Application
+  bluetooth_test:
+    description: "Bluetooth Low Energy communication test"
+    source_file: "main/bluetooth_test.c"
+    target: "esp32c6"
+    ci_enabled: true
+    featured: false
+    idf_versions:
+      - "release/v5.5"
+    build_types:
+      - "Debug"
+      - "Release"
+
+  # ASCII Art Application
+  ascii_art:
+    description: "Display ASCII art patterns on LED matrix or serial output"
+    source_file: "main/ascii_art.c"
+    target: "esp32c6"
+    ci_enabled: true
+    featured: true
+    idf_versions:
+      - "release/v5.5"
+      - "release/v5.4"
+    build_types:
+      - "Debug"
+      - "Release"
+
+  # Utilities Test Application
+  utils_test:
+    description: "Utility functions and helper routines test"
+    source_file: "main/utils_test.c"
+    target: "esp32c6"
+    ci_enabled: false
+    featured: false
+    idf_versions:
+      - "release/v5.5"
+    build_types:
+      - "Debug"
+      - "Release"
+
+# Build system configuration
+build_config:
+  # Build directory naming pattern
+  # Placeholders: {app_type}, {build_type}, {target}, {idf_version}
+  build_directory_pattern: "build-app-{app_type}-type-{build_type}-target-{target}-idf-{idf_version}"
+  
+  # Project name pattern
+  # Placeholders: {app_type}
+  project_name_pattern: "esp32_iid_{app_type}_app"
