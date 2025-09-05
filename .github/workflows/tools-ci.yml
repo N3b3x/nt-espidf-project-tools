@@ -1,0 +1,104 @@
+---
+name: Tools CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    uses: N3b3x/hf-espidf-ci-tools/.github/workflows/lint.yml@main
+    with:
+      paths: "**/*.py,**/*.sh,**/*.yml,**/*.yaml,**/*.md"
+
+  security:
+    name: Security
+    uses: N3b3x/hf-espidf-ci-tools/.github/workflows/security.yml@main
+    with:
+      project_dir: "."
+      auto_clone_tools: false
+
+  docs:
+    name: Documentation
+    uses: N3b3x/hf-espidf-ci-tools/.github/workflows/docs.yml@main
+    with:
+      project_dir: "."
+      auto_clone_tools: false
+
+  static-analysis:
+    name: Static Analysis
+    uses: N3b3x/hf-espidf-ci-tools/.github/workflows/static-analysis.yml@main
+    with:
+      project_dir: "."
+      auto_clone_tools: false
+
+  link-check:
+    name: Link Check
+    uses: N3b3x/hf-espidf-ci-tools/.github/workflows/link-check.yml@main
+    with:
+      paths: "docs/**,README.md"
+
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, security, docs, static-analysis, link-check]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate CI summary
+        run: |
+          echo "Generating CI pipeline summary..."
+          cat > ci-summary.md << 'EOF'
+          # CI Pipeline Summary
+          
+          Generated on: $(date)
+          
+          ## Pipeline Status
+          
+          | Job | Status |
+          |-----|--------|
+          | Lint | ${{ needs.lint.result }} |
+          | Security | ${{ needs.security.result }} |
+          | Documentation | ${{ needs.docs.result }} |
+          | Static Analysis | ${{ needs.static-analysis.result }} |
+          | Link Check | ${{ needs.link-check.result }} |
+          
+          ## Overall Status
+          
+          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && needs.docs.result == 'success' && needs.static-analysis.result == 'success' && needs.link-check.result == 'success') && '✅ All checks passed!' || '❌ Some checks failed. Please review the individual job outputs.' }}
+          
+          ## Next Steps
+          
+          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && needs.docs.result == 'success' && needs.static-analysis.result == 'success' && needs.link-check.result == 'success') && 'Ready for merge/deployment!' || 'Please fix the failing checks before proceeding.' }}
+          
+          EOF
+          
+          echo "CI summary generated"
+
+      - name: Upload CI summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-summary
+          path: ci-summary.md
+          retention-days: 7
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('ci-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

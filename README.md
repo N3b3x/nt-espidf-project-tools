@@ -24,6 +24,7 @@
 - [🔄 **Utility Scripts**](#-utility-scripts)
 - [📊 **Configuration Scripts**](#-configuration-scripts)
 - [🚀 **Usage Examples**](#-usage-examples)
+- [🔄 **CI/CD Workflows & Quality Assurance**](#-cicd-workflows--quality-assurance)
 - [🔍 **Troubleshooting**](#-troubleshooting)
 - [🤝 **Contributing**](#-contributing)
 
@@ -31,11 +32,11 @@
 
 ## 🎯 **Overview**
 
-The scripts directory contains a build system designed for ESP32 development, featuring automated ESP-IDF management, build processes, and CI/CD integration.
+This repository contains a **decoupled build system** for ESP32 development that can be used in two flexible ways. The scripts feature automated ESP-IDF management, build processes, and CI/CD integration while maintaining complete portability.
 
 ### 🏆 **Key Features**
 
-- **🚀 Portable Scripts** - Scripts can be placed anywhere and work with any project via `--project-path`
+- **🚀 Dual Usage Modes** - Works both as project-integrated scripts and as portable tools
 - **🔧 Automated ESP-IDF Management** - Auto-detection, installation, and environment setup
 - **📊 Dynamic Configuration Loading** - YAML-based configuration with hierarchical overrides
 - **🔄 Intelligent Build System** - Incremental builds with caching and optimization
@@ -45,118 +46,379 @@ The scripts directory contains a build system designed for ESP32 development, fe
 - **📁 Structured Output** - Parseable build directories and artifact management
 - **🔍 Comprehensive Logging** - Detailed build logs and error reporting
 - **🆕 Environment Separation** - Clear separation between local development and CI environments
-- **🚀 CI Pipeline Optimization** - optimized CI pipeline with parallel execution, smart caching, and reliable tool installation
+- **🚀 CI Pipeline Optimization** - Optimized CI pipeline with parallel execution, smart caching, and reliable tool installation
+
+## 🔄 **Two Usage Modes**
+
+### **Mode 1: Project-Integrated Scripts** 📁
+**When**: Scripts are cloned/copied into your ESP32 project
+**Location**: `your-project/hf-espidf-project-tools/` (default) or `your-project/scripts/` (with special setup)
+**Configuration**: Automatically finds `app_config.yml` in project root
+**Usage**: `./hf-espidf-project-tools/build_app.sh app_name build_type`
+
+```bash
+# Project structure (default)
+your-esp32-project/
+├── app_config.yml          # ← Scripts find this automatically
+├── main/
+├── components/
+└── hf-espidf-project-tools/  # ← Scripts live here (default)
+    ├── build_app.sh
+    ├── flash_app.sh
+    └── config_loader.sh
+
+# Usage (from project root)
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+./hf-espidf-project-tools/flash_app.sh flash_monitor adc_test
+```
+
+**Alternative: `scripts/` Directory** (requires special setup)
+```bash
+# Project structure (alternative)
+your-esp32-project/
+├── app_config.yml          # ← Scripts find this automatically
+├── main/
+├── components/
+└── scripts/                # ← Scripts live here (alternative)
+    ├── build_app.sh
+    ├── flash_app.sh
+    └── config_loader.sh
+
+# Usage (from project root)
+./scripts/build_app.sh gpio_test Release
+./scripts/flash_app.sh flash_monitor adc_test
+```
+
+### **Mode 2: Portable Tools** 🚀
+**When**: Scripts are placed anywhere (shared tools, CI systems, etc.)
+**Location**: Any directory (`/opt/esp32-tools/`, `~/tools/`, CI runners, etc.)
+**Configuration**: Use `--project-path` flag or `PROJECT_PATH` environment variable
+**Usage**: `./build_app.sh --project-path /path/to/project app_name build_type`
+
+```bash
+# Shared tools structure
+/opt/esp32-tools/
+├── build_app.sh
+├── flash_app.sh
+└── config_loader.sh
+
+# Usage (from anywhere)
+/opt/esp32-tools/build_app.sh --project-path ~/my-esp32-project gpio_test Release
+/opt/esp32-tools/flash_app.sh --project-path ~/my-esp32-project flash_monitor adc_test
+
+# Or with environment variable
+export PROJECT_PATH=~/my-esp32-project
+/opt/esp32-tools/build_app.sh gpio_test Release
+```
+
+### **Configuration Discovery** 🔍
+
+Both modes automatically discover the `app_config.yml` configuration file:
+
+| Mode | Discovery Method | Config Location |
+|------|------------------|-----------------|
+| **Project-Integrated** | Parent directory of scripts | `project/app_config.yml` |
+| **Portable** | `--project-path` or `PROJECT_PATH` | `specified-path/app_config.yml` |
+
+**Configuration Priority:**
+1. `--project-path` flag (highest priority)
+2. `PROJECT_PATH` environment variable
+3. Default: parent directory of script location
+
+## 📥 **Getting Started - Project Integration**
+
+### **Method 1: Default Setup (Recommended)** 🚀
+
+Clone the repository directly into your ESP32 project:
+
+```bash
+# Navigate to your ESP32 project
+cd ~/my-esp32-project
+
+# Clone the repository
+git clone https://github.com/N3b3x/hf-espidf-project-tools.git
+
+# Your project structure will be:
+# my-esp32-project/
+# ├── app_config.yml
+# ├── main/
+# ├── components/
+# └── hf-espidf-project-tools/    # ← Repository cloned here
+#     ├── build_app.sh
+#     ├── flash_app.sh
+#     └── ...
+
+# Usage (from project root)
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+./hf-espidf-project-tools/flash_app.sh flash_monitor adc_test
+```
+
+**Benefits:**
+- ✅ Simple one-command setup
+- ✅ Full control over scripts
+- ✅ Easy to update with `git pull`
+- ✅ Can modify scripts if needed
+
+### **Method 2: Git Submodule** 🔗
+
+Keep the scripts as a separate repository while integrating them:
+
+```bash
+# Navigate to your ESP32 project
+cd ~/my-esp32-project
+
+# Add as submodule
+git submodule add https://github.com/N3b3x/hf-espidf-project-tools.git
+
+# Initialize and update the submodule
+git submodule update --init --recursive
+
+# Your project structure will be:
+# my-esp32-project/
+# ├── app_config.yml
+# ├── main/
+# ├── components/
+# └── hf-espidf-project-tools/    # ← Submodule here
+#     ├── build_app.sh
+#     ├── flash_app.sh
+#     └── ...
+
+# Usage (from project root)
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+```
+
+**Benefits:**
+- ✅ Keeps scripts as separate repository
+- ✅ Easy to update with `git submodule update`
+- ✅ Maintains version control
+- ✅ No file duplication
+
+### **Method 3: Custom `scripts/` Directory** (Advanced) ⚙️
+
+If you prefer the scripts to be in a `scripts/` directory, you can achieve this with special setup:
+
+```bash
+# Navigate to your ESP32 project
+cd ~/my-esp32-project
+
+# Clone with custom directory name
+git clone https://github.com/N3b3x/hf-espidf-project-tools.git scripts
+
+# OR add as submodule with custom name
+git submodule add --name scripts https://github.com/N3b3x/hf-espidf-project-tools.git scripts
+
+# Your project structure will be:
+# my-esp32-project/
+# ├── app_config.yml
+# ├── main/
+# ├── components/
+# └── scripts/                    # ← Custom directory name
+#     ├── build_app.sh
+#     ├── flash_app.sh
+#     └── ...
+
+# Usage (from project root)
+./scripts/build_app.sh gpio_test Release
+./scripts/flash_app.sh flash_monitor adc_test
+```
+
+**Note:** This method requires special setup and is not the default behavior. The scripts will work the same way, but you'll need to use `./scripts/` instead of `./hf-espidf-project-tools/` in all commands.
+
+### **Verification** ✅
+
+After setup, verify the integration works:
+
+```bash
+# Navigate to your project root
+cd ~/my-esp32-project
+
+# Test script discovery (default setup)
+./hf-espidf-project-tools/build_app.sh --help
+
+# OR test script discovery (custom scripts/ setup)
+./scripts/build_app.sh --help
+
+# Test configuration loading
+./hf-espidf-project-tools/build_app.sh combinations
+# OR
+./scripts/build_app.sh combinations
+
+# Should show available apps and build combinations
+```
 
 ---
 
-## 🚀 **Portable Scripts**
+## 🚀 **Usage Examples**
 
-All scripts in this directory are designed to be **completely portable** and can be placed anywhere on your system while still working with any ESP32 project.
+### **Mode 1: Project-Integrated Usage** 📁
 
-### **Key Features**
-- **`--project-path` Flag**: All scripts support specifying the project directory
-- **Dynamic Script Detection**: Scripts automatically detect their own location
-- **Flexible Configuration**: Works with absolute or relative project paths
-- **Environment Variables**: Support for `PROJECT_PATH` environment variable
-- **Error Handling**: Clear error messages when project or config files are not found
-
-### **Usage Examples**
+When scripts are part of your ESP32 project:
 
 ```bash
-# Default behavior (scripts in project/scripts/)
-./build_app.sh gpio_test Release
+# Project structure (default)
+my-esp32-project/
+├── app_config.yml
+├── main/
+├── components/
+└── hf-espidf-project-tools/    # ← Scripts are here (default)
+    ├── build_app.sh
+    ├── flash_app.sh
+    └── config_loader.sh
 
-# Portable usage with --project-path
-./build_app.sh --project-path /path/to/project gpio_test Release
-./flash_app.sh --project-path ../project flash_monitor adc_test
-./manage_idf.sh --project-path /opt/esp32-project list
-
-# Environment variable usage
-export PROJECT_PATH=/path/to/project
-./build_app.sh gpio_test Release
-./flash_app.sh flash_monitor adc_test
+# Usage (from project root)
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+./hf-espidf-project-tools/flash_app.sh flash_monitor adc_test
+./hf-espidf-project-tools/manage_idf.sh list
 
 # Python scripts
-python3 get_app_info.py list --project-path /path/to/project
-python3 generate_matrix.py --project-path /path/to/project
+python3 hf-espidf-project-tools/get_app_info.py list
+python3 hf-espidf-project-tools/generate_matrix.py
 ```
 
-### **Portability Scenarios**
+**Alternative: Custom `scripts/` Directory**
+```bash
+# Project structure (alternative)
+my-esp32-project/
+├── app_config.yml
+├── main/
+├── components/
+└── scripts/                    # ← Scripts are here (alternative)
+    ├── build_app.sh
+    ├── flash_app.sh
+    └── config_loader.sh
+
+# Usage (from project root)
+./scripts/build_app.sh gpio_test Release
+./scripts/flash_app.sh flash_monitor adc_test
+./scripts/manage_idf.sh list
+
+# Python scripts
+python3 scripts/get_app_info.py list
+python3 scripts/generate_matrix.py
+```
+
+### **Mode 2: Portable Tools Usage** 🚀
+
+When scripts are shared tools or in CI systems:
 
 ```bash
-# Scenario 1: Multiple ESP32 projects
-./scripts/build_app.sh --project-path ~/projects/robot-controller gpio_test Release
-./scripts/build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+# Shared tools structure
+/opt/esp32-tools/
+├── build_app.sh
+├── flash_app.sh
+└── config_loader.sh
 
-# Scenario 2: Shared build tools
-# Place scripts in /opt/esp32-tools/
-/opt/esp32-tools/build_app.sh --project-path ~/my-project gpio_test Release
+# Usage with --project-path flag
+/opt/esp32-tools/build_app.sh --project-path ~/my-esp32-project gpio_test Release
+/opt/esp32-tools/flash_app.sh --project-path ~/my-esp32-project flash_monitor adc_test
 
-# Scenario 3: Renamed script directories
-mv scripts tools
-./tools/build_app.sh gpio_test Release  # Still works!
+# Usage with environment variable
+export PROJECT_PATH=~/my-esp32-project
+/opt/esp32-tools/build_app.sh gpio_test Release
+/opt/esp32-tools/flash_app.sh flash_monitor adc_test
 
-# Scenario 4: CI/CD flexibility
+# Python scripts
+python3 /opt/esp32-tools/get_app_info.py list --project-path ~/my-esp32-project
+python3 /opt/esp32-tools/generate_matrix.py --project-path ~/my-esp32-project
+```
+
+### **Real-World Scenarios**
+
+```bash
+# Scenario 1: Multiple ESP32 projects with shared tools
+/opt/esp32-tools/build_app.sh --project-path ~/projects/robot-controller gpio_test Release
+/opt/esp32-tools/build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+
+# Scenario 2: CI/CD with portable scripts
 ./ci-scripts/build_app.sh --project-path $GITHUB_WORKSPACE/examples/esp32 gpio_test Release
+
+# Scenario 3: Development with project-integrated scripts
+cd ~/my-esp32-project
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+./hf-espidf-project-tools/flash_app.sh flash_monitor gpio_test
+
+# Scenario 4: Mixed usage (some projects integrated, some portable)
+cd ~/project-with-tools
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+
+cd ~/project-without-tools
+/opt/esp32-tools/build_app.sh --project-path . gpio_test Release
 ```
 
 ---
 
 ## 🏗️ **Script Architecture**
 
-### **Script Dependencies**
+### **Decoupled Design**
+
+The scripts are designed to work in **two flexible modes** while maintaining the same core functionality:
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           📁 CONFIGURATION LAYER                            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  app_config.yml   ──┐                                                       │
-│                     │                                                       │
-│  generate_matrix.py │                                                       │
-│                     │                                                       │
-│  config_loader.sh ──┘                                                       │
-└─────────────────────┬───────────────────────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             🔧 SETUP LAYER                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  setup_common.sh   ──┐                                                      │
-│                      │                                                      │
-│  setup_repo.sh     ──┘                                                      │
-└─────────────────────┬───────────────────────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            🔄 CI/CD LAYER                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  GitHub Actions   ────┐                                                     │
-│                       │                                                     │
-│  Matrix Generation    │                                                     │
-│                       │                                                     │
-│  Parallel Execution   │                                                     │
-│                       │                                                     │
-│  Smart Caching        │                                                     │
-│                       │                                                     │
-│  Artifact Upload    ──┘                                                     │
-└─────────────────────────────────────────────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             🚀 BUILD LAYER                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  build_app.sh  ──────┐                                                      │
-│                      │                                                      │
-│  flash_app.sh        │                                                      │
-│                      │                                                      │
-│  manage_idf.sh     ──┘                                                      │
-└─────────────────────┬───────────────────────────────────────────────────────┘
+# Mode 1: Project-Integrated (default)
+your-esp32-project/
+├── app_config.yml              # ← Configuration file
+├── main/
+├── components/
+└── hf-espidf-project-tools/    # ← Scripts directory (default)
+    ├── build_app.sh
+    ├── flash_app.sh
+    ├── config_loader.sh
+    └── ...
 
-Data Flow:
-app_config.yml → config_loader.sh → build_app.sh
-setup_common.sh → setup_repo.sh → build_app.sh
-  -local: build_app.sh → flash_app.sh
-  -ci: GitHub Actions → Matrix Generation →build_app.sh → Artifact Upload
+# Mode 1: Project-Integrated (alternative)
+your-esp32-project/
+├── app_config.yml              # ← Configuration file
+├── main/
+├── components/
+└── scripts/                    # ← Scripts directory (alternative)
+    ├── build_app.sh
+    ├── flash_app.sh
+    ├── config_loader.sh
+    └── ...
+
+# Mode 2: Portable Tools
+/opt/esp32-tools/               # ← Any location
+├── build_app.sh
+├── flash_app.sh
+├── config_loader.sh
+└── ...
+
+# Usage with --project-path
+/opt/esp32-tools/build_app.sh --project-path /path/to/project app_name build_type
+```
+
+### **Core Scripts**
+
+| Script | Purpose | Dependencies | Usage Modes |
+|--------|---------|--------------|-------------|
+| `build_app.sh` | Main build script | `config_loader.sh` | Both modes |
+| `flash_app.sh` | Device flashing | `config_loader.sh` | Both modes |
+| `config_loader.sh` | Configuration parsing | `yq`, `sed` | Both modes |
+| `manage_idf.sh` | ESP-IDF management | `setup_common.sh` | Both modes |
+| `manage_logs.sh` | Log management | System tools | Both modes |
+| `detect_ports.sh` | Serial port detection | System tools | Both modes |
+| `get_app_info.py` | App information | `pyyaml` | Both modes |
+| `generate_matrix.py` | CI matrix generation | `pyyaml` | Both modes |
+
+### **Configuration Discovery**
+
+Both modes automatically discover `app_config.yml`:
+
+| Mode | Discovery Method | Config Location |
+|------|------------------|-----------------|
+| **Project-Integrated** | Parent directory of scripts | `project/app_config.yml` |
+| **Portable** | `--project-path` or `PROJECT_PATH` | `specified-path/app_config.yml` |
+
+### **Data Flow**
+
+```
+Configuration Discovery:
+├── Mode 1 (default): hf-espidf-project-tools/ → parent directory → app_config.yml
+├── Mode 1 (alternative): scripts/ → parent directory → app_config.yml
+└── Mode 2: --project-path → specified directory → app_config.yml
+
+Build Process:
+app_config.yml → config_loader.sh → build_app.sh → flash_app.sh
 ```
 
 ### **🆕 New Environment Setup Architecture**
@@ -319,28 +581,77 @@ The primary build script that orchestrates the entire build process.
 - **Error Handling** - Comprehensive error checking and reporting
 
 #### **Usage**
+
+**Mode 1: Project-Integrated (default)**
+```bash
+./hf-espidf-project-tools/build_app.sh [OPTIONS] <app_name> <build_type> [idf_version]
+```
+
+**Mode 1: Project-Integrated (alternative)**
 ```bash
 ./scripts/build_app.sh [OPTIONS] <app_name> <build_type> [idf_version]
+```
 
-Options:
-  -c, --clean          Clean build (remove existing build directory)
-  -v, --verbose        Verbose output
-  -h, --help           Show this help message
+**Mode 2: Portable Tools**
+```bash
+./build_app.sh [OPTIONS] --project-path <path> <app_name> <build_type> [idf_version]
+# OR
+export PROJECT_PATH=<path>
+./build_app.sh [OPTIONS] <app_name> <build_type> [idf_version]
+```
 
-Arguments:
-  app_name             Application name from app_config.yml
-  build_type           Build type (Debug, Release)
-  idf_version          ESP-IDF version (optional, uses default if not specified)
+**Options:**
+- `-c, --clean` - Clean build (remove existing build directory)
+- `-v, --verbose` - Verbose output
+- `--project-path <path>` - Path to project directory (portable mode only)
+- `-h, --help` - Show this help message
 
-Examples:
-  ./scripts/build_app.sh gpio_test Release
-  ./scripts/build_app.sh adc_test Debug release/v5.4
-  ./scripts/build_app.sh --clean wifi_test Release
+**Arguments:**
+- `app_name` - Application name from app_config.yml
+- `build_type` - Build type (Debug, Release)
+- `idf_version` - ESP-IDF version (optional, uses default if not specified)
 
-New Enhanced Commands:
-  ./scripts/build_app.sh info <app_name>        # Show app information
-  ./scripts/build_app.sh combinations            # Show all valid combinations
-  ./scripts/build_app.sh validate <app> <type> [idf]  # Validate combination
+**Examples:**
+
+**Mode 1: Project-Integrated (default)**
+```bash
+./hf-espidf-project-tools/build_app.sh gpio_test Release
+./hf-espidf-project-tools/build_app.sh adc_test Debug release/v5.4
+./hf-espidf-project-tools/build_app.sh --clean wifi_test Release
+```
+
+**Mode 1: Project-Integrated (alternative)**
+```bash
+./scripts/build_app.sh gpio_test Release
+./scripts/build_app.sh adc_test Debug release/v5.4
+./scripts/build_app.sh --clean wifi_test Release
+```
+
+**Mode 2: Portable Tools**
+```bash
+./build_app.sh --project-path ~/my-esp32-project gpio_test Release
+./build_app.sh --project-path ~/my-esp32-project adc_test Debug release/v5.4
+export PROJECT_PATH=~/my-esp32-project
+./build_app.sh --clean wifi_test Release
+```
+
+**Enhanced Commands:**
+```bash
+# Show app information
+./hf-espidf-project-tools/build_app.sh info <app_name>                    # Mode 1 (default)
+./scripts/build_app.sh info <app_name>                                    # Mode 1 (alternative)
+./build_app.sh --project-path <path> info <app_name>                      # Mode 2
+
+# Show all valid combinations
+./hf-espidf-project-tools/build_app.sh combinations                       # Mode 1 (default)
+./scripts/build_app.sh combinations                                       # Mode 1 (alternative)
+./build_app.sh --project-path <path> combinations                         # Mode 2
+
+# Validate combination
+./hf-espidf-project-tools/build_app.sh validate <app> <type> [idf]        # Mode 1 (default)
+./scripts/build_app.sh validate <app> <type> [idf]                        # Mode 1 (alternative)
+./build_app.sh --project-path <path> validate <app> <type> [idf]          # Mode 2
+```
 ```
 
 #### **Environment Variables**
@@ -374,19 +685,53 @@ Handles device flashing, monitoring, and related operations.
 - **Error Handling** - Comprehensive error checking and recovery
 
 #### **Usage**
+
+**Mode 1: Project-Integrated (default)**
+```bash
+./hf-espidf-project-tools/flash_app.sh <action> [app_name] [build_type]
+```
+
+**Mode 1: Project-Integrated (alternative)**
 ```bash
 ./scripts/flash_app.sh <action> [app_name] [build_type]
+```
 
-Actions:
-  flash                Flash firmware only
-  monitor              Monitor serial output only
-  flash_monitor        Flash and then monitor
-  flash_erase          Erase flash and flash firmware
+**Mode 2: Portable Tools**
+```bash
+./flash_app.sh --project-path <path> <action> [app_name] [build_type]
+# OR
+export PROJECT_PATH=<path>
+./flash_app.sh <action> [app_name] [build_type]
+```
 
-Examples:
-  ./scripts/flash_app.sh flash_monitor gpio_test Release
-  ./scripts/flash_app.sh monitor
-  ./scripts/flash_app.sh flash_erase adc_test Debug
+**Actions:**
+- `flash` - Flash firmware only
+- `monitor` - Monitor serial output only
+- `flash_monitor` - Flash and then monitor
+- `flash_erase` - Erase flash and flash firmware
+
+**Examples:**
+
+**Mode 1: Project-Integrated (default)**
+```bash
+./hf-espidf-project-tools/flash_app.sh flash_monitor gpio_test Release
+./hf-espidf-project-tools/flash_app.sh monitor
+./hf-espidf-project-tools/flash_app.sh flash_erase adc_test Debug
+```
+
+**Mode 1: Project-Integrated (alternative)**
+```bash
+./scripts/flash_app.sh flash_monitor gpio_test Release
+./scripts/flash_app.sh monitor
+./scripts/flash_app.sh flash_erase adc_test Debug
+```
+
+**Mode 2: Portable Tools**
+```bash
+./flash_app.sh --project-path ~/my-esp32-project flash_monitor gpio_test Release
+./flash_app.sh --project-path ~/my-esp32-project monitor
+export PROJECT_PATH=~/my-esp32-project
+./flash_app.sh flash_erase adc_test Debug
 ```
 
 ---
@@ -687,6 +1032,22 @@ Python script that generates CI/CD build matrices from centralized configuration
 ```
 
 #### **Usage Examples**
+**Mode 1: Project-Integrated (default)**
+```bash
+# Basic usage (output to stdout)
+python3 hf-espidf-project-tools/generate_matrix.py
+
+# YAML format output
+python3 hf-espidf-project-tools/generate_matrix.py --format yaml
+
+# Filter for specific app
+python3 hf-espidf-project-tools/generate_matrix.py --filter gpio_test
+
+# Validate configuration
+python3 hf-espidf-project-tools/generate_matrix.py --validate
+```
+
+**Mode 1: Project-Integrated (alternative)**
 ```bash
 # Basic usage (output to stdout)
 python3 scripts/generate_matrix.py
@@ -699,15 +1060,39 @@ python3 scripts/generate_matrix.py --filter gpio_test
 
 # Validate configuration
 python3 scripts/generate_matrix.py --validate
+```
 
+**Mode 2: Portable Tools**
+```bash
+# Basic usage with project path
+python3 generate_matrix.py --project-path ~/my-esp32-project
+
+# YAML format output
+python3 generate_matrix.py --project-path ~/my-esp32-project --format yaml
+
+# Filter for specific app
+python3 generate_matrix.py --project-path ~/my-esp32-project --filter gpio_test
+
+# Validate configuration
+python3 generate_matrix.py --project-path ~/my-esp32-project --validate
+```
+
+**Advanced Examples:**
+```bash
 # Verbose output with validation
-python3 scripts/generate_matrix.py --verbose --validate
+python3 hf-espidf-project-tools/generate_matrix.py --verbose --validate                    # Mode 1 (default)
+python3 scripts/generate_matrix.py --verbose --validate                                    # Mode 1 (alternative)
+python3 generate_matrix.py --project-path <path> --verbose --validate                     # Mode 2
 
 # Output to file
-python3 scripts/generate_matrix.py --output matrix.json
+python3 hf-espidf-project-tools/generate_matrix.py --output matrix.json                   # Mode 1 (default)
+python3 scripts/generate_matrix.py --output matrix.json                                   # Mode 1 (alternative)
+python3 generate_matrix.py --project-path <path> --output matrix.json                     # Mode 2
 
 # Complex combination
+python3 hf-espidf-project-tools/generate_matrix.py --filter wifi_test --validate --verbose --format yaml --output wifi_matrix.yaml
 python3 scripts/generate_matrix.py --filter wifi_test --validate --verbose --format yaml --output wifi_matrix.yaml
+python3 generate_matrix.py --project-path <path> --filter wifi_test --validate --verbose --format yaml --output wifi_matrix.yaml
 ```
 
 #### **Output Structure**
@@ -818,6 +1203,22 @@ The script automatically detects configuration files from:
 #### **CI Integration**
 
 **GitHub Actions**
+
+**Mode 1: Project-Integrated (default)**
+```yaml
+- name: Generate Build Matrix
+  run: |
+    MATRIX=$(python3 hf-espidf-project-tools/generate_matrix.py)
+    echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+- name: Build Applications
+  strategy:
+    matrix: ${{ fromJson(steps.matrix.outputs.matrix) }}
+  run: |
+    ./hf-espidf-project-tools/build_app.sh ${{ matrix.app_name }} ${{ matrix.build_type }}
+```
+
+**Mode 1: Project-Integrated (alternative)**
 ```yaml
 - name: Generate Build Matrix
   run: |
@@ -828,7 +1229,21 @@ The script automatically detects configuration files from:
   strategy:
     matrix: ${{ fromJson(steps.matrix.outputs.matrix) }}
   run: |
-    python3 scripts/build_app.sh ${{ matrix.app_name }} ${{ matrix.build_type }}
+    ./scripts/build_app.sh ${{ matrix.app_name }} ${{ matrix.build_type }}
+```
+
+**Mode 2: Portable Tools**
+```yaml
+- name: Generate Build Matrix
+  run: |
+    MATRIX=$(python3 /opt/esp32-tools/generate_matrix.py --project-path ${{ github.workspace }})
+    echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+- name: Build Applications
+  strategy:
+    matrix: ${{ fromJson(steps.matrix.outputs.matrix) }}
+  run: |
+    /opt/esp32-tools/build_app.sh --project-path ${{ github.workspace }} ${{ matrix.app_name }} ${{ matrix.build_type }}
 ```
 
 **GitLab CI**
@@ -1003,17 +1418,30 @@ The build system now includes several new commands for better user experience an
 ./setup_repo.sh          # Local development
 
 # 2. Build application
-./scripts/build_app.sh gpio_test Release
+./hf-espidf-project-tools/build_app.sh gpio_test Release
 
 # 3. Flash and monitor
-./scripts/flash_app.sh flash_monitor gpio_test Release
+./hf-espidf-project-tools/flash_app.sh flash_monitor gpio_test Release
 
 # 4. Monitor only
-./scripts/flash_app.sh monitor
+./hf-espidf-project-tools/flash_app.sh monitor
 ```
 
 ### **CI/CD Integration**
 
+**Mode 1: Project-Integrated (default)**
+```yaml
+# GitHub Actions workflow
+- name: ESP-IDF Build
+  run: |
+    # Build application directly (no setup needed)
+    ./hf-espidf-project-tools/build_app.sh "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
+    
+    # Capture build directory for artifacts
+    echo "build_dir=$ESP32_BUILD_APP_MOST_RECENT_DIRECTORY" >> $GITHUB_OUTPUT
+```
+
+**Mode 1: Project-Integrated (alternative)**
 ```yaml
 # GitHub Actions workflow
 - name: ESP-IDF Build
@@ -1024,6 +1452,149 @@ The build system now includes several new commands for better user experience an
     # Capture build directory for artifacts
     echo "build_dir=$ESP32_BUILD_APP_MOST_RECENT_DIRECTORY" >> $GITHUB_OUTPUT
 ```
+
+**Mode 2: Portable Tools**
+```yaml
+# GitHub Actions workflow
+- name: ESP-IDF Build
+  run: |
+    # Build application directly (no setup needed)
+    /opt/esp32-tools/build_app.sh --project-path ${{ github.workspace }} "${{ matrix.app_name }}" "${{ matrix.build_type }}" "${{ matrix.idf_version }}"
+    
+    # Capture build directory for artifacts
+    echo "build_dir=$ESP32_BUILD_APP_MOST_RECENT_DIRECTORY" >> $GITHUB_OUTPUT
+```
+
+## 🔄 **CI/CD Workflows & Quality Assurance**
+
+This repository includes comprehensive CI/CD workflows that ensure code quality, security, and reliability. All workflows run automatically on every push and pull request.
+
+### **🛠️ Available Workflows**
+
+| Workflow | Purpose | Files Checked | Tools Used |
+|----------|---------|---------------|------------|
+| **[Lint Check](.github/workflows/tools-ci.yml)** | Code formatting & style | Python, Shell, YAML, Markdown | `black`, `isort`, `flake8`, `shellcheck`, `yamllint`, `markdownlint` |
+| **[Security Scan](.github/workflows/tools-ci.yml)** | Vulnerability detection | Dependencies, secrets, code | `pip-audit`, `safety`, `bandit`, `gitleaks`, `CodeQL` |
+| **[Documentation](.github/workflows/tools-ci.yml)** | Docs validation | README, docs/, script headers | Custom validation, link checking |
+| **[Static Analysis](.github/workflows/tools-ci.yml)** | Code quality | Python files | `pylint`, `pydocstyle`, `radon`, `xenon` |
+| **[Link Check](.github/workflows/tools-ci.yml)** | Link validation | All markdown files | `markdown-link-check` |
+
+### **📊 CI Pipeline Overview**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    🚀 Push/PR Trigger                          │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+        ▼             ▼             ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ 🔍 Lint     │ │ 🛡️ Security │ │ 📚 Docs     │
+│ Check       │ │ Scan        │ │ Validation  │
+└─────────────┘ └─────────────┘ └─────────────┘
+        │             │             │
+        └─────────────┼─────────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+        ▼             ▼             ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ 🔬 Static   │ │ 🔗 Link     │ │             │
+│ Analysis    │ │ Check       │ │             │
+└─────────────┘ └─────────────┘ └─────────────┘
+        │             │             │
+        └─────────────┼─────────────┘
+                      │
+                      ▼
+            ┌─────────────────┐
+            │ 📊 CI Summary   │
+            │ & Reporting     │
+            └─────────┬───────┘
+                      │
+            ┌─────────┼─────────┐
+            │         │         │
+            ▼         ▼         ▼
+    ┌─────────────┐ ┌─────────────┐
+    │ 💬 PR       │ │ 📦 Artifact │
+    │ Comment     │ │ Upload      │
+    └─────────────┘ └─────────────┘
+
+All jobs run in PARALLEL for maximum speed! ⚡
+```
+
+### **🔍 What Each Workflow Does**
+
+#### **1. Lint Check** 🔍
+- **Python Code**: Formats with `black`, sorts imports with `isort`, checks style with `flake8`
+- **Shell Scripts**: Validates syntax and best practices with `shellcheck`
+- **YAML Files**: Checks syntax and formatting with `yamllint`
+- **Markdown**: Validates documentation formatting with `markdownlint`
+- **Files**: `generate_matrix.py`, `get_app_info.py`, `*.sh`, `.github/workflows/*.yml`, `*.md`
+
+#### **2. Security Scan** 🛡️
+- **Dependency Scanning**: Checks `requirements.txt` for vulnerabilities using `pip-audit` and `safety`
+- **Secret Detection**: Scans for accidentally committed API keys, passwords, and tokens using `gitleaks`
+- **Code Analysis**: Runs `bandit` to find security issues in Python code
+- **Static Analysis**: Uses GitHub's CodeQL to find security vulnerabilities
+
+#### **3. Documentation Validation** 📚
+- **Structure Check**: Verifies all required documentation files exist
+- **Content Validation**: Ensures documentation is complete and properly formatted
+- **Link Verification**: Checks internal documentation links work correctly
+- **Generation**: Creates documentation index and summaries
+
+#### **4. Static Analysis** 🔬
+- **Code Quality**: Analyzes Python code complexity and maintainability
+- **Best Practices**: Checks for common programming mistakes and anti-patterns
+- **Documentation**: Validates docstrings and code comments
+- **Complexity**: Measures cyclomatic complexity to identify overly complex code
+
+#### **5. Link Check** 🔗
+- **Internal Links**: Verifies all markdown links within the repository work
+- **External Links**: Checks that external URLs are accessible
+- **Cross-References**: Ensures documentation references are valid
+- **GitHub Links**: Validates GitHub repository and issue links
+
+### **⚡ Quick Local Testing**
+
+Before pushing, you can run similar checks locally:
+
+```bash
+# Python formatting and linting
+black --check --diff .
+isort --check-only --diff .
+flake8 . --max-line-length=100
+
+# Shell script validation
+find . -name "*.sh" -exec shellcheck {} \;
+
+# Security checks
+pip-audit --requirement requirements.txt
+safety check --requirement requirements.txt
+
+# Markdown link checking
+markdown-link-check README.md
+```
+
+### **📈 CI Performance**
+
+- **Total Runtime**: ~5-10 minutes (all jobs run in parallel)
+- **Resource Usage**: Optimized for efficiency
+- **Caching**: Uses GitHub Actions caching for faster runs
+- **Artifacts**: Generates reports and summaries for download
+
+### **🆘 Troubleshooting CI Issues**
+
+| Issue | Solution |
+|-------|----------|
+| `black: code formatting issues` | Run `black .` to auto-fix |
+| `shellcheck: SC2034` | Remove or use unused variables |
+| `flake8: E501` | Break long lines or add `# noqa: E501` |
+| `gitleaks: secret detected` | Remove secret and rotate keys |
+| `markdown-link-check: 404` | Fix or remove broken links |
+
+For detailed CI documentation, see [`.github/README.md`](.github/README.md).
 
 ### **Advanced Configuration**
 
@@ -1252,6 +1823,7 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](../../LIC
 - [ESP32 Examples README](../README.md) - Examples overview and usage
 - [Main Project README](../../README.md) - Project overview and architecture
 - [CI/CD Workflows](../../.github/workflows/) - GitHub Actions workflows
+- [**CI Pipeline Documentation**](.github/README.md) - Detailed CI/CD workflow explanations
 - [ESP-IDF Documentation](https://docs.espressif.com/projects/esp-idf/) - ESP-IDF reference
 
 ---
