@@ -1,10 +1,13 @@
 # Multi-Version ESP-IDF Support
 
-This document explains how the ESP32 HardFOC Interface Wrapper supports multiple ESP-IDF versions for different applications.
+This document explains how the ESP32 HardFOC Interface Wrapper supports multiple ESP-IDF versions
+for different applications.
 
 ## Overview
 
-The system now supports installing and managing multiple ESP-IDF versions simultaneously, allowing different apps to use different ESP-IDF versions as specified in `app_config.yml`. This is particularly useful when:
+The system now supports installing and managing multiple ESP-IDF versions simultaneously,
+allowing different apps to use different ESP-IDF versions as specified in `app*config.yml`.
+This is particularly useful when:
 
 - Some apps require newer ESP-IDF features (e.g., v5.5)
 - Some apps need to maintain compatibility with older versions (e.g., v5.4)
@@ -15,146 +18,147 @@ The system now supports installing and managing multiple ESP-IDF versions simult
 
 ### Directory Structure
 
-```
+```yaml
 $HOME/esp/
-├── esp-idf-release_v5.5/     # ESP-IDF v5.5 installation
-├── esp-idf-release_v5.4/     # ESP-IDF v5.4 installation
-└── esp-idf -> esp-idf-release_v5.5/  # Default symlink
-```
+├── esp-idf-release*v5.5/     # ESP-IDF v5.5 installation
+├── esp-idf-release*v5.4/     # ESP-IDF v5.4 installation
+└── esp-idf -> esp-idf-release*v5.5/  # Default symlink
+```text
 
 ### Version Naming Convention
 
 ESP-IDF versions are stored with forward slashes converted to underscores:
-- `release/v5.5` → `esp-idf-release_v5.5/`
-- `release/v5.4` → `esp-idf-release_v5.4/`
+- `release/v5.5` → `esp-idf-release*v5.5/`
+- `release/v5.4` → `esp-idf-release*v5.4/`
 
 ## Configuration
 
-### app_config.yml Structure
+### app*config.yml Structure
 
 ```yaml
 metadata:
   # Global ESP-IDF versions - used by all apps unless overridden
-  idf_versions: ["release/v5.5", "release/v5.4"]
+  idf*versions: ["release/v5.5", "release/v5.4"]
   # Build types per IDF version: [["Debug", "Release"], ["Debug"]] 
-  # First array: build types for first IDF version (v5.5), second array: build types for second IDF version (v5.4)
-  default_build_types: [["Debug", "Release"], ["Debug"]]
+## First array: build types for first IDF version (v5.5), second array: build types for second IDF
+version (v5.4)
+  default*build*types: [["Debug", "Release"], ["Debug"]]
 
 apps:
-  gpio_test:
+  gpio*test:
     # Override global: use only ESP-IDF v5.5 with Debug and Release
-    idf_versions: ["release/v5.5"]
-    build_types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    build*types: ["Debug", "Release"]
     
-  legacy_app:
+  legacy*app:
     # Override global: use only ESP-IDF v5.4 with Debug only
-    idf_versions: ["release/v5.4"]
-    build_types: ["Debug"]
-```
+    idf*versions: ["release/v5.4"]
+    build*types: ["Debug"]
+```text
 
 ### App-Specific Overrides
 
 Apps can override the global ESP-IDF version and build type settings:
 
-1. **No override**: App uses global settings from `metadata.idf_versions`
-2. **Partial override**: App specifies only `idf_versions` or only `build_types`
-3. **Full override**: App specifies both `idf_versions` and `build_types`
+1. **No override**: App uses global settings from `metadata.idf*versions`
+2. **Partial override**: App specifies only `idf*versions` or only `build*types`
+3. **Full override**: App specifies both `idf*versions` and `build*types`
 
 ## Management Scripts
 
-### manage_idf.sh
+### manage*idf.sh
 
 The main script for managing ESP-IDF versions:
 
 ```bash
-# Install all required ESP-IDF versions from app_config.yml
-./manage_idf.sh install
+## Install all required ESP-IDF versions from app*config.yml
+./manage*idf.sh install
 
-# List installed versions
-./manage_idf.sh list
+## List installed versions
+./manage*idf.sh list
 
-# Export environment for specific version
-./manage_idf.sh export release/v5.4
+## Export environment for specific version
+./manage*idf.sh export release/v5.4
 
-# Switch default version
-./manage_idf.sh switch release/v5.4
+## Switch default version
+./manage*idf.sh switch release/v5.4
 
-# Update specific version
-./manage_idf.sh update release/v5.5
+## Update specific version
+./manage*idf.sh update release/v5.5
 
-# Remove specific version
-./manage_idf.sh clean release/v5.4
+## Remove specific version
+./manage*idf.sh clean release/v5.4
 
-# Show current status
-./manage_idf.sh status
-```
+## Show current status
+./manage*idf.sh status
+```text
 
-### build_unified.sh
+### build*unified.sh
 
 Enhanced build script with ESP-IDF version support:
 
 ```bash
-# Build with specific ESP-IDF version
-IDF_VERSION=release/v5.4 APP_TYPE=gpio_test ./build_unified.sh
+## Build with specific ESP-IDF version
+IDF*VERSION=release/v5.4 APP*TYPE=gpio*test ./build*unified.sh
 
-# List available ESP-IDF versions
-./build_unified.sh --list-versions
+## List available ESP-IDF versions
+./build*unified.sh --list-versions
 
-# Validate configuration before building
-./build_unified.sh --prepare-only
-```
+## Validate configuration before building
+./build*unified.sh --prepare-only
+```text
 
-### build_app.sh
+### build*app.sh
 
 Standard build script with automatic ESP-IDF version handling:
 
 ```bash
-# Build with specific ESP-IDF version
-./build_app.sh gpio_test Release release/v5.4
+## Build with specific ESP-IDF version
+./build*app.sh gpio*test Release release/v5.4
 
-# Build with default version
-./build_app.sh gpio_test Release
-```
+## Build with default version
+./build*app.sh gpio*test Release
+```text
 
 ## Usage Examples
 
 ### 1. Initial Setup
 
 ```bash
-# Navigate to examples/esp32/scripts
+## Navigate to examples/esp32/scripts
 cd examples/esp32/scripts
 
-# Install all required ESP-IDF versions
-./manage_idf.sh install
+## Install all required ESP-IDF versions
+./manage*idf.sh install
 
-# Verify installation
-./manage_idf.sh status
-```
+## Verify installation
+./manage*idf.sh status
+```text
 
 ### 2. Building Different Apps with Different Versions
 
 ```bash
-# Build gpio_test with ESP-IDF v5.5
-./build_app.sh gpio_test Release release/v5.5
+## Build gpio*test with ESP-IDF v5.5
+./build*app.sh gpio*test Release release/v5.5
 
-# Build legacy_app with ESP-IDF v5.4
-./build_app.sh legacy_app Debug release/v5.4
-```
+## Build legacy*app with ESP-IDF v5.4
+./build*app.sh legacy*app Debug release/v5.4
+```text
 
 ### 3. Manual Version Switching
 
 ```bash
-# Export ESP-IDF v5.4 environment
-./manage_idf.sh export release/v5.4
+## Export ESP-IDF v5.4 environment
+./manage*idf.sh export release/v5.4
 
-# Verify environment
-echo $IDF_PATH
-echo $IDF_VERSION
+## Verify environment
+echo $IDF*PATH
+echo $IDF*VERSION
 idf.py --version
 
-# Switch default version
-./manage_idf.sh switch release/v5.4
-```
+## Switch default version
+./manage*idf.sh switch release/v5.4
+```text
 
 ## Environment Variables
 
@@ -162,19 +166,19 @@ idf.py --version
 
 When using the build scripts, the following environment variables are automatically set:
 
-- `IDF_PATH`: Path to the ESP-IDF installation directory
-- `IDF_VERSION`: Current ESP-IDF version being used
+- `IDF*PATH`: Path to the ESP-IDF installation directory
+- `IDF*VERSION`: Current ESP-IDF version being used
 - `PATH`: Updated to include ESP-IDF tools
 
 ### Manual Export
 
 ```bash
-# Source the common setup functions
-source ./setup_common.sh
+## Source the common setup functions
+source ./setup*common.sh
 
-# Export specific version
-export_esp_idf_version "release/v5.4"
-```
+## Export specific version
+export*esp*idf*version "release/v5.4"
+```text
 
 ## Validation
 
@@ -189,17 +193,17 @@ The system automatically validates:
 ### Error Handling
 
 ```bash
-# Example error when app doesn't support ESP-IDF version
-ERROR: App 'gpio_test' does not support ESP-IDF version 'release/v5.4'
-Supported versions for 'gpio_test': release/v5.5
+## Example error when app doesn't support ESP-IDF version
+ERROR: App 'gpio*test' does not support ESP-IDF version 'release/v5.4'
+Supported versions for 'gpio*test': release/v5.5
 Global ESP-IDF versions: release/v5.5 release/v5.4
 
-# Example error when ESP-IDF version not installed
+## Example error when ESP-IDF version not installed
 ERROR: Failed to source ESP-IDF environment for version release/v5.4
 Available versions:
   - release/v5.5
-To install required versions, run: ./scripts/manage_idf.sh install
-```
+To install required versions, run: ./scripts/manage*idf.sh install
+```text
 
 ## CI/CD Integration
 
@@ -212,37 +216,37 @@ jobs:
   build-matrix:
     strategy:
       matrix:
-        idf_version: [release/v5.5, release/v5.4]
-        app_type: [gpio_test, adc_test]
-        build_type: [Debug, Release]
+        idf*version: [release/v5.5, release/v5.4]
+        app*type: [gpio*test, adc*test]
+        build*type: [Debug, Release]
     
     steps:
       - uses: actions/checkout@v3
-      - name: Setup ESP-IDF ${{ matrix.idf_version }}
+      - name: Setup ESP-IDF ${{ matrix.idf*version }}
         run: |
           cd examples/esp32/scripts
-          ./manage_idf.sh install
-          ./manage_idf.sh export ${{ matrix.idf_version }}
+          ./manage*idf.sh install
+          ./manage*idf.sh export ${{ matrix.idf*version }}
       
-      - name: Build ${{ matrix.app_type }}
+      - name: Build ${{ matrix.app*type }}
         run: |
           cd examples/esp32/scripts
-          ./build_app.sh ${{ matrix.app_type }} ${{ matrix.build_type }} ${{ matrix.idf_version }}
-```
+          ./build*app.sh ${{ matrix.app*type }} ${{ matrix.build*type }} ${{ matrix.idf*version }}
+```text
 
 ### Local Development
 
 ```bash
-# Quick development cycle with version switching
-./manage_idf.sh export release/v5.5
-./build_app.sh gpio_test Debug
-# ... make changes ...
-./build_app.sh gpio_test Debug
+## Quick development cycle with version switching
+./manage*idf.sh export release/v5.5
+./build*app.sh gpio*test Debug
+## ... make changes ...
+./build*app.sh gpio*test Debug
 
-# Test with different version
-./manage_idf.sh export release/v5.4
-./build_app.sh gpio_test Debug
-```
+## Test with different version
+./manage*idf.sh export release/v5.4
+./build*app.sh gpio*test Debug
+```bash
 
 ## Troubleshooting
 
@@ -251,25 +255,25 @@ jobs:
 1. **ESP-IDF Version Not Found**
    ```bash
    # Install missing versions
-   ./manage_idf.sh install
+   ./manage*idf.sh install
    ```
 
-2. **Environment Not Exported**
+1. **Environment Not Exported**
    ```bash
    # Manually export environment
-   ./manage_idf.sh export release/v5.5
+   ./manage*idf.sh export release/v5.5
    ```
 
-3. **App Compatibility Issues**
+1. **App Compatibility Issues**
    ```bash
    # Check app requirements
-   ./test_multi_idf.sh --test-apps
+   ./test*multi*idf.sh --test-apps
    ```
 
-4. **Build Failures**
+1. **Build Failures**
    ```bash
    # Validate configuration
-   ./build_unified.sh --prepare-only
+   ./build*unified.sh --prepare-only
    ```
 
 ### Debug Mode
@@ -277,21 +281,21 @@ jobs:
 Enable verbose output for troubleshooting:
 
 ```bash
-# Set debug environment variable
-export SETUP_DEBUG=1
+## Set debug environment variable
+export SETUP*DEBUG=1
 
-# Run commands with verbose output
-./manage_idf.sh status
-./build_app.sh gpio_test Debug release/v5.5
-```
+## Run commands with verbose output
+./manage*idf.sh status
+./build*app.sh gpio*test Debug release/v5.5
+```text
 
 ## Best Practices
 
 ### 1. Version Management
 
 - Keep only the ESP-IDF versions you actually need
-- Regularly update installed versions with `./manage_idf.sh update <version>`
-- Use `./manage_idf.sh clean <version>` to remove unused versions
+- Regularly update installed versions with `./manage*idf.sh update <version>`
+- Use `./manage*idf.sh clean <version>` to remove unused versions
 
 ### 2. App Configuration
 
@@ -307,9 +311,9 @@ export SETUP_DEBUG=1
 
 ### 4. Environment Management
 
-- Use `./manage_idf.sh export <version>` for manual development
+- Use `./manage*idf.sh export <version>` for manual development
 - Let build scripts handle automatic environment switching
-- Avoid manually setting `IDF_PATH` when using the build system
+- Avoid manually setting `IDF*PATH` when using the build system
 
 ## Future Enhancements
 
@@ -327,10 +331,15 @@ To contribute to the multi-version ESP-IDF system:
 1. Test with multiple ESP-IDF versions
 2. Validate app compatibility across versions
 3. Update documentation for new features
-4. Add tests to `test_multi_idf.sh`
+4. Add tests to `test*multi*idf.sh`
 
 ## Conclusion
 
-The multi-version ESP-IDF support provides flexibility and compatibility for the ESP32 HardFOC Interface Wrapper. By allowing different apps to use different ESP-IDF versions, the system can accommodate diverse requirements while maintaining a clean and manageable development environment.
+The multi-version ESP-IDF support provides flexibility and compatibility for the ESP32 HardFOC
+Interface Wrapper.
+By allowing different apps to use different ESP-IDF versions,
+the system can accommodate diverse requirements while maintaining a clean and manageable development
+environment.
 
-For questions or issues, refer to the main project documentation or create an issue in the project repository.
+For questions or issues, refer to the main project documentation or create an issue in the project
+repository.

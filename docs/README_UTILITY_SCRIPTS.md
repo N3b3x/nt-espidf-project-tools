@@ -1,10 +1,12 @@
 # ESP32 Interface Wrapper - Utility Scripts Guide
 
-This document provides comprehensive documentation for the ESP32 utility scripts, including port detection, setup automation, and helper tools for development workflow management.
+This document provides comprehensive documentation for the ESP32 utility scripts, including port
+detection, setup automation, and helper tools for development workflow management.
 
 ---
 
-**Navigation**: [← Previous: Logging System](README_LOGGING_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Port Detection →](README_PORT_DETECTION.md)
+**Navigation**: [← Previous: Logging System](README*LOGGING*SYSTEM.md) | [Back to
+Scripts](../README.md) | [Next: Port Detection →](README*PORT*DETECTION.md)
 
 ---
 
@@ -21,7 +23,10 @@ This document provides comprehensive documentation for the ESP32 utility scripts
 
 ## 📋 **Overview**
 
-The ESP32 utility scripts provide essential tools for development environment setup, port detection, troubleshooting, and workflow automation. These scripts ensure consistent development environments across different platforms and provide intelligent automation for common development tasks.
+The ESP32 utility scripts provide essential tools for development environment setup,
+port detection, troubleshooting, and workflow automation.
+These scripts ensure consistent development environments across different platforms and provide
+intelligent automation for common development tasks.
 
 ### **Core Features**
 - **Cross-Platform Port Detection**: Automatic ESP32 device identification
@@ -41,19 +46,19 @@ The ESP32 utility scripts provide essential tools for development environment se
 ## 🏗️ **Architecture and Design**
 
 ### **New System Architecture**
-```
+```text
 Utility Scripts → Environment Detection → Setup Selection → Tool Installation → Validation
       ↓              ↓                    ↓                ↓                ↓
-Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environment
+Port Detection   Local vs CI        setup*repo.sh      Dependency Mgmt   Environment
 & Troubleshooting  Environment       vs ESP-IDF CI      & Installation    Verification
-```
+```text
 
 ### **Environment Setup Architecture**
 
-```
+```python
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           SETUP COMMON FUNCTIONS                            │
-│                    (setup_common.sh - shared utilities)                     │
+│                    (setup*common.sh - shared utilities)                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  • System dependency installation                                           │
 │  • Clang toolchain setup                                                    │
@@ -67,7 +72,7 @@ Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environ
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    ENVIRONMENT-SPECIFIC SETUP                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
+│  🏠 LOCAL DEVELOPMENT (setup*repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
 │  • Full development environment              • ESP-IDF CI action handles    │
 │  • Interactive user setup                    • Direct project building      │
 │  • Complete tool installation                • Cache-aware installation     │
@@ -80,12 +85,12 @@ Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environ
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           BUILD SYSTEM INTEGRATION                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  • build_app.sh uses environment from setup                                 │
-│  • flash_app.sh integrates with setup                                       │
+│  • build*app.sh uses environment from setup                                 │
+│  • flash*app.sh integrates with setup                                       │
 │  • CI workflows use ESP-IDF CI action directly                              │
-│  • Local development uses setup_repo.sh for environment                     │
+│  • Local development uses setup*repo.sh for environment                     │
 └─────────────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 ### **Component Interaction**
 - **Port Detection**: Cross-platform ESP32 device identification
@@ -110,98 +115,98 @@ Port Detection   Local vs CI        setup_repo.sh      Dependency Mgmt   Environ
 The system automatically detects ESP32 devices on Linux:
 
 ```bash
-# USB serial device patterns
+## USB serial device patterns
 /dev/ttyUSB0, /dev/ttyUSB1, /dev/ttyACM0
 
-# ESP32-specific USB identifiers
+## ESP32-specific USB identifiers
 CP210x: Silicon Labs CP210x USB to UART Bridge
 CH340: WCH CH340 USB to Serial
 FTDI: FTDI FT232R USB UART
 CDC ACM: USB CDC ACM devices
 
-# Automatic detection
-./detect_ports.sh --verbose
-```
+## Automatic detection
+./detect*ports.sh --verbose
+```text
 
 #### **macOS Port Detection**
 The system adapts to macOS-specific device patterns:
 
 ```bash
-# macOS device patterns
-/dev/cu.usbserial-*, /dev/cu.SLAB_USBtoUART*
+## macOS device patterns
+/dev/cu.usbserial-*, /dev/cu.SLAB*USBtoUART*
 /dev/cu.usbmodem*, /dev/cu.usbserial*
 
-# System information
-system_profiler SPUSBDataType | grep -i esp
+## System information
+system*profiler SPUSBDataType | grep -i esp
 
-# Automatic detection
-./detect_ports.sh --verbose
-```
+## Automatic detection
+./detect*ports.sh --verbose
+```text
 
 #### **Windows (WSL2) Port Detection**
 The system provides WSL2 compatibility:
 
 ```bash
-# WSL2 port mapping
+## WSL2 port mapping
 /dev/ttyS* (COM port equivalents)
 
-# USB device detection
+## USB device detection
 lsusb for device identification
 
-# Port accessibility testing
-./detect_ports.sh --test-connection
-```
+## Port accessibility testing
+./detect*ports.sh --test-connection
+```text
 
 ### **Port Validation and Testing**
 
 #### **Connectivity Testing**
 ```bash
-# Test port connectivity
-./detect_ports.sh --test-connection
+## Test port connectivity
+./detect*ports.sh --test-connection
 
-# Verify port accessibility
-./detect_ports.sh --verbose
+## Verify port accessibility
+./detect*ports.sh --verbose
 
-# Check port permissions and status
-./detect_ports.sh --verbose --test-connection
-```
+## Check port permissions and status
+./detect*ports.sh --verbose --test-connection
+```text
 
 #### **Permission Management**
 The system handles common permission issues:
 
 ```bash
-# Linux udev rules for ESP32 devices
+## Linux udev rules for ESP32 devices
 SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0666"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0666"
 
-# User group membership
+## User group membership
 sudo usermod -a -G dialout $USER
 sudo usermod -a -G tty $USER
 
-# Permission verification
+## Permission verification
 ls -la /dev/ttyUSB*
 groups $USER
-```
+```text
 
 ### **Troubleshooting Capabilities**
 
 #### **Automatic Problem Detection**
 ```bash
-# Common issue detection
+## Common issue detection
 - USB driver availability
 - Port permission problems
 - Device enumeration issues
 - Connection stability problems
-```
+```text
 
 #### **Problem Resolution**
 ```bash
-# Automatic resolution attempts
+## Automatic resolution attempts
 - Permission fixing
 - Driver installation guidance
 - Port configuration
 - Connection testing
-```
+```text
 
 ## ⚙️ **Environment Setup and Automation**
 
@@ -209,12 +214,12 @@ groups $USER
 
 The system now provides two distinct setup approaches optimized for different use cases:
 
-#### **Local Development Setup (setup_repo.sh)**
+#### **Local Development Setup (setup*repo.sh)**
 ```bash
-# Complete development environment setup
-./setup_repo.sh
+## Complete development environment setup
+./setup*repo.sh
 
-# What it installs
+## What it installs
 - System dependencies (build tools, libraries)
 - Clang-20 toolchain (compiler, formatter, analyzer)
 - ESP-IDF v5.5 (ESP32 development framework)
@@ -222,40 +227,40 @@ The system now provides two distinct setup approaches optimized for different us
 - yq (YAML processor)
 - Development aliases and environment variables
 - Complete development toolchain
-```
+```text
 
 #### **Direct ESP-IDF CI Action - Simplified CI/CD**
 ```bash
-# CI builds use ESP-IDF CI action directly
-# ESP-IDF CI action handles everything
+## CI builds use ESP-IDF CI action directly
+## ESP-IDF CI action handles everything
 
-# What it provides
+## What it provides
 - Essential build tools (clang-20, clang-format, clang-tidy)
 - Python dependencies (PyYAML, yq)
 - CI build directory structure
 - Minimal dependencies for CI builds
 - ESP-IDF handled by ESP-IDF CI action
 
-# NEW: Required environment variables
-- ESP32_PROJECT_PATH: Path to ESP32 project directory (e.g., 'examples/esp32')
-```
+## NEW: Required environment variables
+- ESP32*PROJECT*PATH: Path to ESP32 project directory (e.g., 'examples/esp32')
+```text
 
 ### **Environment-Specific Features**
 
 #### **Local Development Features**
 ```bash
-# Interactive setup process
+## Interactive setup process
 - OS detection and adaptation
 - Dependency verification
 - Installation confirmation
 - Progress feedback
 - Completion verification
 - User guidance and troubleshooting
-```
+```text
 
 #### **CI/CD Environment Features**
 ```bash
-# CI optimizations
+## CI optimizations
 - Cache-aware installation
 - Minimal dependency installation
 - Non-interactive operation
@@ -263,42 +268,47 @@ The system now provides two distinct setup approaches optimized for different us
 - Build directory preparation
 - ESP-IDF integration with CI actions
 - Reliable tool installation (no caching issues)
-```
+```text
 
 ### **Setup Script Selection Guide**
 
 | Use Case | Setup Script | Key Benefits |
+
 |----------|--------------|--------------|
-| **Local Development** | `setup_repo.sh` | Complete toolchain, interactive setup, ESP-IDF auto-installation |
+
+| **Local Development** | `setup*repo.sh` | Complete toolchain, interactive setup, ESP-IDF auto-installation |
+
 | **CI/CD Pipelines** | ESP-IDF CI action | Direct building, no setup needed, official action |
-| **New Developer Setup** | `setup_repo.sh` | Full environment, user guidance, complete toolchain |
+
+| **New Developer Setup** | `setup*repo.sh` | Full environment, user guidance, complete toolchain |
+
 | **Automated Builds** | ESP-IDF CI action | Direct building, no setup needed, official action |
 
 ### **Cross-Platform Compatibility**
 
 #### **Operating System Support**
 ```bash
-# Supported platforms
+## Supported platforms
 - Linux (Ubuntu 20.04+, Fedora, CentOS)
 - macOS (10.15+)
 - Windows (WSL2)
 
-# Platform-specific adaptations
+## Platform-specific adaptations
 - Package manager detection
 - Tool installation methods
 - Path handling
 - Permission management
-```
+```text
 
 #### **Dependency Management**
 ```bash
-# Automatic dependency detection
+## Automatic dependency detection
 - Required tools identification
 - Version compatibility checking
 - Installation method selection
 - Fallback mechanisms
 - Environment-specific optimization
-```
+```text
 
 ## 🔧 **Configuration and Information Tools**
 
@@ -306,54 +316,54 @@ The system now provides two distinct setup approaches optimized for different us
 
 #### **Centralized Configuration Access**
 ```bash
-# Configuration information
-./get_app_info.py list                    # List all applications
-./get_app_info.py source_file gpio_test   # Get source file path
-./get_app_info.py validate adc_test       # Validate application
+## Configuration information
+./get*app*info.py list                    # List all applications
+./get*app*info.py source*file gpio*test   # Get source file path
+./get*app*info.py validate adc*test       # Validate application
 
-# Configuration validation
+## Configuration validation
 - Application existence verification
 - Source file path validation
 - Configuration integrity checking
-```
+```text
 
 #### **Configuration Integration**
 ```bash
-# CMake integration
-execute_process(
-    COMMAND python3 get_app_info.py source_file ${APP_TYPE}
-    OUTPUT_VARIABLE APP_SOURCE_FILE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+## CMake integration
+execute*process(
+    COMMAND python3 get*app*info.py source*file ${APP*TYPE}
+    OUTPUT*VARIABLE APP*SOURCE*FILE
+    OUTPUT*STRIP*TRAILING*WHITESPACE
 )
 
-# Build system integration
+## Build system integration
 - Source file resolution
 - Configuration validation
 - Build parameter extraction
-```
+```text
 
 ### **Information Extraction**
 
 #### **Application Information**
 ```bash
-# Available information
+## Available information
 - Application descriptions
 - Source file paths
 - Build type support
 - ESP-IDF version compatibility
 - CI/CD configuration
 - Featured status
-```
+```text
 
 #### **System Information**
 ```bash
-# System details
+## System details
 - Operating system detection
 - Tool availability
 - Version information
 - Path configurations
 - Environment variables
-```
+```text
 
 ## 🚀 **Usage Examples and Patterns**
 
@@ -361,144 +371,144 @@ execute_process(
 
 #### **1. Local Development Setup**
 ```bash
-# Complete local setup
-./setup_repo.sh
+## Complete local setup
+./setup*repo.sh
 
-# Setup process
+## Setup process
 1. OS detection and adaptation
 2. Dependency verification
 3. Tool installation
 4. Environment configuration
 5. Verification and testing
 6. User guidance and troubleshooting
-```
+```text
 
 #### **2. CI/CD Environment Setup**
 ```bash
-# CI builds use ESP-IDF CI action directly
+## CI builds use ESP-IDF CI action directly
 
-# CI process
+## CI process
 1. Cache-aware installation
 2. Minimal dependency setup
 3. Environment optimization
 4. Cache statistics
 5. Build directory preparation
 6. ESP-IDF CI action integration
-```
+```text
 
 #### **3. Environment Verification**
 ```bash
-# Verify setup
-./setup_repo.sh --verify
+## Verify setup
+./setup*repo.sh --verify
 
-# Verification checks
+## Verification checks
 - Tool availability
 - Version compatibility
 - Path configuration
 - Environment variables
 - Functionality testing
-```
+```text
 
 ### **Port Detection Workflows**
 
 #### **1. Basic Port Detection**
 ```bash
-# Quick port detection
-./detect_ports.sh
+## Quick port detection
+./detect*ports.sh
 
-# Expected output
+## Expected output
 - Available ESP32 devices
 - Port accessibility status
 - Basic device information
-```
+```text
 
 #### **2. Detailed Port Analysis**
 ```bash
-# Comprehensive port analysis
-./detect_ports.sh --verbose
+## Comprehensive port analysis
+./detect*ports.sh --verbose
 
-# Expected output
+## Expected output
 - Detailed device information
 - USB device details
 - Permission status
 - Driver information
-```
+```text
 
 #### **3. Port Connectivity Testing**
 ```bash
-# Test port connectivity
-./detect_ports.sh --test-connection
+## Test port connectivity
+./detect*ports.sh --test-connection
 
-# Expected output
+## Expected output
 - Port accessibility verification
 - Connection stability testing
 - Error detection and reporting
-```
+```text
 
 ### **Configuration Management Workflows**
 
 #### **1. Application Information Access**
 ```bash
-# Get application information
-./get_app_info.py list
-./get_app_info.py source_file gpio_test
-./get_app_info.py validate adc_test
+## Get application information
+./get*app*info.py list
+./get*app*info.py source*file gpio*test
+./get*app*info.py validate adc*test
 
-# Information usage
+## Information usage
 - Build system integration
 - Configuration validation
 - Documentation generation
 - CI/CD pipeline configuration
-```
+```text
 
 #### **2. Configuration Validation**
 ```bash
-# Validate configuration
-./get_app_info.py validate gpio_test
-./get_app_info.py validate adc_test
+## Validate configuration
+./get*app*info.py validate gpio*test
+./get*app*info.py validate adc*test
 
-# Validation process
+## Validation process
 - Application existence check
 - Source file verification
 - Configuration integrity
 - Dependency validation
-```
+```text
 
 ### **Troubleshooting Workflows**
 
 #### **1. Port Problem Resolution**
 ```bash
-# Port troubleshooting
-./detect_ports.sh --verbose --test-connection
+## Port troubleshooting
+./detect*ports.sh --verbose --test-connection
 
-# Problem resolution
+## Problem resolution
 1. Issue identification
 2. Automatic resolution attempts
 3. Manual resolution guidance
 4. Verification testing
-```
+```text
 
 #### **2. Environment Problem Resolution**
 ```bash
-# Environment troubleshooting
-./setup_repo.sh --troubleshoot
+## Environment troubleshooting
+./setup*repo.sh --troubleshoot
 
-# Resolution process
+## Resolution process
 1. Problem diagnosis
 2. Dependency verification
 3. Tool reinstallation
 4. Configuration repair
 5. Verification testing
-```
+```text
 
 #### **3. Environment-Specific Troubleshooting**
 ```bash
-# Local development issues
-./setup_repo.sh --debug
+## Local development issues
+./setup*repo.sh --debug
 
-# Environment verification
-./setup_repo.sh --verify  # Local
-```
+## Environment verification
+./setup*repo.sh --verify  # Local
+```text
 
 ## 🔍 **Troubleshooting and Debugging**
 
@@ -509,48 +519,48 @@ execute_process(
 **Symptoms**: "No ports detected" or "No devices found" messages
 **Solutions**:
 ```bash
-# Check device connections
-./detect_ports.sh --verbose
+## Check device connections
+./detect*ports.sh --verbose
 
-# Verify USB drivers
+## Verify USB drivers
 lsusb | grep -i esp
-system_profiler SPUSBDataType | grep -i esp
+system*profiler SPUSBDataType | grep -i esp
 
-# Check device enumeration
+## Check device enumeration
 dmesg | grep -i usb
-```
+```text
 
 #### **2. Port Permission Issues**
 **Problem**: Port access denied
 **Symptoms**: "Permission denied" or "Access denied" errors
 **Solutions**:
 ```bash
-# Check user permissions
+## Check user permissions
 ls -la /dev/ttyUSB*
 groups $USER
 
-# Add user to required groups
+## Add user to required groups
 sudo usermod -a -G dialout,tty $USER
 
-# Create udev rules
+## Create udev rules
 sudo nano /etc/udev/rules.d/99-esp32.rules
-```
+```text
 
 #### **3. Port Connectivity Issues**
 **Problem**: Port not accessible or unstable
 **Symptoms**: "Port not accessible" or connection failures
 **Solutions**:
 ```bash
-# Test port connectivity
-./detect_ports.sh --test-connection
+## Test port connectivity
+./detect*ports.sh --test-connection
 
-# Check port stability
-./detect_ports.sh --verbose --test-connection
+## Check port stability
+./detect*ports.sh --verbose --test-connection
 
-# Verify device mode
-# Check for bootloader mode
-# Reset device if necessary
-```
+## Verify device mode
+## Check for bootloader mode
+## Reset device if necessary
+```text
 
 ### **Environment Setup Issues**
 
@@ -559,81 +569,81 @@ sudo nano /etc/udev/rules.d/99-esp32.rules
 **Symptoms**: Setup errors or missing functionality
 **Solutions**:
 ```bash
-# For local development (complete environment)
-./setup_repo.sh
+## For local development (complete environment)
+./setup*repo.sh
 
-# For CI/CD (ESP-IDF CI action handles everything)
+## For CI/CD (ESP-IDF CI action handles everything)
 
-# Check script help for details
-./setup_repo.sh --help
-```
+## Check script help for details
+./setup*repo.sh --help
+```text
 
 #### **2. Dependency Installation Failures**
 **Problem**: Required tools not installed
 **Symptoms**: "Command not found" or installation errors
 **Solutions**:
 ```bash
-# Check tool availability
+## Check tool availability
 which git cmake ninja ccache
 
-# Manual installation
+## Manual installation
 sudo apt-get install git cmake ninja-build ccache
 
-# Verify installation
-./setup_repo.sh --verify  # Local
-```
+## Verify installation
+./setup*repo.sh --verify  # Local
+```text
 
 #### **3. ESP-IDF Installation Issues**
 **Problem**: ESP-IDF not properly installed
 **Symptoms**: "ESP-IDF not found" or environment errors
 **Solutions**:
 ```bash
-# Local development
-./setup_repo.sh --reinstall-esp-idf
+## Local development
+./setup*repo.sh --reinstall-esp-idf
 
-# CI environment
-# Ensure ESP-IDF CI action is properly configured
+## CI environment
+## Ensure ESP-IDF CI action is properly configured
 
-# Verify environment
+## Verify environment
 source ~/esp/esp-idf/export.sh
 idf.py --version
-```
+```text
 
 #### **4. Permission and Path Issues**
 **Problem**: Insufficient permissions or incorrect paths
 **Symptoms**: "Permission denied" or "Path not found" errors
 **Solutions**:
 ```bash
-# Check permissions
+## Check permissions
 ls -la ~/esp/
 ls -la ~/.espressif/
 
-# Fix permissions
+## Fix permissions
 chmod -R 755 ~/esp/
 chmod -R 755 ~/.espressif/
 
-# Verify paths
-echo $IDF_PATH
+## Verify paths
+echo $IDF*PATH
 echo $PATH
-```
+```text
 
 ### **Debug and Verbose Mode**
 
 #### **Enabling Debug Output**
 ```bash
-# Enable debug mode
+## Enable debug mode
 export DEBUG=1
 export VERBOSE=1
 
-# Run with debug output
-./detect_ports.sh --verbose
-./setup_repo.sh --debug
-./get_app_info.py --verbose
-```
+## Run with debug output
+./detect*ports.sh --verbose
+./setup*repo.sh --debug
+./get*app*info.py --verbose
+```text
 
 #### **Debug Information Available**
 ```bash
-# Debug information
+## Debug information
 - Port detection process details
 - Device enumeration information
 - Permission checking details
@@ -642,7 +652,7 @@ export VERBOSE=1
 - Error context and resolution
 - Environment setup process details
 - CI vs local environment differences
-```
+```text
 
 ## 📚 **Reference and Examples**
 
@@ -650,154 +660,154 @@ export VERBOSE=1
 
 #### **Port Detection Commands**
 ```bash
-./detect_ports.sh [options]
+./detect*ports.sh [options]
 
-# Options:
-#   --verbose              - Show detailed device information
-#   --test-connection     - Test port connectivity
-#   --help, -h           - Show usage information
-```
+## Options:
+##   --verbose              - Show detailed device information
+##   --test-connection     - Test port connectivity
+##   --help, -h           - Show usage information
+```text
 
 #### **Setup Commands**
 ```bash
-./setup_repo.sh [options]     # Local development setup (complete environment)
+./setup*repo.sh [options]     # Local development setup (complete environment)
 
-# Common options:
-#   --help, -h           - Show usage information
-#   --verify             - Verify installation
-#   --debug             - Enable debug output
-#   --reinstall-esp-idf - Reinstall ESP-IDF (setup_repo.sh only)
+## Common options:
+##   --help, -h           - Show usage information
+##   --verify             - Verify installation
+##   --debug             - Enable debug output
+##   --reinstall-esp-idf - Reinstall ESP-IDF (setup*repo.sh only)
 
-# Environment-specific options:
-# setup_repo.sh:
-#   --interactive        - Interactive setup mode
-#   --non-interactive   - Non-interactive setup mode
+## Environment-specific options:
+## setup*repo.sh:
+##   --interactive        - Interactive setup mode
+##   --non-interactive   - Non-interactive setup mode
 
-```
+```text
 
 #### **Configuration Commands**
 ```bash
-./get_app_info.py <command> [args...]
+./get*app*info.py <command> [args...]
 
-# Commands:
-#   list                    - List all available applications
-#   source_file <app_type>  - Get source file path for application
-#   validate <app_type>     - Validate application configuration
-#   --help, -h             - Show usage information
-```
+## Commands:
+##   list                    - List all available applications
+##   source*file <app*type>  - Get source file path for application
+##   validate <app*type>     - Validate application configuration
+##   --help, -h             - Show usage information
+```text
 
 ### **Environment Variables**
 
 #### **Port Detection Variables**
 ```bash
-# Port detection configuration
-export PORT_DETECTION_VERBOSE=1    # Enable verbose output
-export PORT_TEST_TIMEOUT=5         # Set connection test timeout
-export PORT_SCAN_TIMEOUT=3         # Set port scan timeout
-```
+## Port detection configuration
+export PORT*DETECTION*VERBOSE=1    # Enable verbose output
+export PORT*TEST*TIMEOUT=5         # Set connection test timeout
+export PORT*SCAN*TIMEOUT=3         # Set port scan timeout
+```text
 
 #### **Setup Configuration Variables**
 ```bash
-# Setup configuration
-export SETUP_MODE="local"          # Set setup mode (local/ci)
-export ESP_IDF_VERSION="v5.5"      # Set ESP-IDF version
-export CLANG_VERSION="20"          # Set Clang version
-export PYTHON_VERSION="3.9"        # Set Python version
+## Setup configuration
+export SETUP*MODE="local"          # Set setup mode (local/ci)
+export ESP*IDF*VERSION="v5.5"      # Set ESP-IDF version
+export CLANG*VERSION="20"          # Set Clang version
+export PYTHON*VERSION="3.9"        # Set Python version
 
-# Environment-specific variables
-export ESP32_PROJECT_PATH="examples/esp32"  # Project path
-export IDF_TARGET="esp32c6"        # Target MCU
-export BUILD_TYPE="Release"        # Build type
-export APP_TYPE="gpio_test"        # Application type
-```
+## Environment-specific variables
+export ESP32*PROJECT*PATH="examples/esp32"  # Project path
+export IDF*TARGET="esp32c6"        # Target MCU
+export BUILD*TYPE="Release"        # Build type
+export APP*TYPE="gpio*test"        # Application type
+```text
 
 #### **Debug Configuration Variables**
 ```bash
-# Debug configuration
+## Debug configuration
 export DEBUG=1                     # Enable debug mode
 export VERBOSE=1                   # Enable verbose output
-export SETUP_DEBUG=1               # Enable setup debug mode
-export PORT_DEBUG=1                # Enable port debug mode
-```
+export SETUP*DEBUG=1               # Enable setup debug mode
+export PORT*DEBUG=1                # Enable port debug mode
+```text
 
 ### **Configuration Examples**
 
 #### **Minimal Port Detection Configuration**
 ```bash
-# Basic port detection
-./detect_ports.sh
+## Basic port detection
+./detect*ports.sh
 
-# Expected behavior
+## Expected behavior
 - Automatic ESP32 device detection
 - Basic port information display
 - Error reporting for issues
-```
+```text
 
 #### **Advanced Port Detection Configuration**
 ```bash
-# Comprehensive port analysis
-./detect_ports.sh --verbose --test-connection
+## Comprehensive port analysis
+./detect*ports.sh --verbose --test-connection
 
-# Expected behavior
+## Expected behavior
 - Detailed device information
 - Port connectivity testing
 - Permission verification
 - Troubleshooting guidance
-```
+```text
 
 #### **Environment Setup Configuration**
 
 #### **Local Development Setup**
 ```bash
-# Complete environment setup
-./setup_repo.sh
+## Complete environment setup
+./setup*repo.sh
 
-# Expected behavior
+## Expected behavior
 - OS detection and adaptation
 - Complete dependency installation
 - Tool configuration
 - Environment verification
 - Interactive user guidance
-```
+```text
 
 #### **CI/CD Environment Setup**
 ```bash
-# CI builds use ESP-IDF CI action directly
-# No setup needed
+## CI builds use ESP-IDF CI action directly
+## No setup needed
 
-# Expected behavior
+## Expected behavior
 - Minimal dependency installation
 - Cache-aware setup
 - Build directory preparation
 - Non-interactive operation
 - CI-specific optimizations
-```
+```text
 
 ### **Integration Examples**
 
 #### **CMake Integration**
 ```cmake
-# CMakeLists.txt utility integration
-cmake_minimum_required(VERSION 3.16)
+## CMakeLists.txt utility integration
+cmake*minimum*required(VERSION 3.16)
 
-# Port detection integration
-add_custom_target(detect_ports
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/detect_ports.sh --verbose
+## Port detection integration
+add*custom*target(detect*ports
+    COMMAND ${CMAKE*SOURCE*DIR}/scripts/detect*ports.sh --verbose
     COMMENT "Detecting ESP32 ports"
 )
 
-# Configuration validation
-add_custom_target(validate_config
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/get_app_info.py validate ${APP_TYPE}
+## Configuration validation
+add*custom*target(validate*config
+    COMMAND python3 ${CMAKE*SOURCE*DIR}/scripts/get*app*info.py validate ${APP*TYPE}
     COMMENT "Validating application configuration"
 )
-```
+```text
 
 #### **CI/CD Integration**
 
 #### **GitHub Actions Integration**
 ```yaml
-# GitHub Actions utility integration
+## GitHub Actions utility integration
 - name: Setup ESP32 Environment
   run: |
     cd examples/esp32
@@ -806,25 +816,25 @@ add_custom_target(validate_config
 - name: Detect ESP32 Ports
   run: |
     cd examples/esp32
-    ./scripts/detect_ports.sh --verbose
+    ./scripts/detect*ports.sh --verbose
 
 - name: Validate Configuration
   run: |
     cd examples/esp32
-    python3 ./scripts/get_app_info.py validate gpio_test
-```
+    python3 ./scripts/get*app*info.py validate gpio*test
+```text
 
 #### **GitLab CI Integration**
 ```yaml
-# GitLab CI utility integration
-setup_environment:
+## GitLab CI utility integration
+setup*environment:
   script:
     - cd examples/esp32
     # CI builds use ESP-IDF CI action directly
   artifacts:
     paths:
       - examples/esp32/build*/
-```
+```text
 
 #### **Jenkins Pipeline Integration**
 ```groovy
@@ -842,47 +852,47 @@ pipeline {
     stage('Detect Ports') {
       steps {
         script {
-          sh 'cd examples/esp32 && ./scripts/detect_ports.sh --verbose'
+          sh 'cd examples/esp32 && ./scripts/detect*ports.sh --verbose'
         }
       }
     }
   }
 }
-```
+```text
 
 #### **Automation Scripts**
 ```bash
 #!/bin/bash
-# Automated development environment setup
+## Automated development environment setup
 
 cd examples/esp32
 
-# Choose setup based on environment
+## Choose setup based on environment
 if [[ "$CI" == "true" ]]; then
     echo "CI builds use ESP-IDF CI action directly"
 else
     echo "Setting up local development environment..."
-    ./setup_repo.sh
+    ./setup*repo.sh
 fi
 
-# Verify setup
+## Verify setup
 echo "Verifying setup..."
 if [[ "$CI" == "true" ]]; then
     echo "CI builds use ESP-IDF CI action directly"
 else
-    ./setup_repo.sh --verify
+    ./setup*repo.sh --verify
 fi
 
-# Detect available ports
+## Detect available ports
 echo "Detecting ESP32 ports..."
-./detect_ports.sh --verbose
+./detect*ports.sh --verbose
 
-# Validate configuration
+## Validate configuration
 echo "Validating configuration..."
-python3 ./get_app_info.py validate gpio_test
+python3 ./get*app*info.py validate gpio*test
 
 echo "Setup complete!"
-```
+```text
 
 ### **Best Practices**
 
@@ -893,7 +903,7 @@ echo "Setup complete!"
 - Use automatic detection when possible
 
 #### **2. Environment Setup**
-- **Local Development**: Use `setup_repo.sh` for complete development environment
+- **Local Development**: Use `setup*repo.sh` for complete development environment
 - **CI/CD**: Use ESP-IDF CI action directly
 - Verify installation after setup
 - Monitor cache usage and optimization
@@ -914,4 +924,5 @@ echo "Setup complete!"
 
 ---
 
-**Navigation**: [← Previous: Logging System](README_LOGGING_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Port Detection →](README_PORT_DETECTION.md)
+**Navigation**: [← Previous: Logging System](README*LOGGING*SYSTEM.md) | [Back to
+Scripts](../README.md) | [Next: Port Detection →](README_PORT_DETECTION.md)

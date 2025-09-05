@@ -1,10 +1,13 @@
 # ESP32 Interface Wrapper - Scripts Overview
 
-This document provides a comprehensive overview of all available scripts in the ESP32 scripts directory, their purposes, capabilities, dependencies, and how they work together to provide a professional development environment.
+This document provides a comprehensive overview of all available scripts in the ESP32 scripts
+directory, their purposes, capabilities, dependencies, and how they work together to provide a
+professional development environment.
 
 ---
 
-**Navigation**: [← Previous: Port Detection](README_PORT_DETECTION.md) | [Back to Scripts](../README.md) | [Next: Build System →](README_BUILD_SYSTEM.md)
+**Navigation**: [← Previous: Port Detection](README*PORT*DETECTION.md) | [Back to
+Scripts](../README.md) | [Next: Build System →](README*BUILD*SYSTEM.md)
 
 ---
 
@@ -21,7 +24,10 @@ This document provides a comprehensive overview of all available scripts in the 
 
 ## 📋 **Overview**
 
-The ESP32 scripts directory contains a comprehensive suite of scripts designed to streamline ESP32 development workflows. These scripts provide intelligent configuration management, cross-platform compatibility, and robust error handling to ensure reliable development operations.
+The ESP32 scripts directory contains a comprehensive suite of scripts designed to streamline ESP32
+development workflows.
+These scripts provide intelligent configuration management, cross-platform compatibility,
+and robust error handling to ensure reliable development operations.
 
 ### **Core Design Principles**
 - **Portable Scripts**: Scripts can be placed anywhere and work with any project via `--project-path`
@@ -47,100 +53,101 @@ The ESP32 scripts directory contains a comprehensive suite of scripts designed t
 
 ## 🚀 **Portable Scripts**
 
-All scripts in this directory are designed to be **completely portable** and can be placed anywhere on your system while still working with any ESP32 project.
+All scripts in this directory are designed to be **completely portable** and can be placed anywhere
+on your system while still working with any ESP32 project.
 
 ### **Key Features**
 - **`--project-path` Flag**: All scripts support specifying the project directory
 - **Dynamic Script Detection**: Scripts automatically detect their own location
 - **Flexible Configuration**: Works with absolute or relative project paths
-- **Environment Variables**: Support for `PROJECT_PATH` environment variable
+- **Environment Variables**: Support for `PROJECT*PATH` environment variable
 - **Error Handling**: Clear error messages when project or config files are not found
 
 ### **Usage Examples**
 
 ```bash
-# Default behavior (scripts in project/scripts/)
-./build_app.sh gpio_test Release
+## Default behavior (scripts in project/scripts/)
+./build*app.sh gpio*test Release
 
-# Portable usage with --project-path
-./build_app.sh --project-path /path/to/project gpio_test Release
-./flash_app.sh --project-path ../project flash_monitor adc_test
-./manage_idf.sh --project-path /opt/esp32-project list
+## Portable usage with --project-path
+./build*app.sh --project-path /path/to/project gpio*test Release
+./flash*app.sh --project-path ../project flash*monitor adc*test
+./manage*idf.sh --project-path /opt/esp32-project list
 
-# Environment variable usage
-export PROJECT_PATH=/path/to/project
-./build_app.sh gpio_test Release
-./flash_app.sh flash_monitor adc_test
+## Environment variable usage
+export PROJECT*PATH=/path/to/project
+./build*app.sh gpio*test Release
+./flash*app.sh flash*monitor adc*test
 
-# Python scripts
-python3 get_app_info.py list --project-path /path/to/project
-python3 generate_matrix.py --project-path /path/to/project
-```
+## Python scripts
+python3 get*app*info.py list --project-path /path/to/project
+python3 generate*matrix.py --project-path /path/to/project
+```text
 
 ### **Portability Scenarios**
 
 ```bash
-# Scenario 1: Multiple ESP32 projects
-./scripts/build_app.sh --project-path ~/projects/robot-controller gpio_test Release
-./scripts/build_app.sh --project-path ~/projects/sensor-node adc_test Debug
+## Scenario 1: Multiple ESP32 projects
+./scripts/build*app.sh --project-path ~/projects/robot-controller gpio*test Release
+./scripts/build*app.sh --project-path ~/projects/sensor-node adc*test Debug
 
-# Scenario 2: Shared build tools
-# Place scripts in /opt/esp32-tools/
-/opt/esp32-tools/build_app.sh --project-path ~/my-project gpio_test Release
+## Scenario 2: Shared build tools
+## Place scripts in /opt/esp32-tools/
+/opt/esp32-tools/build*app.sh --project-path ~/my-project gpio*test Release
 
-# Scenario 3: Renamed script directories
+## Scenario 3: Renamed script directories
 mv scripts tools
-./tools/build_app.sh gpio_test Release  # Still works!
+./tools/build*app.sh gpio*test Release  # Still works!
 
-# Scenario 4: CI/CD flexibility
-./ci-scripts/build_app.sh --project-path $GITHUB_WORKSPACE/examples/esp32 gpio_test Release
-```
+## Scenario 4: CI/CD flexibility
+./ci-scripts/build*app.sh --project-path $GITHUB*WORKSPACE/examples/esp32 gpio*test Release
+```bash
 
 ### **How It Works**
-1. **Script Location Detection**: Each script uses `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` to find its own location
+1. **Script Location Detection**: Each script uses `SCRIPT*DIR="$(cd "$(dirname "${BASH*SOURCE[0]}")" && pwd)"` to find its own location
 2. **Project Path Resolution**: If `--project-path` is provided, it's used; otherwise defaults to `../` relative to script location
-3. **Config File Discovery**: Scripts automatically look for `app_config.yml` in the project directory
+3. **Config File Discovery**: Scripts automatically look for `app*config.yml` in the project directory
 4. **Validation**: Scripts validate that the project directory and config file exist before proceeding
 
 ## 🏗️ **Architecture and Design**
 
 ### **Script Organization Structure**
-```
+```text
 examples/esp32/scripts/
 ├── docs/                           # Comprehensive documentation
-│   ├── README_SCRIPTS_OVERVIEW.md  # This file - complete overview
-│   ├── README_BUILD_SYSTEM.md      # Build system architecture
-│   ├── README_FLASH_SYSTEM.md      # Flash and monitor system
-│   ├── README_CONFIG_SYSTEM.md     # Configuration management
-│   ├── README_LOGGING_SYSTEM.md    # Log management system
-│   ├── README_UTILITY_SCRIPTS.md   # Utility and helper scripts
-│   └── README_PORT_DETECTION.md    # Port detection system
-├── flash_app.sh                    # Main flash and monitor script
-├── build_app.sh                    # Build system management
-├── manage_logs.sh                  # Log management and analysis
-├── config_loader.sh                # Configuration loading and validation
-├── detect_ports.sh                 # Port detection and troubleshooting
-├── setup_common.sh                 # Shared setup functions for all environments
-├── setup_repo.sh                   # Local development setup (full environment)
-└── get_app_info.py                 # Python script for app information
-```
+│   ├── README*SCRIPTS*OVERVIEW.md  # This file - complete overview
+│   ├── README*BUILD*SYSTEM.md      # Build system architecture
+│   ├── README*FLASH*SYSTEM.md      # Flash and monitor system
+│   ├── README*CONFIG*SYSTEM.md     # Configuration management
+│   ├── README*LOGGING*SYSTEM.md    # Log management system
+│   ├── README*UTILITY*SCRIPTS.md   # Utility and helper scripts
+│   └── README*PORT*DETECTION.md    # Port detection system
+├── flash*app.sh                    # Main flash and monitor script
+├── build*app.sh                    # Build system management
+├── manage*logs.sh                  # Log management and analysis
+├── config*loader.sh                # Configuration loading and validation
+├── detect*ports.sh                 # Port detection and troubleshooting
+├── setup*common.sh                 # Shared setup functions for all environments
+├── setup*repo.sh                   # Local development setup (full environment)
+└── get*app*info.py                 # Python script for app information
+```yaml
 
 ### **New Architecture Patterns**
-- **Configuration-First**: All scripts read from centralized `app_config.yml`
-- **Enhanced Validation Layer**: `config_loader.sh` provides smart combination validation
+- **Configuration-First**: All scripts read from centralized `app*config.yml`
+- **Enhanced Validation Layer**: `config*loader.sh` provides smart combination validation
 - **Smart Defaults**: Automatic ESP-IDF version selection and fallbacks
 - **Environment Separation**: Clear separation between local and CI setup processes
-- **Shared Functions**: Common functionality shared through `setup_common.sh`
+- **Shared Functions**: Common functionality shared through `setup*common.sh`
 - **CI Optimization**: optimized CI pipeline with parallel execution, smart caching, and minimal dependencies
 - **Error Handling**: Consistent error reporting and troubleshooting guidance
 - **Logging Integration**: Unified logging system across all scripts
 
 ### **Environment Setup Architecture**
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           SETUP COMMON FUNCTIONS                            │
-│                    (setup_common.sh - shared utilities)                     │
+│                    (setup*common.sh - shared utilities)                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  • System dependency installation                                           │
 │  • Clang toolchain setup                                                    │
@@ -154,7 +161,7 @@ examples/esp32/scripts/
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    ENVIRONMENT-SPECIFIC SETUP                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  🏠 LOCAL DEVELOPMENT (setup_repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
+│  🏠 LOCAL DEVELOPMENT (setup*repo.sh)        🏭 CI/CD (Direct ESP-IDF)      │
 │  • Full development environment              • ESP-IDF CI action handles     │
 │  • Interactive user setup                    • Direct project building       │
 │  • Complete tool installation                • Cache-aware installation     │
@@ -167,18 +174,19 @@ examples/esp32/scripts/
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           BUILD SYSTEM INTEGRATION                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  • build_app.sh uses environment from setup                                 │
-│  • flash_app.sh integrates with setup                                       │
+│  • build*app.sh uses environment from setup                                 │
+│  • flash*app.sh integrates with setup                                       │
 │  • CI workflows use ESP-IDF CI action directly                              │
-│  • Local development uses setup_repo.sh for environment                     │
+│  • Local development uses setup*repo.sh for environment                     │
 └─────────────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 ---
 
 ## **Enhanced Validation System**
 
-The scripts now include a comprehensive validation system that prevents invalid build combinations and provides clear guidance to users.
+The scripts now include a comprehensive validation system that prevents invalid build combinations
+and provides clear guidance to users.
 
 ### **Validation Features**
 
@@ -193,47 +201,46 @@ The build system now includes several new commands for better user experience:
 
 #### **📋 Information Commands**
 ```bash
-# Show detailed information for a specific app
-./scripts/build_app.sh info gpio_test
+## Show detailed information for a specific app
+./scripts/build*app.sh info gpio*test
 
-# Show all valid build combinations across all apps
-./scripts/build_app.sh combinations
+## Show all valid build combinations across all apps
+./scripts/build*app.sh combinations
 
-# Validate a specific build combination
-./scripts/build_app.sh validate gpio_test Release
-./scripts/build_app.sh validate gpio_test Release release/v5.4
-```
+## Validate a specific build combination
+./scripts/build*app.sh validate gpio*test Release
+./scripts/build*app.sh validate gpio*test Release release/v5.4
+```text
 
 #### **Validation Examples**
 ```bash
-# Valid combination - proceeds with build
-./scripts/build_app.sh validate gpio_test Release
-# Output: ✅ VALID: This combination is allowed!
-
-# Invalid combination - shows error with guidance
-./scripts/build_app.sh validate gpio_test Release release/v5.4
-# Output: ❌ INVALID: This combination is not allowed!
-#        Valid combinations for 'gpio_test':
-#        • release/v5.5: Debug Release
-```
+## Valid combination - proceeds with build
+./scripts/build*app.sh validate gpio*test Release
+## Output: ✅ VALID: This combination is allowed
+## Invalid combination - shows error with guidance
+./scripts/build*app.sh validate gpio*test Release release/v5.4
+## Output: ❌ INVALID: This combination is not allowed
+##        Valid combinations for 'gpio*test':
+##        • release/v5.5: Debug Release
+```text
 
 #### **🧠 Smart Default Examples**
 ```bash
-# No IDF version specified - uses smart default
-./scripts/build_app.sh gpio_test Release
-# Output: No IDF version specified, using smart default: release/v5.5
+## No IDF version specified - uses smart default
+./scripts/build*app.sh gpio*test Release
+## Output: No IDF version specified, using smart default: release/v5.5
 
-# IDF version explicitly specified
-./scripts/build_app.sh gpio_test Release release/v5.5
-# Output: Uses specified version directly
-```
+## IDF version explicitly specified
+./scripts/build*app.sh gpio*test Release release/v5.5
+## Output: Uses specified version directly
+```text
 
 ### **✅ OPTIMIZED Validation Flow**
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           BUILD REQUEST                                     │
-│  app: gpio_test, build_type: Release, idf_version: (unspecified)            │
+│  app: gpio*test, build*type: Release, idf*version: (unspecified)            │
 └─────────────────────┬───────────────────────────────────────────────────────┘
                       │
                       ▼
@@ -265,14 +272,14 @@ The build system now includes several new commands for better user experience:
                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           VALIDATION RESULT                                 │
-│  ✅ VALID: gpio_test + Release + release/v5.5                               │
+│  ✅ VALID: gpio*test + Release + release/v5.5                               │
 │  → Proceed with build                                                       │  
 │                                                                             │
-│  ❌ INVALID: gpio_test + Release + release/v5.4                             │
+│  ❌ INVALID: gpio*test + Release + release/v5.4                             │
 │  → Show error with valid combinations                                       │
 │  → Provide helpful next steps                                               │
 └─────────────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 **Key Optimization Points:**
 - **Early Exit**: Basic validation happens first, failing fast on invalid inputs
@@ -281,18 +288,18 @@ The build system now includes several new commands for better user experience:
 - **No Redundancy**: Combination validation doesn't repeat basic checks already performed
 
 ### **Data Flow Architecture**
-```
-app_config.yml → config_loader.sh → Individual Scripts → User Interface
+```text
+app*config.yml → config*loader.sh → Individual Scripts → User Interface
      ↓                    ↓              ↓              ↓
 Configuration    Validation &      Script Logic    User Commands
 Definitions      Fallbacks        & Execution      & Output
-```
+```python
 
 ## 📁 **Script Categories and Capabilities**
 
 ### **1. Core Development Scripts**
 
-#### **`build_app.sh` - Build System Management**
+#### **`build*app.sh` - Build System Management**
 **Purpose**: Intelligent ESP32 application building with configuration validation
 
 **Key Capabilities**:
@@ -304,7 +311,7 @@ Definitions      Fallbacks        & Execution      & Output
 
 **Dependencies**:
 - ESP-IDF v5.5+ installation
-- `config_loader.sh` for configuration
+- `config*loader.sh` for configuration
 - `yq` for YAML parsing (with fallback)
 - System build tools (cmake, ninja, ccache)
 
@@ -314,7 +321,7 @@ Definitions      Fallbacks        & Execution      & Output
 - CI/CD automated builds
 - Multi-ESP-IDF version testing
 
-#### **`flash_app.sh` - Flash and Monitor Operations**
+#### **`flash*app.sh` - Flash and Monitor Operations**
 **Purpose**: Comprehensive firmware flashing and device monitoring
 
 **Key Capabilities**:
@@ -326,8 +333,8 @@ Definitions      Fallbacks        & Execution      & Output
 
 **Dependencies**:
 - ESP-IDF tools (esptool, idf.py)
-- `detect_ports.sh` for port detection
-- `manage_logs.sh` for logging
+- `detect*ports.sh` for port detection
+- `manage*logs.sh` for logging
 - Serial port access permissions
 
 **Use Cases**:
@@ -336,7 +343,7 @@ Definitions      Fallbacks        & Execution      & Output
 - Production firmware updates
 - Automated testing and validation
 
-#### **`manage_logs.sh` - Log Management System**
+#### **`manage*logs.sh` - Log Management System**
 **Purpose**: Comprehensive log file management and analysis
 
 **Key Capabilities**:
@@ -360,7 +367,7 @@ Definitions      Fallbacks        & Execution      & Output
 
 ### **2. Configuration and Setup Scripts**
 
-#### **`config_loader.sh` - Configuration Management**
+#### **`config*loader.sh` - Configuration Management**
 **Purpose**: Centralized configuration loading and validation
 
 **Key Capabilities**:
@@ -386,7 +393,7 @@ Definitions      Fallbacks        & Execution      & Output
 - Default value management
 - Environment-specific overrides
 
-#### **`setup_common.sh` - Shared Setup Functions**
+#### **`setup*common.sh` - Shared Setup Functions**
 **Purpose**: Common setup and environment configuration functions shared across all environments
 
 **Key Capabilities**:
@@ -411,7 +418,7 @@ Definitions      Fallbacks        & Execution      & Output
 - Environment configuration management
 - Cross-platform compatibility
 
-#### **`setup_repo.sh` - Local Development Setup**
+#### **`setup*repo.sh` - Local Development Setup**
 **Purpose**: Complete local development environment initialization
 
 **Key Capabilities**:
@@ -424,7 +431,7 @@ Definitions      Fallbacks        & Execution      & Output
 - Full development toolchain setup
 
 **Dependencies**:
-- `setup_common.sh` functions
+- `setup*common.sh` functions
 - User account (non-root)
 - Sudo access for packages
 - Interactive terminal
@@ -450,7 +457,7 @@ Definitions      Fallbacks        & Execution      & Output
 **Dependencies**:
 - ESP-IDF CI action (espressif/esp-idf-ci-action@v1)
 - Project files in standard ESP-IDF structure
-- build_app.sh script with --project-path support
+- build*app.sh script with --project-path support
 
 **Use Cases**:
 - GitHub Actions workflow builds
@@ -461,7 +468,7 @@ Definitions      Fallbacks        & Execution      & Output
 
 ### **3. Utility and Helper Scripts**
 
-#### **`detect_ports.sh` - Port Detection and Troubleshooting**
+#### **`detect*ports.sh` - Port Detection and Troubleshooting**
 **Purpose**: Cross-platform ESP32 device detection and port management
 
 **Key Capabilities**:
@@ -474,7 +481,7 @@ Definitions      Fallbacks        & Execution      & Output
 **Dependencies**:
 - System USB drivers
 - Serial port access permissions
-- System tools (lsusb, system_profiler)
+- System tools (lsusb, system*profiler)
 - Bash shell with advanced features
 
 **Use Cases**:
@@ -483,7 +490,7 @@ Definitions      Fallbacks        & Execution      & Output
 - Development environment setup
 - Production deployment verification
 
-#### **`get_app_info.py` - App Information Extraction**
+#### **`get*app*info.py` - App Information Extraction**
 **Purpose**: Python-based app configuration information extraction
 
 **Key Capabilities**:
@@ -549,39 +556,39 @@ Definitions      Fallbacks        & Execution      & Output
 ## ⚙️ **Configuration Management**
 
 ### **Configuration File Structure**
-The `app_config.yml` file provides centralized configuration for all scripts:
+The `app*config.yml` file provides centralized configuration for all scripts:
 
 ```yaml
-# Global metadata and defaults
+## Global metadata and defaults
 metadata:
-  default_app: "ascii_art"
-  default_build_type: "Release"
+  default*app: "ascii*art"
+  default*build*type: "Release"
   target: "esp32c6"
-  idf_versions: ["release/v5.5", "release/v5.4"]
+  idf*versions: ["release/v5.5", "release/v5.4"]
 
-# App-specific configurations
+## App-specific configurations
 apps:
-  gpio_test:
+  gpio*test:
     description: "GPIO peripheral testing app"
-    source_file: "GpioComprehensiveTest.cpp"
+    source*file: "GpioComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: true
 
-# Build configuration
-build_config:
-  build_types:
+## Build configuration
+build*config:
+  build*types:
     Debug:
-      cmake_build_type: "Debug"
+      cmake*build*type: "Debug"
       optimization: "-O0"
-      debug_level: "-g3"
+      debug*level: "-g3"
     Release:
-      cmake_build_type: "Release"
+      cmake*build*type: "Release"
       optimization: "-O2"
-      debug_level: "-g"
-```
+      debug*level: "-g"
+```yaml
 
 ### **Configuration Loading Process**
 1. **Primary Method**: Uses `yq` for reliable YAML parsing
@@ -604,86 +611,86 @@ Scripts automatically validate:
 
 #### **Local Development Setup**
 ```bash
-# Complete local development environment
-./setup_repo.sh
+## Complete local development environment
+./setup*repo.sh
 
-# What it provides:
-# • Full development toolchain (clang, clang-format, clang-tidy)
-# • ESP-IDF auto-installation and configuration
-# • Development aliases and environment variables
-# • Interactive setup with user guidance
-# • Complete dependency installation
-```
+## What it provides:
+## • Full development toolchain (clang, clang-format, clang-tidy)
+## • ESP-IDF auto-installation and configuration
+## • Development aliases and environment variables
+## • Interactive setup with user guidance
+## • Complete dependency installation
+```text
 
 #### **CI/CD Environment Setup**
 ```bash
-# CI builds use ESP-IDF CI action directly
-# ESP-IDF CI action handles everything
+## CI builds use ESP-IDF CI action directly
+## ESP-IDF CI action handles everything
 
-# What it provides:
-# • Minimal CI dependencies (clang-20, yq, PyYAML)
-# • Build directory structure preparation
-# • Cache-aware installation
-# • Non-interactive operation
-# • ESP-IDF handled by ESP-IDF CI action
-```
+## What it provides:
+## • Minimal CI dependencies (clang-20, yq, PyYAML)
+## • Build directory structure preparation
+## • Cache-aware installation
+## • Non-interactive operation
+## • ESP-IDF handled by ESP-IDF CI action
+```text
 
 ### **Development Workflow**
 ```bash
-# 1. Initial setup
-./setup_repo.sh          # Local development
+## 1. Initial setup
+./setup*repo.sh          # Local development
 
-# 2. Build application
-./build_app.sh gpio_test Release
+## 2. Build application
+./build*app.sh gpio*test Release
 
-# 3. Flash and monitor with logging
-./flash_app.sh flash_monitor gpio_test Release --log
+## 3. Flash and monitor with logging
+./flash*app.sh flash*monitor gpio*test Release --log
 
-# 4. View and analyze logs
-./manage_logs.sh latest
-./manage_logs.sh search "ERROR"
-```
+## 4. View and analyze logs
+./manage*logs.sh latest
+./manage*logs.sh search "ERROR"
+```text
 
 ### **Debugging Workflow**
 ```bash
-# 1. Check available ports
-./detect_ports.sh --verbose
+## 1. Check available ports
+./detect*ports.sh --verbose
 
-# 2. Monitor existing firmware
-./flash_app.sh monitor --log
+## 2. Monitor existing firmware
+./flash*app.sh monitor --log
 
-# 3. Search logs for issues
-./manage_logs.sh search "ERROR"
-./manage_logs.sh search "WARNING"
-```
+## 3. Search logs for issues
+./manage*logs.sh search "ERROR"
+./manage*logs.sh search "WARNING"
+```text
 
 ### **CI/CD Workflow**
 ```bash
-# 1. CI builds use ESP-IDF CI action directly
+## 1. CI builds use ESP-IDF CI action directly
 
-# 2. Build and test
-./build_app.sh gpio_test Release
-./flash_app.sh flash gpio_test Release --log
+## 2. Build and test
+./build*app.sh gpio*test Release
+./flash*app.sh flash gpio*test Release --log
 
-# 3. Analyze results
-./manage_logs.sh stats
-./manage_logs.sh latest
-```
+## 3. Analyze results
+./manage*logs.sh stats
+./manage*logs.sh latest
+```text
 
 ### **Production Deployment Workflow**
 ```bash
-# 1. Build production firmware
-./build_app.sh gpio_test Release
+## 1. Build production firmware
+./build*app.sh gpio*test Release
 
-# 2. Verify target devices
-./detect_ports.sh --test-connection
+## 2. Verify target devices
+./detect*ports.sh --test-connection
 
-# 3. Deploy firmware
-./flash_app.sh flash gpio_test Release --log production_deploy
+## 3. Deploy firmware
+./flash*app.sh flash gpio*test Release --log production*deploy
 
-# 4. Verify deployment
-./flash_app.sh monitor --log production_verify
-```
+## 4. Verify deployment
+./flash*app.sh monitor --log production*verify
+```bash
 
 ## 🛠️ **Development and Maintenance**
 
@@ -716,7 +723,7 @@ Scripts automatically validate:
 
 #### **Testing Requirements**
 - **Cross-Platform Testing**: Linux, macOS
-- **Configuration Testing**: Various app_config.yml configurations
+- **Configuration Testing**: Various app*config.yml configurations
 - **Error Handling Testing**: Invalid inputs and error conditions
 - **Integration Testing**: Script interaction and dependencies
 - **Performance Testing**: Resource usage and execution time
@@ -738,16 +745,16 @@ Scripts automatically validate:
 **Problem**: Scripts fail to load configuration
 **Symptoms**: "Configuration file not found" or "Invalid configuration" errors
 **Solutions**:
-- Verify `app_config.yml` exists and is accessible
+- Verify `app*config.yml` exists and is accessible
 - Check file permissions and ownership
-- Validate YAML syntax with `yq eval app_config.yml`
-- Use `./config_loader.sh` for debugging
+- Validate YAML syntax with `yq eval app*config.yml`
+- Use `./config*loader.sh` for debugging
 
 #### **2. ESP-IDF Issues**
 **Problem**: Build or flash operations fail
 **Symptoms**: "ESP-IDF not found" or "idf.py command not found" errors
 **Solutions**:
-- Run `./setup_repo.sh` to install ESP-IDF (local development)
+- Run `./setup*repo.sh` to install ESP-IDF (local development)
 - For CI: Ensure ESP-IDF CI action is properly configured
 - Source ESP-IDF environment: `source ~/esp/esp-idf/export.sh`
 - Check ESP-IDF version compatibility
@@ -757,10 +764,10 @@ Scripts automatically validate:
 **Problem**: Scripts cannot find ESP32 devices
 **Symptoms**: "No ports detected" or "Port not accessible" errors
 **Solutions**:
-- Run `./detect_ports.sh --verbose` for detailed information
+- Run `./detect*ports.sh --verbose` for detailed information
 - Check USB cable connections and drivers
 - Verify device permissions and udev rules
-- Test with `./detect_ports.sh --test-connection`
+- Test with `./detect*ports.sh --test-connection`
 
 #### **4. Permission Issues**
 **Problem**: Scripts fail due to insufficient permissions
@@ -775,7 +782,7 @@ Scripts automatically validate:
 **Problem**: Setup scripts fail or don't work as expected
 **Symptoms**: Setup errors or missing dependencies
 **Solutions**:
-- **Local Development**: Use `./setup_repo.sh` for complete environment
+- **Local Development**: Use `./setup*repo.sh` for complete environment
 - **CI Environment**: ESP-IDF CI action handles setup directly
 - Check script permissions: `chmod +x scripts/*.sh`
 - Verify system requirements and dependencies
@@ -785,13 +792,13 @@ Scripts automatically validate:
 
 #### **Enabling Debug Output**
 ```bash
-# Enable debug mode for all scripts
+## Enable debug mode for all scripts
 export DEBUG=1
 
-# Enable verbose output for specific scripts
-./detect_ports.sh --verbose
-./flash_app.sh flash_monitor gpio_test Release --log
-```
+## Enable verbose output for specific scripts
+./detect*ports.sh --verbose
+./flash*app.sh flash*monitor gpio*test Release --log
+```text
 
 #### **Debug Information Available**
 - Configuration loading and validation details
@@ -806,14 +813,14 @@ export DEBUG=1
 #### **Script Help System**
 All scripts provide comprehensive help:
 ```bash
-# Get help for any script
-./build_app.sh --help
-./flash_app.sh --help
-./manage_logs.sh --help
-./detect_ports.sh --help
-./setup_repo.sh --help
-python3 ./get_app_info.py --help
-```
+## Get help for any script
+./build*app.sh --help
+./flash*app.sh --help
+./manage*logs.sh --help
+./detect*ports.sh --help
+./setup*repo.sh --help
+python3 ./get*app*info.py --help
+```text
 
 #### **Documentation Resources**
 - **Script Help**: Built-in help text with examples
@@ -861,12 +868,18 @@ When reporting issues, include:
 - **Last Updated**: January 2025
 
 ### **Environment Support Matrix**
+
 | Environment | Setup Script | ESP-IDF Management | Dependencies | Use Case |
+
 |-------------|--------------|-------------------|--------------|----------|
-| **Local Development** | `setup_repo.sh` | Auto-installation | Full toolchain | Developer setup |
+
+| **Local Development** | `setup*repo.sh` | Auto-installation | Full toolchain | Developer setup |
+
 | **CI/CD** | ESP-IDF CI action | Direct | No setup needed | Automated builds |
 
-**Note**: To add support for ESP-IDF v5.4 (Release builds) or v5.3, update the `examples/esp32/app_config.yml` file in the `metadata.idf_versions` and `metadata.default_build_types` sections.
+**Note**: To add support for ESP-IDF v5.4 (Release builds) or v5.3, update the
+`examples/esp32/app*config.yml` file in the `metadata.idf*versions` and
+`metadata.default*build*types` sections.
 
 ### **Backward Compatibility**
 - **Configuration Format**: Backward compatible with v2.0.x
@@ -893,4 +906,5 @@ When reporting issues, include:
 
 ---
 
-**Navigation**: [← Previous: Port Detection](README_PORT_DETECTION.md) | [Back to Scripts](../README.md) | [Next: Build System →](README_BUILD_SYSTEM.md)
+**Navigation**: [← Previous: Port Detection](README*PORT*DETECTION.md) | [Back to
+Scripts](../README.md) | [Next: Build System →](README_BUILD_SYSTEM.md)

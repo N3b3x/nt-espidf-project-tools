@@ -71,11 +71,17 @@ jobs:
           
           ## Overall Status
           
-          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && needs.docs.result == 'success' && needs.static-analysis.result == 'success' && needs.link-check.result == 'success') && '✅ All checks passed!' || '❌ Some checks failed. Please review the individual job outputs.' }}
+          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && 
+               needs.docs.result == 'success' && needs.static-analysis.result == 'success' && 
+               needs.link-check.result == 'success') && '✅ All checks passed!' || 
+               '❌ Some checks failed. Please review the individual job outputs.' }}
           
           ## Next Steps
           
-          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && needs.docs.result == 'success' && needs.static-analysis.result == 'success' && needs.link-check.result == 'success') && 'Ready for merge/deployment!' || 'Please fix the failing checks before proceeding.' }}
+          ${{ (needs.lint.result == 'success' && needs.security.result == 'success' && 
+               needs.docs.result == 'success' && needs.static-analysis.result == 'success' && 
+               needs.link-check.result == 'success') && 'Ready for merge/deployment!' || 
+               'Please fix the failing checks before proceeding.' }}
           
           EOF
           

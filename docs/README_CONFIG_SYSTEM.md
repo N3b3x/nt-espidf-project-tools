@@ -1,10 +1,12 @@
 # ESP32 HardFOC Interface Wrapper - Configuration System Guide
 
-This document provides comprehensive documentation for the ESP32 configuration system, including YAML configuration management, validation, and integration with all scripts.
+This document provides comprehensive documentation for the ESP32 configuration system, including
+YAML configuration management, validation, and integration with all scripts.
 
 ---
 
-**Navigation**: [← Previous: Flash System](README_FLASH_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Logging System →](README_LOGGING_SYSTEM.md)
+**Navigation**: [← Previous: Flash System](README*FLASH*SYSTEM.md) | [Back to Scripts](../README.md)
+| [Next: Logging System →](README*LOGGING*SYSTEM.md)
 
 ---
 
@@ -21,7 +23,10 @@ This document provides comprehensive documentation for the ESP32 configuration s
 
 ## 📋 **Overview**
 
-The ESP32 configuration system provides centralized, intelligent configuration management for all scripts in the HardFOC Interface Wrapper project. It features YAML-based configuration, automatic validation, intelligent fallbacks, and cross-platform compatibility.
+The ESP32 configuration system provides centralized,
+intelligent configuration management for all scripts in the HardFOC Interface Wrapper project.
+It features YAML-based configuration, automatic validation, intelligent fallbacks,
+and cross-platform compatibility.
 
 ### **Core Features**
 - **Centralized Configuration**: Single YAML file manages all script behavior
@@ -44,16 +49,16 @@ The ESP32 configuration system provides centralized, intelligent configuration m
 ## 🏗️ **Architecture and Design**
 
 ### **System Architecture**
-```
-app_config.yml → config_loader.sh → Script Functions → Environment Variables
+```yaml
+app*config.yml → config*loader.sh → Script Functions → Environment Variables
      ↓              ↓                    ↓                    ↓
 Configuration    Parsing &        Validation &      Script
 Definitions      Validation       Fallbacks         Execution
-```
+```text
 
 ### **Component Interaction**
-- **`app_config.yml`**: Centralized configuration source
-- **`config_loader.sh`**: Configuration parsing and validation engine
+- **`app*config.yml`**: Centralized configuration source
+- **`config*loader.sh`**: Configuration parsing and validation engine
 - **Script Functions**: Configuration access and validation functions
 - **Environment Variables**: Runtime configuration overrides
 
@@ -68,7 +73,8 @@ Definitions      Validation       Fallbacks         Execution
 
 ## 🛡️ **Enhanced Validation System**
 
-The configuration system now includes comprehensive validation to prevent invalid build combinations and provide clear guidance to users.
+The configuration system now includes comprehensive validation to prevent invalid build combinations
+and provide clear guidance to users.
 
 ### **Validation Features**
 
@@ -83,57 +89,57 @@ The configuration system provides several new validation functions:
 
 #### **Combination Validation**
 ```bash
-# Check if a build combination is valid
-is_valid_combination() {
-    local app_type="$1"
-    local build_type="$2"
-    local idf_version="$3"
+## Check if a build combination is valid
+is*valid*combination() {
+    local app*type="$1"
+    local build*type="$2"
+    local idf*version="$3"
     
     # Validate app type exists
-    if ! is_valid_app_type "$app_type"; then return 1; fi
+    if ! is*valid*app*type "$app*type"; then return 1; fi
     
     # Validate build type is supported
-    if ! is_valid_build_type "$build_type"; then return 1; fi
+    if ! is*valid*build*type "$build*type"; then return 1; fi
     
     # Check if app supports this IDF version
-    local app_idf_versions_array=$(get_app_idf_versions_array "$app_type")
-    if ! echo "$app_idf_versions_array" | grep -q "$idf_version"; then return 1; fi
+    local app*idf*versions*array=$(get*app*idf*versions*array "$app*type")
+    if ! echo "$app*idf*versions*array" | grep -q "$idf*version"; then return 1; fi
     
     # Check if app supports this build type for this IDF version
-    local app_build_types=$(get_build_types "$app_type")
-    local clean_build_types=$(echo "$app_build_types" | sed 's/\[//g' | sed 's/\]//g' | sed 's/"//g' | tr ',' ' ')
+    local app*build*types=$(get*build*types "$app*type")
+    local clean*build*types=$(echo "$app*build*types" | sed 's/\[//g' | sed 's/\]//g' | sed 's/"//g' | tr ',' ' ')
     
-    if [[ "$clean_build_types" == *"$build_type"* ]]; then return 0; fi
+    if [[ "$clean*build*types" == *"$build*type"* ]]; then return 0; fi
     
     return 1
 }
-```
+```text
 
 #### **Smart Default Selection**
 ```bash
-# Enhanced IDF version selection with comprehensive validation
-# Now handled by enhanced get_idf_version() and is_valid_combination()
+## Enhanced IDF version selection with comprehensive validation
+## Now handled by enhanced get*idf*version() and is*valid*combination()
 
-# Get app-specific IDF version with fallback
-idf_version=$(get_idf_version "gpio_test")
+## Get app-specific IDF version with fallback
+idf*version=$(get*idf*version "gpio*test")
 
-# Comprehensive combination validation
-if is_valid_combination "gpio_test" "Release" "release/v5.5"; then
+## Comprehensive combination validation
+if is*valid*combination "gpio*test" "Release" "release/v5.5"; then
     echo "Valid combination for CI pipeline"
 fi
 
-# Enhanced build type validation with app overrides
-if is_valid_build_type "Release" "gpio_test" "release/v5.5"; then
+## Enhanced build type validation with app overrides
+if is*valid*build*type "Release" "gpio*test" "release/v5.5"; then
     echo "Valid build type for app and IDF version"
 fi
-```
+```text
 
 ### **Validation Flow**
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           CONFIGURATION LOADING                             │
-│  app_config.yml → config_loader.sh → Validation Functions                   │
+│  app*config.yml → config*loader.sh → Validation Functions                   │
 └─────────────────────┬───────────────────────────────────────────────────────┘
                       │
                       ▼
@@ -165,167 +171,167 @@ fi
                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           VALIDATION RESULT                                 │
-│  ✅ VALID: gpio_test + Release + release/v5.5                               │
+│  ✅ VALID: gpio*test + Release + release/v5.5                               │
 │  → Proceed with build                                                       │
 │                                                                             │
-│  ❌ INVALID: gpio_test + Release + release/v5.4                             │
+│  ❌ INVALID: gpio*test + Release + release/v5.4                             │
 │  → Show error with valid combinations                                       │
 │  → Provide helpful next steps                                               │
 └─────────────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 ## ⚙️ **Configuration File Structure**
 
 ### **Configuration File Location**
 The configuration system reads from:
-```
-examples/esp32/app_config.yml
-```
+```text
+examples/esp32/app*config.yml
+```text
 
 ### **Configuration Schema**
 
 #### **Metadata Section**
 ```yaml
-# Global metadata and defaults
+## Global metadata and defaults
 metadata:
-  default_app: "ascii_art"            # Default application to build
-  default_build_type: "Release"       # Default build configuration
+  default*app: "ascii*art"            # Default application to build
+  default*build*type: "Release"       # Default build configuration
   target: "esp32c6"                   # Target MCU architecture
-  idf_versions: ["release/v5.5"]      # Supported ESP-IDF versions
+  idf*versions: ["release/v5.5"]      # Supported ESP-IDF versions
   description: "ESP32 HardFOC Interface Wrapper Configuration"
   version: "2.1.0"
-  last_updated: "2025-01-15"
-```
+  last*updated: "2025-01-15"
+```text
 
 #### **Applications Section**
 ```yaml
-# Application definitions and configurations
+## Application definitions and configurations
 apps:
-  ascii_art:
+  ascii*art:
     description: "ASCII art generator application"
-    source_file: "AsciiArtComprehensiveTest.cpp"
+    source*file: "AsciiArtComprehensiveTest.cpp"
     category: "utility"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: true
     dependencies: []
     tags: ["demo", "utility", "ascii"]
 
-  gpio_test:
+  gpio*test:
     description: "GPIO peripheral testing application"
-    source_file: "GpioComprehensiveTest.cpp"
+    source*file: "GpioComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: true
-    dependencies: ["gpio_driver"]
+    dependencies: ["gpio*driver"]
     tags: ["peripheral", "gpio", "testing"]
 
-  adc_test:
+  adc*test:
     description: "ADC peripheral testing application"
-    source_file: "AdcComprehensiveTest.cpp"
+    source*file: "AdcComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: false
-    dependencies: ["adc_driver", "gpio_driver"]
+    dependencies: ["adc*driver", "gpio*driver"]
     tags: ["peripheral", "adc", "analog"]
-```
+```text
 
 #### **Build Configuration Section**
 ```yaml
-# Build system configuration
-build_config:
-  build_types:
+## Build system configuration
+build*config:
+  build*types:
     Debug:
       description: "Debug build with symbols and verbose logging"
-      cmake_build_type: "Debug"
+      cmake*build*type: "Debug"
       optimization: "-O0"
-      debug_level: "-g3"
-      defines: ["DEBUG", "VERBOSE_LOGGING"]
+      debug*level: "-g3"
+      defines: ["DEBUG", "VERBOSE*LOGGING"]
       assertions: true
-      logging_level: "DEBUG"
-      stack_usage: true
+      logging*level: "DEBUG"
+      stack*usage: true
       
     Release:
       description: "Optimized build for production deployment"
-      cmake_build_type: "Release"
+      cmake*build*type: "Release"
       optimization: "-O2"
-      debug_level: "-g"
+      debug*level: "-g"
       defines: ["NDEBUG"]
       assertions: false
-      logging_level: "INFO"
-      stack_usage: false
+      logging*level: "INFO"
+      stack*usage: false
       
     RelWithDebInfo:
       description: "Release build with debug information"
-      cmake_build_type: "RelWithDebInfo"
+      cmake*build*type: "RelWithDebInfo"
       optimization: "-O2"
-      debug_level: "-g"
+      debug*level: "-g"
       defines: ["NDEBUG"]
       assertions: false
-      logging_level: "INFO"
-      stack_usage: false
+      logging*level: "INFO"
+      stack*usage: false
       
     MinSizeRel:
       description: "Release build optimized for size"
-      cmake_build_type: "MinSizeRel"
+      cmake*build*type: "MinSizeRel"
       optimization: "-Os"
-      debug_level: "-g"
-      defines: ["NDEBUG", "MINIMAL_LOGGING"]
+      debug*level: "-g"
+      defines: ["NDEBUG", "MINIMAL*LOGGING"]
       assertions: false
-      logging_level: "WARN"
-      stack_usage: false
+      logging*level: "WARN"
+      stack*usage: false
 
   # Build system patterns
-  build_directory_pattern: "build_{app_type}_{build_type}"
-  project_name_pattern: "esp32_project_{app_type}_app"
+  build*directory*pattern: "build*{app*type}*{build*type}"
+  project*name*pattern: "esp32*project*{app*type}*app"
   
   # Build optimization
-  ccache_enabled: true
-  parallel_builds: true
-  incremental_builds: true
+  ccache*enabled: true
+  parallel*builds: true
+  incremental*builds: true
   
   # Build validation
-  size_analysis: true
-  dependency_checking: true
-  warning_as_errors: false
-```
+  size*analysis: true
+  dependency*checking: true
+  warning*as*errors: false
+```text
 
 #### **Flash Configuration Section**
 ```yaml
-# Flash system configuration
-flash_config:
+## Flash system configuration
+flash*config:
   # Port detection
-  auto_detect_ports: true
-  port_scan_timeout: 5
-  port_test_timeout: 3
+  auto*detect*ports: true
+  port*scan*timeout: 5
+  port*test*timeout: 3
   
   # Flash parameters
-  flash_mode: "dio"
-  flash_freq: "80m"
-  flash_size: "4MB"
+  flash*mode: "dio"
+  flash*freq: "80m"
+  flash*size: "4MB"
   
   # Monitor settings
-  monitor_baud: 115200
-  monitor_data_bits: 8
-  monitor_parity: "none"
-  monitor_stop_bits: 1
+  monitor*baud: 115200
+  monitor*data*bits: 8
+  monitor*parity: "none"
+  monitor*stop*bits: 1
   
   # Logging
-  auto_logging: true
-  log_rotation: true
-  max_log_files: 50
-  log_retention_days: 30
-```
+  auto*logging: true
+  log*rotation: true
+  max*log*files: 50
+  log*retention*days: 30
+```text
 
 #### **System Configuration Section**
 ```yaml
-# System and environment configuration
-system_config:
+## System and environment configuration
+system*config:
   # Operating system support
   platforms:
     - "linux"
@@ -334,22 +340,22 @@ system_config:
   
   # Shell requirements
   shell: "bash"
-  min_bash_version: "4.0"
+  min*bash*version: "4.0"
   
   # Python requirements
-  python_version: "3.6+"
-  required_packages: ["PyYAML"]
+  python*version: "3.6+"
+  required*packages: ["PyYAML"]
   
   # Tool requirements
-  required_tools: ["git", "cmake", "ninja", "ccache"]
-  optional_tools: ["yq", "screen", "tmux"]
+  required*tools: ["git", "cmake", "ninja", "ccache"]
+  optional*tools: ["yq", "screen", "tmux"]
   
   # Cache configuration
-  cache_directories:
+  cache*directories:
     - "$HOME/.ccache"
     - "$HOME/.espressif"
     - "$HOME/.cache/pip"
-```
+```yaml
 
 ### **Configuration File Validation**
 
@@ -363,26 +369,26 @@ The configuration system validates:
 
 #### **Configuration Integrity Checks**
 ```yaml
-# Validation rules
+## Validation rules
 validation:
   # App validation
   apps:
-    - source_file must exist
-    - build_types must be valid
-    - idf_versions must be supported
+    - source*file must exist
+    - build*types must be valid
+    - idf*versions must be supported
     
   # Build type validation
-  build_types:
-    - cmake_build_type must be valid
+  build*types:
+    - cmake*build*type must be valid
     - optimization flags must be valid
     - defines must be strings
     
   # Metadata validation
   metadata:
-    - default_app must exist in apps
-    - default_build_type must be valid
+    - default*app must exist in apps
+    - default*build*type must be valid
     - target must be supported
-```
+```text
 
 ## 🔧 **Configuration Loading and Validation**
 
@@ -390,257 +396,257 @@ validation:
 
 #### **1. Primary Loading Method (yq)**
 ```bash
-# Check for yq availability
-check_yq() {
+## Check for yq availability
+check*yq() {
     if command -v yq &> /dev/null; then
         # Detect yq version and set syntax
-        local yq_version=$(yq --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
-        if [[ "$(echo "$yq_version" | cut -d. -f1)" -ge 4 ]]; then
-            export YQ_SYNTAX="eval"
+        local yq*version=$(yq --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
+        if [[ "$(echo "$yq*version" | cut -d. -f1)" -ge 4 ]]; then
+            export YQ*SYNTAX="eval"
         else
-            export YQ_SYNTAX="direct"
+            export YQ*SYNTAX="direct"
         fi
         return 0
     fi
     return 1
 }
 
-# Load configuration with yq
-load_config_yq() {
-    if ! check_yq; then
+## Load configuration with yq
+load*config*yq() {
+    if ! check*yq; then
         return 1
     fi
     
     # Export configuration as environment variables
-    export CONFIG_DEFAULT_APP=$(run_yq '.metadata.default_app' -r)
-    export CONFIG_DEFAULT_BUILD_TYPE=$(run_yq '.metadata.default_build_type' -r)
-    export CONFIG_TARGET=$(run_yq '.metadata.target' -r)
-    export CONFIG_DEFAULT_IDF_VERSION=$(run_yq '.metadata.idf_versions[0]' -r)
+    export CONFIG*DEFAULT*APP=$(run*yq '.metadata.default*app' -r)
+    export CONFIG*DEFAULT*BUILD*TYPE=$(run*yq '.metadata.default*build*type' -r)
+    export CONFIG*TARGET=$(run*yq '.metadata.target' -r)
+    export CONFIG*DEFAULT*IDF*VERSION=$(run*yq '.metadata.idf*versions[0]' -r)
     
     return 0
 }
-```
+```text
 
 #### **2. Fallback Loading Method (grep/sed)**
 ```bash
-# Fallback parsing without yq
-load_config_basic() {
+## Fallback parsing without yq
+load*config*basic() {
     # Extract basic configuration using grep and sed
-    export CONFIG_DEFAULT_APP=$(grep -A 10 "metadata:" "$CONFIG_FILE" | \
-        grep "default_app:" | sed 's/.*default_app: *"*\([^"]*\)"*.*/\1/')
+    export CONFIG*DEFAULT*APP=$(grep -A 10 "metadata:" "$CONFIG*FILE" | \
+        grep "default*app:" | sed 's/.*default*app: *"*\([^"]*\)"*.*/\1/')
     
-    export CONFIG_DEFAULT_BUILD_TYPE=$(grep -A 10 "metadata:" "$CONFIG_FILE" | \
-        grep "default_build_type:" | sed 's/.*default_build_type: *"*\([^"]*\)"*.*/\1/')
+    export CONFIG*DEFAULT*BUILD*TYPE=$(grep -A 10 "metadata:" "$CONFIG*FILE" | \
+        grep "default*build*type:" | sed 's/.*default*build*type: *"*\([^"]*\)"*.*/\1/')
     
-    export CONFIG_TARGET=$(grep -A 10 "metadata:" "$CONFIG_FILE" | \
+    export CONFIG*TARGET=$(grep -A 10 "metadata:" "$CONFIG*FILE" | \
         grep "target:" | sed 's/.*target: *"*\([^"]*\)"*.*/\1/')
     
-    export CONFIG_DEFAULT_IDF_VERSION=$(grep -A 10 "metadata:" "$CONFIG_FILE" | \
-        grep "idf_versions:" | sed 's/.*idf_versions: *\[*"*\([^"]*\)"*.*/\1/' | head -1)
+    export CONFIG*DEFAULT*IDF*VERSION=$(grep -A 10 "metadata:" "$CONFIG*FILE" | \
+        grep "idf*versions:" | sed 's/.*idf*versions: *\[*"*\([^"]*\)"*.*/\1/' | head -1)
 }
-```
+```text
 
 ### **Configuration Validation Functions**
 
 #### **Application Validation**
 ```bash
-# Validate application type
-validate_app_type() {
-    local app_type="$1"
-    if is_valid_app_type "$app_type"; then
+## Validate application type
+validate*app*type() {
+    local app*type="$1"
+    if is*valid*app*type "$app*type"; then
         return 0
     else
-        echo "ERROR: Invalid app type: $app_type" >&2
-        echo "Available types: $(get_app_types)" >&2
+        echo "ERROR: Invalid app type: $app*type" >&2
+        echo "Available types: $(get*app*types)" >&2
         return 1
     fi
 }
 
-# Check if app type is valid
-is_valid_app_type() {
-    local app_type="$1"
-    local app_types=$(get_app_types)
-    [[ " $app_types " =~ " $app_type " ]]
+## Check if app type is valid
+is*valid*app*type() {
+    local app*type="$1"
+    local app*types=$(get*app*types)
+    [[ " $app*types " =~ " $app*type " ]]
 }
 
-# Get all available app types
-get_app_types() {
-    if check_yq; then
-        run_yq '.apps | keys | .[]' -r | tr '\n' ' '
+## Get all available app types
+get*app*types() {
+    if check*yq; then
+        run*yq '.apps | keys | .[]' -r | tr '\n' ' '
     else
         # Fallback: extract from apps section
-        grep -A 20 "apps:" "$CONFIG_FILE" | \
-            grep -E "^  [a-zA-Z_][a-zA-Z0-9_]*:" | \
+        grep -A 20 "apps:" "$CONFIG*FILE" | \
+            grep -E "^  [a-zA-Z*][a-zA-Z0-9*]*:" | \
             sed 's/^  \([^:]*\):.*/\1/' | tr '\n' ' '
     fi
 }
-```
+```text
 
 #### **Build Type Validation**
 ```bash
-# Validate build type
-validate_build_type() {
-    local build_type="$1"
-    if is_valid_build_type "$build_type"; then
+## Validate build type
+validate*build*type() {
+    local build*type="$1"
+    if is*valid*build*type "$build*type"; then
         return 0
     else
-        echo "ERROR: Invalid build type: $build_type" >&2
-        echo "Available types: $(get_build_types)" >&2
+        echo "ERROR: Invalid build type: $build*type" >&2
+        echo "Available types: $(get*build*types)" >&2
         return 1
     fi
 }
 
-# Check if build type is valid
-is_valid_build_type() {
-    local build_type="$1"
-    local build_types=$(get_build_types)
-    [[ " $build_types " =~ " $build_type " ]]
+## Check if build type is valid
+is*valid*build*type() {
+    local build*type="$1"
+    local build*types=$(get*build*types)
+    [[ " $build*types " =~ " $build*type " ]]
 }
 
-# Get all available build types
-get_build_types() {
-    if check_yq; then
-        run_yq '.build_config.build_types | keys | .[]' -r | tr '\n' ' '
+## Get all available build types
+get*build*types() {
+    if check*yq; then
+        run*yq '.build*config.build*types | keys | .[]' -r | tr '\n' ' '
     else
-        # Fallback: extract from build_config section
-        grep -A 20 "build_config:" "$CONFIG_FILE" | \
-            grep -A 10 "build_types:" | \
+        # Fallback: extract from build*config section
+        grep -A 20 "build*config:" "$CONFIG*FILE" | \
+            grep -A 10 "build*types:" | \
             grep -E "^    [A-Za-z][A-Za-z0-9]*:" | \
             sed 's/^    \([^:]*\):.*/\1/' | tr '\n' ' '
     fi
 }
-```
+```text
 
 #### **ESP-IDF Version Validation**
 ```bash
-# Validate ESP-IDF version compatibility
-validate_app_idf_version() {
-    local app_type="$1"
-    local idf_version="$2"
+## Validate ESP-IDF version compatibility
+validate*app*idf*version() {
+    local app*type="$1"
+    local idf*version="$2"
     
-    if is_valid_app_idf_version "$app_type" "$idf_version"; then
+    if is*valid*app*idf*version "$app*type" "$idf*version"; then
         return 0
     else
-        echo "ERROR: App '$app_type' does not support ESP-IDF version '$idf_version'" >&2
-        echo "Supported versions for '$app_type': $(get_app_idf_versions "$app_type")" >&2
+        echo "ERROR: App '$app*type' does not support ESP-IDF version '$idf*version'" >&2
+        echo "Supported versions for '$app*type': $(get*app*idf*versions "$app*type")" >&2
         return 1
     fi
 }
 
-# Check if app supports ESP-IDF version
-is_valid_app_idf_version() {
-    local app_type="$1"
-    local idf_version="$2"
+## Check if app supports ESP-IDF version
+is*valid*app*idf*version() {
+    local app*type="$1"
+    local idf*version="$2"
     
     # Check app-specific versions first
-    local app_versions=$(get_app_idf_versions "$app_type")
-    if [[ -n "$app_versions" ]]; then
-        [[ " $app_versions " =~ " $idf_version " ]]
+    local app*versions=$(get*app*idf*versions "$app*type")
+    if [[ -n "$app*versions" ]]; then
+        [[ " $app*versions " =~ " $idf*version " ]]
         return $?
     fi
     
     # Fall back to global versions
-    local global_versions=$(get_idf_versions)
-    [[ " $global_versions " =~ " $idf_version " ]]
+    local global*versions=$(get*idf*versions)
+    [[ " $global*versions " =~ " $idf*version " ]]
 }
 
-# Get ESP-IDF versions supported by app
-get_app_idf_versions() {
-    local app_type="$1"
+## Get ESP-IDF versions supported by app
+get*app*idf*versions() {
+    local app*type="$1"
     
-    if check_yq; then
-        run_yq ".apps.$app_type.idf_versions[]" -r 2>/dev/null | tr '\n' ' '
+    if check*yq; then
+        run*yq ".apps.$app*type.idf*versions[]" -r 2>/dev/null | tr '\n' ' '
     else
         # Fallback: extract app-specific versions
-        grep -A 20 "apps:" "$CONFIG_FILE" | \
-            grep -A 10 "  $app_type:" | \
-            grep "idf_versions:" | \
-            sed 's/.*idf_versions: *\[*"*\([^"]*\)"*.*/\1/' | tr '\n' ' '
+        grep -A 20 "apps:" "$CONFIG*FILE" | \
+            grep -A 10 "  $app*type:" | \
+            grep "idf*versions:" | \
+            sed 's/.*idf*versions: *\[*"*\([^"]*\)"*.*/\1/' | tr '\n' ' '
     fi
 }
-```
+```text
 
 ### **Configuration Access Functions**
 
 #### **Application Information**
 ```bash
-# Get app description
-get_app_description() {
-    local app_type="$1"
+## Get app description
+get*app*description() {
+    local app*type="$1"
     
-    if check_yq; then
-        run_yq ".apps.$app_type.description" -r 2>/dev/null
+    if check*yq; then
+        run*yq ".apps.$app*type.description" -r 2>/dev/null
     else
         # Fallback: extract description
-        grep -A 20 "apps:" "$CONFIG_FILE" | \
-            grep -A 10 "  $app_type:" | \
+        grep -A 20 "apps:" "$CONFIG*FILE" | \
+            grep -A 10 "  $app*type:" | \
             grep "description:" | \
             sed 's/.*description: *"*\([^"]*\)"*.*/\1/'
     fi
 }
 
-# Get app source file
-get_app_source_file() {
-    local app_type="$1"
+## Get app source file
+get*app*source*file() {
+    local app*type="$1"
     
-    if check_yq; then
-        run_yq ".apps.$app_type.source_file" -r 2>/dev/null
+    if check*yq; then
+        run*yq ".apps.$app*type.source*file" -r 2>/dev/null
     else
         # Fallback: extract source file
-        grep -A 20 "apps:" "$CONFIG_FILE" | \
-            grep -A 10 "  $app_type:" | \
-            grep "source_file:" | \
-            sed 's/.*source_file: *"*\([^"]*\)"*.*/\1/'
+        grep -A 20 "apps:" "$CONFIG*FILE" | \
+            grep -A 10 "  $app*type:" | \
+            grep "source*file:" | \
+            sed 's/.*source*file: *"*\([^"]*\)"*.*/\1/'
     fi
 }
 
-# Get app category
-get_app_category() {
-    local app_type="$1"
+## Get app category
+get*app*category() {
+    local app*type="$1"
     
-    if check_yq; then
-        run_yq ".apps.$app_type.category" -r 2>/dev/null
+    if check*yq; then
+        run*yq ".apps.$app*type.category" -r 2>/dev/null
     else
         # Fallback: extract category
-        grep -A 20 "apps:" "$CONFIG_FILE" | \
-            grep -A 10 "  $app_type:" | \
+        grep -A 20 "apps:" "$CONFIG*FILE" | \
+            grep -A 10 "  $app*type:" | \
             grep "category:" | \
             sed 's/.*category: *"*\([^"]*\)"*.*/\1/'
     fi
 }
-```
+```text
 
 #### **Build Configuration**
 ```bash
-# Get build directory
-get_build_directory() {
-    local app_type="$1"
-    local build_type="$2"
+## Get build directory
+get*build*directory() {
+    local app*type="$1"
+    local build*type="$2"
     
-    local pattern=$(get_build_directory_pattern)
-    echo "$pattern" | sed "s/{app_type}/$app_type/g" | sed "s/{build_type}/$build_type/g"
+    local pattern=$(get*build*directory*pattern)
+    echo "$pattern" | sed "s/{app*type}/$app*type/g" | sed "s/{build*type}/$build*type/g"
 }
 
-# Get project name
-get_project_name() {
-    local app_type="$1"
+## Get project name
+get*project*name() {
+    local app*type="$1"
     
-    local pattern=$(get_project_name_pattern)
-    echo "$pattern" | sed "s/{app_type}/$app_type/g"
+    local pattern=$(get*project*name*pattern)
+    echo "$pattern" | sed "s/{app*type}/$app*type/g"
 }
 
-# Get build directory pattern
-get_build_directory_pattern() {
-    if check_yq; then
-        run_yq '.build_config.build_directory_pattern' -r 2>/dev/null || echo "build_{app_type}_{build_type}"
+## Get build directory pattern
+get*build*directory*pattern() {
+    if check*yq; then
+        run*yq '.build*config.build*directory*pattern' -r 2>/dev/null || echo "build*{app*type}*{build*type}"
     else
         # Fallback: extract pattern
-        grep -A 20 "build_config:" "$CONFIG_FILE" | \
-            grep "build_directory_pattern:" | \
-            sed 's/.*build_directory_pattern: *"*\([^"]*\)"*.*/\1/' || echo "build_{app_type}_{build_type}"
+        grep -A 20 "build*config:" "$CONFIG*FILE" | \
+            grep "build*directory*pattern:" | \
+            sed 's/.*build*directory*pattern: *"*\([^"]*\)"*.*/\1/' || echo "build*{app*type}*{build*type}"
     fi
 }
-```
+```text
 
 ## 🔄 **Environment Variable Overrides**
 
@@ -650,104 +656,105 @@ get_build_directory_pattern() {
 The configuration system uses a priority-based override system:
 
 ```bash
-# Priority order (highest to lowest)
+## Priority order (highest to lowest)
 1. Command line arguments
 2. Environment variables
 3. Configuration file defaults
 4. Hard-coded fallbacks
-```
+```text
 
 #### **Supported Environment Variables**
 ```bash
-# Project path configuration (for portable scripts)
-export PROJECT_PATH="/path/to/project"  # Override project directory location
+## Project path configuration (for portable scripts)
+export PROJECT*PATH="/path/to/project"  # Override project directory location
 
-# Application configuration overrides
-export CONFIG_DEFAULT_APP="gpio_test"
-export CONFIG_DEFAULT_BUILD_TYPE="Debug"
-export CONFIG_DEFAULT_IDF_VERSION="release/v5.4"
-export CONFIG_TARGET="esp32c6"
+## Application configuration overrides
+export CONFIG*DEFAULT*APP="gpio*test"
+export CONFIG*DEFAULT*BUILD*TYPE="Debug"
+export CONFIG*DEFAULT*IDF*VERSION="release/v5.4"
+export CONFIG*TARGET="esp32c6"
 
-# Build system overrides
+## Build system overrides
 export CLEAN=1                    # Force clean builds
-export USE_CCACHE=0               # Disable ccache
-export BUILD_VERBOSE=1            # Enable verbose build output
+export USE*CCACHE=0               # Disable ccache
+export BUILD*VERBOSE=1            # Enable verbose build output
 
-# Flash system overrides
+## Flash system overrides
 export ESPPORT="/dev/ttyUSB0"     # Override port detection
-export MONITOR_BAUD=230400        # Override monitor baud rate
-export FLASH_MODE="dio"           # Override flash mode
+export MONITOR*BAUD=230400        # Override monitor baud rate
+export FLASH*MODE="dio"           # Override flash mode
 
-# Debug and verbose overrides
+## Debug and verbose overrides
 export DEBUG=1                    # Enable debug mode
-export IDF_VERBOSE=1              # Enable ESP-IDF verbose output
-export CONFIG_VERBOSE=1           # Enable configuration verbose output
-```
+export IDF*VERBOSE=1              # Enable ESP-IDF verbose output
+export CONFIG*VERBOSE=1           # Enable configuration verbose output
+```text
 
 ### **Portable Configuration**
 
-The configuration system supports portable scripts through the `PROJECT_PATH` environment variable and `--project-path` command-line flag.
+The configuration system supports portable scripts through the `PROJECT*PATH` environment variable
+and `--project-path` command-line flag.
 
 #### **Project Path Resolution**
 ```bash
-# Priority order for project path resolution:
+## Priority order for project path resolution:
 1. --project-path command-line flag
-2. PROJECT_PATH environment variable  
+2. PROJECT*PATH environment variable  
 3. Default: ../ relative to script location
-```
+```text
 
 #### **Portable Usage Examples**
 ```bash
-# Using --project-path flag
-./build_app.sh --project-path /path/to/project gpio_test Release
-./flash_app.sh --project-path ../project flash_monitor adc_test
-./manage_idf.sh --project-path /opt/esp32-project list
+## Using --project-path flag
+./build*app.sh --project-path /path/to/project gpio*test Release
+./flash*app.sh --project-path ../project flash*monitor adc*test
+./manage*idf.sh --project-path /opt/esp32-project list
 
-# Using PROJECT_PATH environment variable
-export PROJECT_PATH=/path/to/project
-./build_app.sh gpio_test Release
-./flash_app.sh flash_monitor adc_test
+## Using PROJECT*PATH environment variable
+export PROJECT*PATH=/path/to/project
+./build*app.sh gpio*test Release
+./flash*app.sh flash*monitor adc*test
 
-# Python scripts
-python3 get_app_info.py list --project-path /path/to/project
-python3 generate_matrix.py --project-path /path/to/project
-```
+## Python scripts
+python3 get*app*info.py list --project-path /path/to/project
+python3 generate*matrix.py --project-path /path/to/project
+```yaml
 
 #### **Configuration File Discovery**
 When using portable scripts, the system automatically:
 1. Resolves the project directory path (absolute or relative)
-2. Looks for `app_config.yml` in the project directory
+2. Looks for `app*config.yml` in the project directory
 3. Validates that the configuration file exists
 4. Loads and parses the configuration
 
 #### **Error Handling**
 ```bash
-# Clear error messages for missing project or config
-ERROR: PROJECT_PATH specified but app_config.yml not found: /path/to/project/app_config.yml
-Please check the project path or unset PROJECT_PATH to use default location.
-```
+## Clear error messages for missing project or config
+ERROR: PROJECT*PATH specified but app*config.yml not found: /path/to/project/app*config.yml
+Please check the project path or unset PROJECT*PATH to use default location.
+```text
 
 ### **Dynamic Configuration Updates**
 
 #### **Runtime Configuration Changes**
 ```bash
-# Update configuration at runtime
-update_config() {
+## Update configuration at runtime
+update*config() {
     local key="$1"
     local value="$2"
     
     case "$key" in
-        "default_app")
-            export CONFIG_DEFAULT_APP="$value"
+        "default*app")
+            export CONFIG*DEFAULT*APP="$value"
             ;;
-        "default_build_type")
-            export CONFIG_DEFAULT_BUILD_TYPE="$value"
+        "default*build*type")
+            export CONFIG*DEFAULT*BUILD*TYPE="$value"
             ;;
-        "default_idf_version")
-            export CONFIG_DEFAULT_IDF_VERSION="$value"
+        "default*idf*version")
+            export CONFIG*DEFAULT*IDF*VERSION="$value"
             ;;
         "target")
-            export CONFIG_TARGET="$value"
+            export CONFIG*TARGET="$value"
             ;;
         *)
             echo "Unknown configuration key: $key" >&2
@@ -756,38 +763,38 @@ update_config() {
     esac
 }
 
-# Usage example
-update_config "default_app" "adc_test"
-update_config "default_build_type" "Debug"
-```
+## Usage example
+update*config "default*app" "adc*test"
+update*config "default*build*type" "Debug"
+```text
 
 #### **Configuration Validation at Runtime**
 ```bash
-# Validate current configuration
-validate_current_config() {
+## Validate current configuration
+validate*current*config() {
     local errors=0
     
     # Validate default app
-    if ! is_valid_app_type "$CONFIG_DEFAULT_APP"; then
-        echo "ERROR: Invalid default app: $CONFIG_DEFAULT_APP" >&2
+    if ! is*valid*app*type "$CONFIG*DEFAULT*APP"; then
+        echo "ERROR: Invalid default app: $CONFIG*DEFAULT*APP" >&2
         ((errors++))
     fi
     
     # Validate default build type
-    if ! is_valid_build_type "$CONFIG_DEFAULT_BUILD_TYPE"; then
-        echo "ERROR: Invalid default build type: $CONFIG_DEFAULT_BUILD_TYPE" >&2
+    if ! is*valid*build*type "$CONFIG*DEFAULT*BUILD*TYPE"; then
+        echo "ERROR: Invalid default build type: $CONFIG*DEFAULT*BUILD*TYPE" >&2
         ((errors++))
     fi
     
     # Validate ESP-IDF version
-    if ! is_valid_idf_version "$CONFIG_DEFAULT_IDF_VERSION"; then
-        echo "ERROR: Invalid ESP-IDF version: $CONFIG_DEFAULT_IDF_VERSION" >&2
+    if ! is*valid*idf*version "$CONFIG*DEFAULT*IDF*VERSION"; then
+        echo "ERROR: Invalid ESP-IDF version: $CONFIG*DEFAULT*IDF*VERSION" >&2
         ((errors++))
     fi
     
     return $errors
 }
-```
+```text
 
 ## 🚀 **Usage Examples and Patterns**
 
@@ -795,155 +802,155 @@ validate_current_config() {
 
 #### **1. Load and Validate Configuration**
 ```bash
-# Source configuration loader
-source ./scripts/config_loader.sh
+## Source configuration loader
+source ./scripts/config*loader.sh
 
-# Initialize configuration
-init_config
+## Initialize configuration
+init*config
 
-# Validate configuration
-if ! validate_current_config; then
+## Validate configuration
+if ! validate*current*config; then
     echo "Configuration validation failed"
     exit 1
 fi
 
-# Use configuration
-echo "Default app: $CONFIG_DEFAULT_APP"
-echo "Default build type: $CONFIG_DEFAULT_BUILD_TYPE"
-echo "Target: $CONFIG_TARGET"
-```
+## Use configuration
+echo "Default app: $CONFIG*DEFAULT*APP"
+echo "Default build type: $CONFIG*DEFAULT*BUILD*TYPE"
+echo "Target: $CONFIG*TARGET"
+```text
 
 #### **2. Application Configuration Access**
 ```bash
-# Get application information
-app_types=$(get_app_types)
-echo "Available apps: $app_types"
+## Get application information
+app*types=$(get*app*types)
+echo "Available apps: $app*types"
 
-# Get specific app details
-description=$(get_app_description "gpio_test")
-source_file=$(get_app_source_file "gpio_test")
-category=$(get_app_category "gpio_test")
+## Get specific app details
+description=$(get*app*description "gpio*test")
+source*file=$(get*app*source*file "gpio*test")
+category=$(get*app*category "gpio*test")
 
 echo "GPIO Test: $description"
-echo "Source: $source_file"
+echo "Source: $source*file"
 echo "Category: $category"
-```
+```text
 
 #### **3. Build Configuration Access**
 ```bash
-# Get build configuration
-build_types=$(get_build_types)
-echo "Available build types: $build_types"
+## Get build configuration
+build*types=$(get*build*types)
+echo "Available build types: $build*types"
 
-# Get build directory
-build_dir=$(get_build_directory "gpio_test" "Release")
-echo "Build directory: $build_dir"
+## Get build directory
+build*dir=$(get*build*directory "gpio*test" "Release")
+echo "Build directory: $build*dir"
 
-# Get project name
-project_name=$(get_project_name "gpio_test")
-echo "Project name: $project_name"
-```
+## Get project name
+project*name=$(get*project*name "gpio*test")
+echo "Project name: $project*name"
+```text
 
 ### **Advanced Configuration Patterns**
 
 #### **1. Configuration-Driven Scripts**
 ```bash
 #!/bin/bash
-# Example: Configuration-driven build script
+## Example: Configuration-driven build script
 
-source ./scripts/config_loader.sh
-init_config
+source ./scripts/config*loader.sh
+init*config
 
-# Validate parameters
-APP_TYPE=${1:-$CONFIG_DEFAULT_APP}
-BUILD_TYPE=${2:-$CONFIG_DEFAULT_BUILD_TYPE}
+## Validate parameters
+APP*TYPE=${1:-$CONFIG*DEFAULT*APP}
+BUILD*TYPE=${2:-$CONFIG*DEFAULT*BUILD*TYPE}
 
-# Validate configuration
-if ! validate_app_type "$APP_TYPE"; then
+## Validate configuration
+if ! validate*app*type "$APP*TYPE"; then
     exit 1
 fi
 
-if ! validate_build_type "$BUILD_TYPE"; then
+if ! validate*build*type "$BUILD*TYPE"; then
     exit 1
 fi
 
-# Get configuration
-SOURCE_FILE=$(get_app_source_file "$APP_TYPE")
-BUILD_DIR=$(get_build_directory "$APP_TYPE" "$BUILD_TYPE")
-PROJECT_NAME=$(get_project_name "$APP_TYPE")
+## Get configuration
+SOURCE*FILE=$(get*app*source*file "$APP*TYPE")
+BUILD*DIR=$(get*build*directory "$APP*TYPE" "$BUILD*TYPE")
+PROJECT*NAME=$(get*project*name "$APP*TYPE")
 
-echo "Building $APP_TYPE ($BUILD_TYPE)"
-echo "Source: $SOURCE_FILE"
-echo "Build dir: $BUILD_DIR"
-echo "Project: $PROJECT_NAME"
-```
+echo "Building $APP*TYPE ($BUILD*TYPE)"
+echo "Source: $SOURCE*FILE"
+echo "Build dir: $BUILD*DIR"
+echo "Project: $PROJECT*NAME"
+```text
 
 #### **2. Dynamic Configuration Updates**
 ```bash
 #!/bin/bash
-# Example: Dynamic configuration management
+## Example: Dynamic configuration management
 
-source ./scripts/config_loader.sh
-init_config
+source ./scripts/config*loader.sh
+init*config
 
-# Function to update configuration
-update_app_config() {
-    local app_type="$1"
+## Function to update configuration
+update*app*config() {
+    local app*type="$1"
     local key="$2"
     local value="$3"
     
     # Validate app type
-    if ! is_valid_app_type "$app_type"; then
-        echo "Invalid app type: $app_type" >&2
+    if ! is*valid*app*type "$app*type"; then
+        echo "Invalid app type: $app*type" >&2
         return 1
     fi
     
     # Update configuration (this would modify the YAML file)
-    echo "Updating $app_type.$key = $value"
+    echo "Updating $app*type.$key = $value"
     # Implementation would use yq or similar tool
 }
 
-# Usage
-update_app_config "gpio_test" "featured" "true"
-update_app_config "adc_test" "ci_enabled" "false"
-```
+## Usage
+update*app*config "gpio*test" "featured" "true"
+update*app*config "adc*test" "ci*enabled" "false"
+```text
 
 #### **3. Configuration Validation Scripts**
 ```bash
 #!/bin/bash
-# Example: Configuration validation script
+## Example: Configuration validation script
 
-source ./scripts/config_loader.sh
-init_config
+source ./scripts/config*loader.sh
+init*config
 
 echo "Validating configuration..."
 
-# Check all applications
+## Check all applications
 errors=0
-for app in $(get_app_types); do
+for app in $(get*app*types); do
     echo "Checking app: $app"
     
     # Validate source file exists
-    source_file=$(get_app_source_file "$app")
-    if [[ ! -f "$source_file" ]]; then
-        echo "ERROR: Source file not found: $source_file" >&2
+    source*file=$(get*app*source*file "$app")
+    if [[ ! -f "$source*file" ]]; then
+        echo "ERROR: Source file not found: $source*file" >&2
         ((errors++))
     fi
     
     # Validate build types
-    app_build_types=$(get_build_types "$app")
-    for build_type in $app_build_types; do
-        if ! is_valid_build_type "$build_type"; then
-            echo "ERROR: Invalid build type for $app: $build_type" >&2
+    app*build*types=$(get*build*types "$app")
+    for build*type in $app*build*types; do
+        if ! is*valid*build*type "$build*type"; then
+            echo "ERROR: Invalid build type for $app: $build*type" >&2
             ((errors++))
         fi
     done
     
     # Validate ESP-IDF versions
-    app_idf_versions=$(get_app_idf_versions "$app")
-    for idf_version in $app_idf_versions; do
-        if ! is_valid_idf_version "$idf_version"; then
-            echo "ERROR: Invalid ESP-IDF version for $app: $idf_version" >&2
+    app*idf*versions=$(get*app*idf*versions "$app")
+    for idf*version in $app*idf*versions; do
+        if ! is*valid*idf*version "$idf*version"; then
+            echo "ERROR: Invalid ESP-IDF version for $app: $idf*version" >&2
             ((errors++))
         fi
     done
@@ -956,45 +963,45 @@ else
     echo "Configuration validation failed with $errors errors"
     exit 1
 fi
-```
+```text
 
 ### **Integration Examples**
 
 #### **1. CMake Integration**
 ```cmake
-# CMakeLists.txt configuration integration
-cmake_minimum_required(VERSION 3.16)
+## CMakeLists.txt configuration integration
+cmake*minimum*required(VERSION 3.16)
 
-# Get app information from configuration
-execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_APP"
-    OUTPUT_VARIABLE DEFAULT_APP
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+## Get app information from configuration
+execute*process(
+    COMMAND bash -c "source ${CMAKE*SOURCE*DIR}/scripts/config*loader.sh && init*config && echo \$CONFIG*DEFAULT*APP"
+    OUTPUT*VARIABLE DEFAULT*APP
+    OUTPUT*STRIP*TRAILING*WHITESPACE
 )
 
-# Get build type from configuration
-execute_process(
-    COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/scripts/config_loader.sh && init_config && echo \$CONFIG_DEFAULT_BUILD_TYPE"
-    OUTPUT_VARIABLE DEFAULT_BUILD_TYPE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+## Get build type from configuration
+execute*process(
+    COMMAND bash -c "source ${CMAKE*SOURCE*DIR}/scripts/config*loader.sh && init*config && echo \$CONFIG*DEFAULT*BUILD*TYPE"
+    OUTPUT*VARIABLE DEFAULT*BUILD*TYPE
+    OUTPUT*STRIP*TRAILING*WHITESPACE
 )
 
-# Use configuration values
-project(esp32_${DEFAULT_APP}_app)
+## Use configuration values
+project(esp32*${DEFAULT*APP}*app)
 
-# Set build type
-set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
-```
+## Set build type
+set(CMAKE*BUILD*TYPE ${DEFAULT*BUILD*TYPE})
+```text
 
 #### **2. CI/CD Integration**
 ```yaml
-# GitHub Actions configuration integration
+## GitHub Actions configuration integration
 - name: Validate Configuration
   run: |
     cd examples/esp32
-    source ./scripts/config_loader.sh
-    init_config
-    if ! validate_current_config; then
+    source ./scripts/config*loader.sh
+    init*config
+    if ! validate*current*config; then
       echo "Configuration validation failed"
       exit 1
     fi
@@ -1002,188 +1009,188 @@ set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
 - name: Build All CI Apps
   run: |
     cd examples/esp32
-    source ./scripts/config_loader.sh
-    init_config
+    source ./scripts/config*loader.sh
+    init*config
     
     # Get CI-enabled apps
-    for app in $(get_app_types); do
-      if is_ci_enabled "$app"; then
+    for app in $(get*app*types); do
+      if is*ci*enabled "$app"; then
         echo "Building $app"
-        ./scripts/build_app.sh "$app" Release
+        ./scripts/build*app.sh "$app" Release
       fi
     done
-```
+```yaml
 
 ## 🔍 **Troubleshooting and Debugging**
 
 ### **Common Configuration Issues**
 
 #### **1. Configuration File Not Found**
-**Problem**: Scripts cannot find `app_config.yml`
-**Symptoms**: "Configuration file not found" or "app_config.yml not found" errors
+**Problem**: Scripts cannot find `app*config.yml`
+**Symptoms**: "Configuration file not found" or "app*config.yml not found" errors
 **Solutions**:
 ```bash
-# Check file existence
-ls -la app_config.yml
+## Check file existence
+ls -la app*config.yml
 
-# Check file permissions
-ls -la app_config.yml
+## Check file permissions
+ls -la app*config.yml
 
-# Verify working directory
+## Verify working directory
 pwd
 ls -la
 
-# Check file path
-find . -name "app_config.yml"
-```
+## Check file path
+find . -name "app*config.yml"
+```yaml
 
 #### **2. YAML Syntax Errors**
 **Problem**: Invalid YAML syntax in configuration file
 **Symptoms**: "YAML parse error" or "Invalid YAML" errors
 **Solutions**:
 ```bash
-# Validate YAML syntax with yq
-yq eval app_config.yml
+## Validate YAML syntax with yq
+yq eval app*config.yml
 
-# Check for common syntax issues
-grep -n ":" app_config.yml | grep -v "^\s*#"
+## Check for common syntax issues
+grep -n ":" app*config.yml | grep -v "^\s*#"
 
-# Use online YAML validator
-# https://www.yamllint.com/
-```
+## Use online YAML validator
+## https://www.yamllint.com/
+```text
 
 #### **3. Configuration Validation Failures**
 **Problem**: Configuration validation fails
 **Symptoms**: "Configuration validation failed" or "Invalid configuration" errors
 **Solutions**:
 ```bash
-# Enable verbose configuration output
-export CONFIG_VERBOSE=1
+## Enable verbose configuration output
+export CONFIG*VERBOSE=1
 
-# Check configuration manually
-source ./scripts/config_loader.sh
-init_config
-echo "Default app: $CONFIG_DEFAULT_APP"
-echo "Default build type: $CONFIG_DEFAULT_BUILD_TYPE"
+## Check configuration manually
+source ./scripts/config*loader.sh
+init*config
+echo "Default app: $CONFIG*DEFAULT*APP"
+echo "Default build type: $CONFIG*DEFAULT*BUILD*TYPE"
 
-# Validate specific sections
-validate_app_type "gpio_test"
-validate_build_type "Release"
-```
+## Validate specific sections
+validate*app*type "gpio*test"
+validate*build*type "Release"
+```text
 
 #### **4. Environment Variable Conflicts**
 **Problem**: Environment variables override configuration incorrectly
 **Symptoms**: Unexpected behavior or wrong defaults
 **Solutions**:
 ```bash
-# Check environment variables
-env | grep CONFIG_
+## Check environment variables
+env | grep CONFIG*
 env | grep ESP
 
-# Clear conflicting variables
-unset CONFIG_DEFAULT_APP
-unset CONFIG_DEFAULT_BUILD_TYPE
+## Clear conflicting variables
+unset CONFIG*DEFAULT*APP
+unset CONFIG*DEFAULT*BUILD*TYPE
 
-# Reload configuration
-source ./scripts/config_loader.sh
-init_config
-```
+## Reload configuration
+source ./scripts/config*loader.sh
+init*config
+```text
 
 ### **Debug and Verbose Mode**
 
 #### **Enabling Configuration Debug Output**
 ```bash
-# Enable configuration debug mode
-export CONFIG_DEBUG=1
-export CONFIG_VERBOSE=1
+## Enable configuration debug mode
+export CONFIG*DEBUG=1
+export CONFIG*VERBOSE=1
 
-# Source configuration loader
-source ./scripts/config_loader.sh
-init_config
+## Source configuration loader
+source ./scripts/config*loader.sh
+init*config
 
-# Debug information available
+## Debug information available
 - Configuration file loading details
 - YAML parsing results
 - Validation process information
 - Environment variable overrides
 - Fallback mechanism details
-```
+```text
 
 #### **Configuration Debugging Functions**
 ```bash
-# Debug configuration loading
-debug_config_loading() {
+## Debug configuration loading
+debug*config*loading() {
     echo "=== Configuration Loading Debug ==="
-    echo "Config file: $CONFIG_FILE"
-    echo "YQ available: $(check_yq && echo "Yes" || echo "No")"
-    echo "YQ syntax: $YQ_SYNTAX"
-    echo "Config file exists: $([ -f "$CONFIG_FILE" ] && echo "Yes" || echo "No")"
-    echo "Config file readable: $([ -r "$CONFIG_FILE" ] && echo "Yes" || echo "No")"
+    echo "Config file: $CONFIG*FILE"
+    echo "YQ available: $(check*yq && echo "Yes" || echo "No")"
+    echo "YQ syntax: $YQ*SYNTAX"
+    echo "Config file exists: $([ -f "$CONFIG*FILE" ] && echo "Yes" || echo "No")"
+    echo "Config file readable: $([ -r "$CONFIG*FILE" ] && echo "Yes" || echo "No")"
 }
 
-# Debug current configuration
-debug_current_config() {
+## Debug current configuration
+debug*current*config() {
     echo "=== Current Configuration Debug ==="
-    echo "Default app: $CONFIG_DEFAULT_APP"
-    echo "Default build type: $CONFIG_DEFAULT_BUILD_TYPE"
-    echo "Target: $CONFIG_TARGET"
-    echo "Default IDF version: $CONFIG_DEFAULT_IDF_VERSION"
-    echo "Available apps: $(get_app_types)"
-    echo "Available build types: $(get_build_types)"
+    echo "Default app: $CONFIG*DEFAULT*APP"
+    echo "Default build type: $CONFIG*DEFAULT*BUILD*TYPE"
+    echo "Target: $CONFIG*TARGET"
+    echo "Default IDF version: $CONFIG*DEFAULT*IDF*VERSION"
+    echo "Available apps: $(get*app*types)"
+    echo "Available build types: $(get*build*types)"
 }
-```
+```text
 
 ### **Configuration Testing**
 
 #### **Configuration Test Scripts**
 ```bash
 #!/bin/bash
-# Example: Configuration testing script
+## Example: Configuration testing script
 
-source ./scripts/config_loader.sh
+source ./scripts/config*loader.sh
 
 echo "Testing configuration system..."
 
-# Test 1: Basic loading
+## Test 1: Basic loading
 echo "Test 1: Basic configuration loading"
-if init_config; then
+if init*config; then
     echo "✓ Configuration loaded successfully"
 else
     echo "✗ Configuration loading failed"
     exit 1
 fi
 
-# Test 2: Validation
+## Test 2: Validation
 echo "Test 2: Configuration validation"
-if validate_current_config; then
+if validate*current*config; then
     echo "✓ Configuration validation passed"
 else
     echo "✗ Configuration validation failed"
     exit 1
 fi
 
-# Test 3: App access
+## Test 3: App access
 echo "Test 3: Application access"
-app_types=$(get_app_types)
-if [[ -n "$app_types" ]]; then
-    echo "✓ Available apps: $app_types"
+app*types=$(get*app*types)
+if [[ -n "$app*types" ]]; then
+    echo "✓ Available apps: $app*types"
 else
     echo "✗ No apps found"
     exit 1
 fi
 
-# Test 4: Build type access
+## Test 4: Build type access
 echo "Test 4: Build type access"
-build_types=$(get_build_types)
-if [[ -n "$build_types" ]]; then
-    echo "✓ Available build types: $build_types"
+build*types=$(get*build*types)
+if [[ -n "$build*types" ]]; then
+    echo "✓ Available build types: $build*types"
 else
     echo "✗ No build types found"
     exit 1
 fi
 
 echo "All configuration tests passed!"
-```
+```text
 
 ## 📚 **Reference and Examples**
 
@@ -1191,222 +1198,222 @@ echo "All configuration tests passed!"
 
 #### **Core Functions**
 ```bash
-# Configuration initialization
-init_config                    # Initialize configuration system
-load_config_yq                 # Load configuration using yq
-load_config_basic              # Load configuration using fallback method
+## Configuration initialization
+init*config                    # Initialize configuration system
+load*config*yq                 # Load configuration using yq
+load*config*basic              # Load configuration using fallback method
 
-# Configuration validation
-validate_current_config        # Validate current configuration
-validate_app_type             # Validate application type
-validate_build_type           # Validate build type
+## Configuration validation
+validate*current*config        # Validate current configuration
+validate*app*type             # Validate application type
+validate*build*type           # Validate build type
 
-# Configuration access
-get_app_types                 # Get all available application types
-get_app_description           # Get application description
-get_app_source_file           # Get application source file
-get_app_category              # Get application category
-get_build_types               # Get all available build types
-get_idf_versions              # Get supported ESP-IDF versions
-get_app_idf_versions          # Get ESP-IDF versions for specific app
-get_build_types               # Get build types (with app override support)
+## Configuration access
+get*app*types                 # Get all available application types
+get*app*description           # Get application description
+get*app*source*file           # Get application source file
+get*app*category              # Get application category
+get*build*types               # Get all available build types
+get*idf*versions              # Get supported ESP-IDF versions
+get*app*idf*versions          # Get ESP-IDF versions for specific app
+get*build*types               # Get build types (with app override support)
 
-# Configuration utilities
-get_build_directory           # Get build directory path
-get_project_name              # Get project name
-get_build_directory_pattern   # Get build directory pattern
-get_project_name_pattern      # Get project name pattern
-```
+## Configuration utilities
+get*build*directory           # Get build directory path
+get*project*name              # Get project name
+get*build*directory*pattern   # Get build directory pattern
+get*project*name*pattern      # Get project name pattern
+```text
 
 #### **Helper Functions**
 ```bash
-# YAML processing
-check_yq                      # Check if yq is available
-run_yq                        # Execute yq with appropriate syntax
-detect_yq_version             # Detect yq version and set syntax
+## YAML processing
+check*yq                      # Check if yq is available
+run*yq                        # Execute yq with appropriate syntax
+detect*yq*version             # Detect yq version and set syntax
 
-# Validation helpers
-is_valid_app_type             # Check if app type is valid
-is_valid_build_type           # Check if build type is valid
-is_valid_idf_version          # Check if ESP-IDF version is valid
-is_valid_combination           # Check if app + build type + IDF version combination is valid
+## Validation helpers
+is*valid*app*type             # Check if app type is valid
+is*valid*build*type           # Check if build type is valid
+is*valid*idf*version          # Check if ESP-IDF version is valid
+is*valid*combination           # Check if app + build type + IDF version combination is valid
 
-# Configuration utilities
-get_featured_app_types        # Get featured application types
-is_ci_enabled                # Check if app is CI-enabled
-is_featured                  # Check if app is featured
-```
+## Configuration utilities
+get*featured*app*types        # Get featured application types
+is*ci*enabled                # Check if app is CI-enabled
+is*featured                  # Check if app is featured
+```text
 
 ### **Configuration Examples**
 
 #### **Minimal Configuration**
 ```yaml
-# Minimal app_config.yml
+## Minimal app*config.yml
 metadata:
-  default_app: "gpio_test"
-  default_build_type: "Release"
+  default*app: "gpio*test"
+  default*build*type: "Release"
   target: "esp32c6"
 
 apps:
-  gpio_test:
-    source_file: "GpioComprehensiveTest.cpp"
-    build_types: ["Debug", "Release"]
-```
+  gpio*test:
+    source*file: "GpioComprehensiveTest.cpp"
+    build*types: ["Debug", "Release"]
+```text
 
 #### **Standard Configuration**
 ```yaml
-# Standard app_config.yml
+## Standard app*config.yml
 metadata:
-  default_app: "gpio_test"
-  default_build_type: "Release"
+  default*app: "gpio*test"
+  default*build*type: "Release"
   target: "esp32c6"
-  idf_versions: ["release/v5.5"]
+  idf*versions: ["release/v5.5"]
   description: "ESP32 HardFOC Interface Wrapper"
   version: "2.1.0"
 
 apps:
-  gpio_test:
+  gpio*test:
     description: "GPIO testing application"
-    source_file: "GpioComprehensiveTest.cpp"
+    source*file: "GpioComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: true
 
-build_config:
-  build_types:
+build*config:
+  build*types:
     Debug:
-      cmake_build_type: "Debug"
+      cmake*build*type: "Debug"
       optimization: "-O0"
-      debug_level: "-g3"
+      debug*level: "-g3"
     Release:
-      cmake_build_type: "Release"
+      cmake*build*type: "Release"
       optimization: "-O2"
-      debug_level: "-g"
-```
+      debug*level: "-g"
+```text
 
 #### **Advanced Configuration**
 ```yaml
-# Advanced app_config.yml with all features
+## Advanced app*config.yml with all features
 metadata:
-  default_app: "gpio_test"
-  default_build_type: "Release"
+  default*app: "gpio*test"
+  default*build*type: "Release"
   target: "esp32c6"
-  idf_versions: ["release/v5.5", "release/v5.4"]
+  idf*versions: ["release/v5.5", "release/v5.4"]
   description: "ESP32 HardFOC Interface Wrapper - Advanced Configuration"
   version: "2.1.0"
-  last_updated: "2025-01-15"
+  last*updated: "2025-01-15"
   maintainer: "HardFOC Team"
   repository: "https://github.com/example/hf-internal-interface-wrap"
 
 apps:
-  gpio_test:
+  gpio*test:
     description: "Comprehensive GPIO testing and validation application"
-    source_file: "GpioComprehensiveTest.cpp"
+    source*file: "GpioComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release", "RelWithDebInfo"]
-    idf_versions: ["release/v5.5", "release/v5.4"]
-    ci_enabled: true
+    build*types: ["Debug", "Release", "RelWithDebInfo"]
+    idf*versions: ["release/v5.5", "release/v5.4"]
+    ci*enabled: true
     featured: true
-    dependencies: ["gpio_driver", "common_utils"]
+    dependencies: ["gpio*driver", "common*utils"]
     tags: ["peripheral", "gpio", "testing", "validation"]
-    test_timeout: 300
-    memory_requirements: "2MB"
+    test*timeout: 300
+    memory*requirements: "2MB"
     
-  adc_test:
+  adc*test:
     description: "ADC peripheral testing and calibration application"
-    source_file: "AdcComprehensiveTest.cpp"
+    source*file: "AdcComprehensiveTest.cpp"
     category: "peripheral"
-    build_types: ["Debug", "Release"]
-    idf_versions: ["release/v5.5"]
-    ci_enabled: true
+    build*types: ["Debug", "Release"]
+    idf*versions: ["release/v5.5"]
+    ci*enabled: true
     featured: false
-    dependencies: ["adc_driver", "gpio_driver", "calibration"]
+    dependencies: ["adc*driver", "gpio*driver", "calibration"]
     tags: ["peripheral", "adc", "analog", "calibration"]
-    test_timeout: 600
-    memory_requirements: "3MB"
+    test*timeout: 600
+    memory*requirements: "3MB"
 
-build_config:
-  build_types:
+build*config:
+  build*types:
     Debug:
       description: "Debug build with maximum debugging information"
-      cmake_build_type: "Debug"
+      cmake*build*type: "Debug"
       optimization: "-O0"
-      debug_level: "-g3"
-      defines: ["DEBUG", "VERBOSE_LOGGING", "ASSERTIONS_ENABLED"]
+      debug*level: "-g3"
+      defines: ["DEBUG", "VERBOSE*LOGGING", "ASSERTIONS*ENABLED"]
       assertions: true
-      logging_level: "DEBUG"
-      stack_usage: true
+      logging*level: "DEBUG"
+      stack*usage: true
       sanitizers: ["address", "undefined"]
       
     Release:
       description: "Production-ready optimized build"
-      cmake_build_type: "Release"
+      cmake*build*type: "Release"
       optimization: "-O2"
-      debug_level: "-g"
-      defines: ["NDEBUG", "PRODUCTION_BUILD"]
+      debug*level: "-g"
+      defines: ["NDEBUG", "PRODUCTION*BUILD"]
       assertions: false
-      logging_level: "INFO"
-      stack_usage: false
+      logging*level: "INFO"
+      stack*usage: false
       sanitizers: []
       
     RelWithDebInfo:
       description: "Release build with debug information for profiling"
-      cmake_build_type: "RelWithDebInfo"
+      cmake*build*type: "RelWithDebInfo"
       optimization: "-O2"
-      debug_level: "-g"
-      defines: ["NDEBUG", "PROFILING_ENABLED"]
+      debug*level: "-g"
+      defines: ["NDEBUG", "PROFILING*ENABLED"]
       assertions: false
-      logging_level: "INFO"
-      stack_usage: false
+      logging*level: "INFO"
+      stack*usage: false
       sanitizers: []
 
-  build_directory_pattern: "build_{app_type}_{build_type}_{idf_version}"
-  project_name_pattern: "esp32_{app_type}_app"
+  build*directory*pattern: "build*{app*type}*{build*type}*{idf*version}"
+  project*name*pattern: "esp32*{app*type}*app"
   
-  ccache_enabled: true
-  parallel_builds: true
-  incremental_builds: true
-  size_analysis: true
-  dependency_checking: true
-  warning_as_errors: false
+  ccache*enabled: true
+  parallel*builds: true
+  incremental*builds: true
+  size*analysis: true
+  dependency*checking: true
+  warning*as*errors: false
 
-flash_config:
-  auto_detect_ports: true
-  port_scan_timeout: 5
-  port_test_timeout: 3
-  flash_mode: "dio"
-  flash_freq: "80m"
-  flash_size: "4MB"
-  monitor_baud: 115200
-  auto_logging: true
-  log_rotation: true
-  max_log_files: 50
-  log_retention_days: 30
+flash*config:
+  auto*detect*ports: true
+  port*scan*timeout: 5
+  port*test*timeout: 3
+  flash*mode: "dio"
+  flash*freq: "80m"
+  flash*size: "4MB"
+  monitor*baud: 115200
+  auto*logging: true
+  log*rotation: true
+  max*log*files: 50
+  log*retention*days: 30
 
-system_config:
+system*config:
   platforms: ["linux", "macos"]
   shell: "bash"
-  min_bash_version: "4.0"
-  python_version: "3.6+"
-  required_packages: ["PyYAML"]
-  required_tools: ["git", "cmake", "ninja", "ccache"]
-  optional_tools: ["yq", "screen", "tmux"]
-  cache_directories: ["$HOME/.ccache", "$HOME/.espressif", "$HOME/.cache/pip"]
-```
+  min*bash*version: "4.0"
+  python*version: "3.6+"
+  required*packages: ["PyYAML"]
+  required*tools: ["git", "cmake", "ninja", "ccache"]
+  optional*tools: ["yq", "screen", "tmux"]
+  cache*directories: ["$HOME/.ccache", "$HOME/.espressif", "$HOME/.cache/pip"]
+```text
 
 ## 🚀 **Enhanced Functionality**
 
 #### **App-Specific Overrides**
-- **Smart Build Type Handling**: `get_build_types(app_type)` now checks app-specific overrides first
+- **Smart Build Type Handling**: `get*build*types(app*type)` now checks app-specific overrides first
 - **Version-Aware Validation**: Functions now understand the relationship between IDF versions and build types
 - **Intelligent Fallbacks**: When app overrides aren't specified, functions fall back to metadata defaults
 
 #### **🆕 Enhanced Validation Functions**
-- **`is_valid_build_type(build_type, app_type, idf_version)`**: Comprehensive validation with app and version context
-- **`is_valid_combination(app_type, build_type, idf_version)`**: Single function for complete combination validation
-- **`get_app_build_types_for_idf_version(app_type, idf_version)`**: Get build types for specific app-IDF combinations
+- **`is*valid*build*type(build*type, app*type, idf*version)`**: Comprehensive validation with app and version context
+- **`is*valid*combination(app*type, build*type, idf*version)`**: Single function for complete combination validation
+- **`get*app*build*types*for*idf*version(app*type, idf*version)`**: Get build types for specific app-IDF combinations
 
 #### **CI Pipeline Optimization**
 - **Robust Combination Validation**: Prevents invalid app + build type + IDF version combinations
@@ -1417,57 +1424,57 @@ system_config:
 
 #### **Smart Build Type Retrieval**
 ```bash
-# Before: Only global build types
-build_types=$(get_build_types)  # Returns: Debug Release
+## Before: Only global build types
+build*types=$(get*build*types)  # Returns: Debug Release
 
-# After: App-specific with fallback
-build_types=$(get_build_types)                    # Global: Debug Release
-app_build_types=$(get_build_types "gpio_test")   # App-specific: Debug Release
-```
+## After: App-specific with fallback
+build*types=$(get*build*types)                    # Global: Debug Release
+app*build*types=$(get*build*types "gpio*test")   # App-specific: Debug Release
+```text
 
 #### **Comprehensive Validation**
 ```bash
-# Before: Separate validation functions
-validate_app_type "gpio_test"
-validate_build_type "Release"
-validate_app_idf_version "gpio_test" "release/v5.5"
+## Before: Separate validation functions
+validate*app*type "gpio*test"
+validate*build*type "Release"
+validate*app*idf*version "gpio*test" "release/v5.5"
 
-# After: Single comprehensive validation
-if is_valid_combination "gpio_test" "Release" "release/v5.5"; then
+## After: Single comprehensive validation
+if is*valid*combination "gpio*test" "Release" "release/v5.5"; then
     echo "Valid combination for CI pipeline"
 fi
-```
+```text
 
 #### **Version-Aware Build Type Validation**
 ```bash
-# Enhanced validation with context
-if is_valid_build_type "Release" "gpio_test" "release/v5.5"; then
+## Enhanced validation with context
+if is*valid*build*type "Release" "gpio*test" "release/v5.5"; then
     echo "Valid build type for app and IDF version"
 fi
 
-# Get version-specific build types
-version_build_types=$(get_build_types_for_idf_version "release/v5.5")
-echo "Build types for v5.5: $version_build_types"
-```
+## Get version-specific build types
+version*build*types=$(get*build*types*for*idf*version "release/v5.5")
+echo "Build types for v5.5: $version*build*types"
+```text
 
 ### **Migration Guide**
 
 #### **Functions Removed in Version 2.0**
-- `get_app_build_types()` → Use `get_build_types(app_type)` instead
-- `validate_app_build_type()` → Use `is_valid_build_type(build_type, app_type)` instead
-- `validate_app_idf_version()` → Use `is_valid_combination(app_type, build_type, idf_version)` instead
-- `get_idf_version_smart()` → Use `get_idf_version(app_type)` + `is_valid_combination()` instead
+- `get*app*build*types()` → Use `get*build*types(app*type)` instead
+- `validate*app*build*type()` → Use `is*valid*build*type(build*type, app*type)` instead
+- `validate*app*idf*version()` → Use `is*valid*combination(app*type, build*type, idf*version)` instead
+- `get*idf*version*smart()` → Use `get*idf*version(app*type)` + `is*valid*combination()` instead
 
 #### **Updated Function Signatures**
 ```bash
-# Before
-get_build_types()                    # Only global
-is_valid_build_type(build_type)      # Basic validation
+## Before
+get*build*types()                    # Only global
+is*valid*build*type(build*type)      # Basic validation
 
-# After
-get_build_types([app_type])          # Global or app-specific
-is_valid_build_type(build_type, [app_type], [idf_version])  # Comprehensive validation
-```
+## After
+get*build*types([app*type])          # Global or app-specific
+is*valid*build*type(build*type, [app*type], [idf*version])  # Comprehensive validation
+```text
 
 ---
 
@@ -1499,4 +1506,5 @@ is_valid_build_type(build_type, [app_type], [idf_version])  # Comprehensive vali
 
 ---
 
-**Navigation**: [← Previous: Flash System](README_FLASH_SYSTEM.md) | [Back to Scripts](../README.md) | [Next: Logging System →](README_LOGGING_SYSTEM.md)
+**Navigation**: [← Previous: Flash System](README*FLASH*SYSTEM.md) | [Back to Scripts](../README.md)
+| [Next: Logging System →](README*LOGGING*SYSTEM.md)
